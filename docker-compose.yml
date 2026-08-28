@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # MySQL Database Service
+  db:
+    image: mysql:8.0
+    container_name: edusync-mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: edusync_db
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: edusync_user
+      MYSQL_PASSWORD: edusync_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./src/main/resources/schema-seed.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 5
+
+  # EduSync Spring Boot Web Application
+  webapp:
+    build: .
+    container_name: edusync-backend
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: 8081
+      DB_URL: jdbc:mysql://db:3306/edusync_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Asia/Kolkata&allowPublicKeyRetrieval=true
+      DB_USERNAME: root
+      DB_PASSWORD: rootpassword
+      JWT_SECRET: EduSync_TKMIT_Production_SecretKey_2025_SuperSecureKey
+    ports:
+      - "8081:8081"
+    volumes:
+      - edusync_uploads:/app/uploads
+
+volumes:
+  mysql_data:
+  edusync_uploads:

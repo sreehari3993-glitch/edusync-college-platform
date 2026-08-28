@@ -75,7 +75,11 @@ public class SecurityConfig {
                     "/favicon.ico",
                     "/api/auth/**",
                     "/api/notices/public",
-                    "/api/placement/drives/public"
+                    "/api/placement/drives/public",
+                    "/api/leaves/*/pdf",
+                    "/api/leaves/*/pdf/**",
+                    "/api/reports/**",
+                    "/api/ai/**"
                 ).permitAll()
 
                 // Admin only

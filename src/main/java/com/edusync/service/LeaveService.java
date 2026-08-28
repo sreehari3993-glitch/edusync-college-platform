@@ -25,6 +25,7 @@ public class LeaveService {
     private final LeaveRequestRepository leaveRepo;
     private final UserRepository userRepo;
     private final AuditService auditService;
+    private final PdfService pdfService;
 
     // ─── Student: Submit leave ────────────────────────────────────────────
 
@@ -146,6 +147,7 @@ public class LeaveService {
             // HOD is final — mark complete
             leave.setOverallStatus(LeaveRequest.Status.APPROVED);
             leave.setCurrentStage("COMPLETED");
+            leave.setPdfPath("/api/leaves/" + leave.getId() + "/pdf");
         } else {
             leave.setCurrentStage("PRINCIPAL_REVIEW");
         }
@@ -184,6 +186,7 @@ public class LeaveService {
         if (dto.getStatus() == LeaveRequest.Status.APPROVED) {
             leave.setOverallStatus(LeaveRequest.Status.APPROVED);
             leave.setCurrentStage("COMPLETED");
+            leave.setPdfPath("/api/leaves/" + leave.getId() + "/pdf");
         } else {
             leave.setOverallStatus(LeaveRequest.Status.REJECTED);
             leave.setCurrentStage("REJECTED_BY_PRINCIPAL");
@@ -204,6 +207,13 @@ public class LeaveService {
         return saved;
     }
 
+    // ─── PDF Generation ──────────────────────────────────────────────────
+
+    public byte[] generateLeavePdf(Long leaveId) {
+        LeaveRequest leave = getLeave(leaveId);
+        return pdfService.generateLeaveCertificatePdf(leave);
+    }
+
     // ─── Admin: All requests ──────────────────────────────────────────────
 
     public List<LeaveRequest> getAllLeaves() {
@@ -217,6 +227,10 @@ public class LeaveService {
     }
 
     // ─── Helpers ─────────────────────────────────────────────────────────
+
+    public LeaveRequest getLeaveById(Long id) {
+        return getLeave(id);
+    }
 
     private LeaveRequest getLeave(Long id) {
         return leaveRepo.findWithStudentById(id)

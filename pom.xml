@@ -75,6 +75,13 @@
       <scope>runtime</scope>
     </dependency>
 
+    <!-- OpenPDF for Dynamic PDF Generation -->
+    <dependency>
+      <groupId>com.github.librepdf</groupId>
+      <artifactId>openpdf</artifactId>
+      <version>1.3.40</version>
+    </dependency>
+
     <!-- Lombok (reduce boilerplate) -->
     <dependency>
       <groupId>org.projectlombok</groupId>

@@ -149,6 +149,24 @@ public class LeaveController {
         return ResponseEntity.ok(AppDto.ApiResponse.ok("Department leaves", toLeaveResponses(list)));
     }
 
+    // ─── PDF Certificate Endpoints ────────────────────────────────────────
+    
+    @GetMapping(value = "/{id}/pdf", produces = "application/pdf")
+    public ResponseEntity<byte[]> getLeaveCertificatePdf(
+            @PathVariable Long id,
+            @RequestParam(required = false, defaultValue = "false") boolean download
+    ) {
+        byte[] pdf = leaveService.generateLeavePdf(id);
+        String disposition = download ? "attachment; filename=\"Duty_Leave_Certificate_" + id + ".pdf\""
+                                      : "inline; filename=\"Duty_Leave_Certificate_" + id + ".pdf\"";
+
+        return ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, disposition)
+                .header(org.springframework.http.HttpHeaders.CONTENT_TYPE, "application/pdf")
+                .header(org.springframework.http.HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
+                .body(pdf);
+    }
+
     // ─── Helper ───────────────────────────────────────────────────────────
 
     private Long extractUserId(String authHeader) {

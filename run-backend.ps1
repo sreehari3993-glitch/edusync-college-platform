@@ -1,28 +1,27 @@
 # EduSync Spring Boot Runner
 Write-Host "===================================================" -ForegroundColor Cyan
-Write-Host "Starting EduSync Spring Boot Backend" -ForegroundColor Cyan
+Write-Host "  EduSync — TKMIT College Digital Platform" -ForegroundColor Cyan
 Write-Host "===================================================" -ForegroundColor Cyan
 
-if (-not $env:JAVA_HOME) {
-    if (Test-Path "C:\Users\sreeh\.jdks\openjdk-26.0.1") {
-        $env:JAVA_HOME = "C:\Users\sreeh\.jdks\openjdk-26.0.1"
-    }
+$java = "java"
+if (Test-Path "$env:JAVA_HOME\bin\java.exe") {
+    $java = "$env:JAVA_HOME\bin\java.exe"
+} elseif (Test-Path "C:\Program Files\Microsoft\jdk-21.0.12.101-hotspot\bin\java.exe") {
+    $java = "C:\Program Files\Microsoft\jdk-21.0.12.101-hotspot\bin\java.exe"
+} elseif (Get-Command java -ErrorAction SilentlyContinue) {
+    $java = (Get-Command java).Source
 }
 
-if ($env:JAVA_HOME) {
-    $env:Path = "$env:JAVA_HOME\bin;$env:Path"
-    Write-Host "Using JAVA_HOME: $env:JAVA_HOME" -ForegroundColor Green
+Set-Location $PSScriptRoot
+
+$jarPath = "$PSScriptRoot\target\edusync-backend-1.0.0.jar"
+
+if (-not (Test-Path $jarPath)) {
+    Write-Host "Building project artifact with Maven..." -ForegroundColor Yellow
+    $env:JAVA_HOME = "C:\Program Files\Microsoft\jdk-21.0.12.101-hotspot"
+    $env:Path = "C:\Program Files\Microsoft\jdk-21.0.12.101-hotspot\bin;C:\Users\sreeh\apache-maven-3.9.9\bin;" + $env:Path
+    mvn clean package -DskipTests
 }
 
-$mvnCmd = "mvn"
-if (-not (Get-Command "mvn" -ErrorAction SilentlyContinue)) {
-    if (Test-Path "C:\Program Files\JetBrains\IntelliJ IDEA 2026.1.2\plugins\maven\lib\maven3\bin\mvn.cmd") {
-        $mvnCmd = "C:\Program Files\JetBrains\IntelliJ IDEA 2026.1.2\plugins\maven\lib\maven3\bin\mvn.cmd"
-    }
-}
-
-Write-Host "Running Maven: $mvnCmd spring-boot:run" -ForegroundColor Yellow
-Write-Host "Web app URL: http://localhost:8081" -ForegroundColor Green
-Write-Host "===================================================" -ForegroundColor Cyan
-
-& $mvnCmd spring-boot:run
+Write-Host "Starting backend server on http://localhost:8081 ..." -ForegroundColor Green
+& $java -jar $jarPath

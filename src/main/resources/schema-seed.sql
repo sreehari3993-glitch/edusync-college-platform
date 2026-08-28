@@ -311,33 +311,33 @@ INSERT INTO placement_drives (company_name, logo, role, description, package_lpa
 
 -- ─── SAMPLE LEAVE REQUESTS ────────────────────────────────────────────────────
 INSERT INTO leave_requests (student_id, leave_type, reason, from_date, to_date, no_of_days, event_name, overall_status, faculty_status, hod_status, current_stage) VALUES
-(11, 'DUTY_LEAVE',   'Representing college in state-level coding competition at CUSAT, Kochi.', DATE_ADD(CURDATE(), INTERVAL 3 DAY),  DATE_ADD(CURDATE(), INTERVAL 4 DAY),  2, 'State Coding Championship 2025', 'PENDING', 'PENDING', 'PENDING', 'FACULTY_REVIEW'),
-(12, 'OD_LETTER',    'Attending IEEE sponsored workshop on Machine Learning at NIT Calicut.',    DATE_ADD(CURDATE(), INTERVAL 5 DAY),  DATE_ADD(CURDATE(), INTERVAL 5 DAY),  1, 'ML Workshop NIT Calicut',       'PENDING', 'PENDING', 'PENDING', 'FACULTY_REVIEW'),
-(13, 'DUTY_LEAVE',   'Part of college team for inter-college cricket tournament in Kollam.',     DATE_ADD(CURDATE(), INTERVAL -5 DAY), DATE_ADD(CURDATE(), INTERVAL -3 DAY), 3, 'Inter-College Cricket',         'APPROVED', 'APPROVED', 'APPROVED', 'COMPLETED'),
-(16, 'MEDICAL_LEAVE','Fever and throat infection. Doctor has advised rest for 2 days.',          DATE_ADD(CURDATE(), INTERVAL -2 DAY), DATE_ADD(CURDATE(), INTERVAL -1 DAY), 2, NULL,                           'APPROVED', 'APPROVED', 'APPROVED', 'COMPLETED');
+(10, 'DUTY_LEAVE',   'Representing college in state-level coding competition at CUSAT, Kochi.', DATE_ADD(CURDATE(), INTERVAL 3 DAY),  DATE_ADD(CURDATE(), INTERVAL 4 DAY),  2, 'State Coding Championship 2025', 'PENDING', 'PENDING', 'PENDING', 'FACULTY_REVIEW'),
+(11, 'OD_LETTER',    'Attending IEEE sponsored workshop on Machine Learning at NIT Calicut.',    DATE_ADD(CURDATE(), INTERVAL 5 DAY),  DATE_ADD(CURDATE(), INTERVAL 5 DAY),  1, 'ML Workshop NIT Calicut',       'PENDING', 'PENDING', 'PENDING', 'FACULTY_REVIEW'),
+(12, 'DUTY_LEAVE',   'Part of college team for inter-college cricket tournament in Kollam.',     DATE_ADD(CURDATE(), INTERVAL -5 DAY), DATE_ADD(CURDATE(), INTERVAL -3 DAY), 3, 'Inter-College Cricket',         'APPROVED', 'APPROVED', 'APPROVED', 'COMPLETED'),
+(15, 'MEDICAL_LEAVE','Fever and throat infection. Doctor has advised rest for 2 days.',          DATE_ADD(CURDATE(), INTERVAL -2 DAY), DATE_ADD(CURDATE(), INTERVAL -1 DAY), 2, NULL,                           'APPROVED', 'APPROVED', 'APPROVED', 'COMPLETED');
 
 -- ─── SAMPLE ATTENDANCE ───────────────────────────────────────────────────────
--- Anzal (student_id=11), Subject CS401 (subject_id=1)
+-- Anzal (student_id=10), Subject CS401 (subject_id=1)
 INSERT INTO attendance (student_id, subject_id, faculty_id, date, status, period_number) VALUES
-(11, 1, 6, DATE_SUB(CURDATE(), INTERVAL 5 DAY), 'PRESENT', 1),
-(11, 1, 6, DATE_SUB(CURDATE(), INTERVAL 4 DAY), 'PRESENT', 1),
-(11, 1, 6, DATE_SUB(CURDATE(), INTERVAL 3 DAY), 'ABSENT',  1),
-(11, 1, 6, DATE_SUB(CURDATE(), INTERVAL 2 DAY), 'PRESENT', 1),
-(11, 1, 6, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 'PRESENT', 1),
+(10, 1, 6, DATE_SUB(CURDATE(), INTERVAL 5 DAY), 'PRESENT', 1),
+(10, 1, 6, DATE_SUB(CURDATE(), INTERVAL 4 DAY), 'PRESENT', 1),
+(10, 1, 6, DATE_SUB(CURDATE(), INTERVAL 3 DAY), 'ABSENT',  1),
+(10, 1, 6, DATE_SUB(CURDATE(), INTERVAL 2 DAY), 'PRESENT', 1),
+(10, 1, 6, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 'PRESENT', 1),
 -- CS402
-(11, 2, 7, DATE_SUB(CURDATE(), INTERVAL 5 DAY), 'PRESENT', 2),
-(11, 2, 7, DATE_SUB(CURDATE(), INTERVAL 4 DAY), 'ABSENT',  2),
-(11, 2, 7, DATE_SUB(CURDATE(), INTERVAL 3 DAY), 'ABSENT',  2),
-(11, 2, 7, DATE_SUB(CURDATE(), INTERVAL 2 DAY), 'PRESENT', 2),
-(11, 2, 7, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 'PRESENT', 2);
+(10, 2, 7, DATE_SUB(CURDATE(), INTERVAL 5 DAY), 'PRESENT', 2),
+(10, 2, 7, DATE_SUB(CURDATE(), INTERVAL 4 DAY), 'ABSENT',  2),
+(10, 2, 7, DATE_SUB(CURDATE(), INTERVAL 3 DAY), 'ABSENT',  2),
+(10, 2, 7, DATE_SUB(CURDATE(), INTERVAL 2 DAY), 'PRESENT', 2),
+(10, 2, 7, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 'PRESENT', 2);
 
 -- ─── SAMPLE MARKS ────────────────────────────────────────────────────────────
 INSERT INTO marks (student_id, subject_id, exam_type, marks_obtained, max_marks, grade, semester, academic_year, entered_by) VALUES
-(11, 1, 'INTERNAL_1', 38, 50, 'A', 'S4', '2025-2026', 'Prof. Meera Nair'),
-(11, 2, 'INTERNAL_1', 42, 50, 'A+','S4', '2025-2026', 'Prof. Sreejith Kumar'),
-(11, 3, 'INTERNAL_1', 35, 50, 'B+','S4', '2025-2026', 'Prof. Divya Mohan'),
-(12, 1, 'INTERNAL_1', 44, 50, 'A+','S4', '2025-2026', 'Prof. Meera Nair'),
-(12, 2, 'INTERNAL_1', 40, 50, 'A', 'S4', '2025-2026', 'Prof. Sreejith Kumar');
+(10, 1, 'INTERNAL_1', 38, 50, 'A', 'S4', '2025-2026', 'Prof. Meera Nair'),
+(10, 2, 'INTERNAL_1', 42, 50, 'A+','S4', '2025-2026', 'Prof. Sreejith Kumar'),
+(10, 3, 'INTERNAL_1', 35, 50, 'B+','S4', '2025-2026', 'Prof. Divya Mohan'),
+(11, 1, 'INTERNAL_1', 44, 50, 'A+','S4', '2025-2026', 'Prof. Meera Nair'),
+(11, 2, 'INTERNAL_1', 40, 50, 'A', 'S4', '2025-2026', 'Prof. Sreejith Kumar');
 
 -- ─── TIMETABLE (CSE S4 A — sample) ──────────────────────────────────────────
 INSERT INTO timetable (department, semester, section, day_of_week, period_number, start_time, end_time, subject_id, faculty_id, room) VALUES
