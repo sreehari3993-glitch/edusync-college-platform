@@ -95,6 +95,7 @@ public class SecurityConfig {
 
                 // Faculty, HOD, Principal, Admin
                 .requestMatchers("/api/faculty/**").hasAnyRole("FACULTY", "HOD", "PRINCIPAL", "ADMIN")
+                .requestMatchers("/api/advisor/**").hasAnyRole("FACULTY", "HOD", "PRINCIPAL", "ADMIN")
 
                 // Placement officer
                 .requestMatchers("/api/placement/manage/**").hasAnyRole("PLACEMENT_OFFICER", "ADMIN")

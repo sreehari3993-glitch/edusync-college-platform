@@ -2857,6 +2857,54 @@
     </div>
   </div>
 
+  <!-- ════════════════════════════════════════════
+     MENTOR ADVISORY & PARENT ALERT MODAL
+  ════════════════════════════════════════════ -->
+  <div id="mentorAlertModalOverlay" class="auth-overlay" style="display:none;">
+    <div class="auth-modal" style="max-width:540px;">
+      <div class="auth-modal-head">
+        <h3 style="font-size:1.1rem;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px;">
+          <span style="background:rgba(239,68,68,0.12);padding:4px 8px;border-radius:8px;">📱</span> Academic Advisory & Parent Alert
+        </h3>
+        <button class="auth-close" type="button" onclick="closeMentorAlertModal()">✕</button>
+      </div>
+
+      <!-- Student Risk Diagnostic Summary Card -->
+      <div id="mentorAlertStudentCard" style="background:rgba(0,0,0,0.03);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:0.8rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <strong id="mentorAlertStudentName" style="font-size:0.95rem;">Student Name</strong>
+          <span id="mentorAlertRoll" style="color:var(--gray-400);font-weight:600;">ROLL-001</span>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;color:var(--gray-400);font-size:0.78rem;">
+          <span id="mentorAlertAttBadge">Attendance: <strong>68%</strong></span>
+          <span id="mentorAlertMarksBadge">Series Avg: <strong>34%</strong></span>
+          <span id="mentorAlertPhone">Phone: +91 98765 43210</span>
+        </div>
+      </div>
+
+      <input type="hidden" id="mentorAlertStudentId">
+      <input type="hidden" id="mentorAlertStudentPhone">
+
+      <!-- Advisory Message Template -->
+      <div class="form-group" style="margin-bottom:12px;">
+        <label class="form-label" style="display:flex;justify-content:space-between;">
+          <span>Advisory Message / Notice *</span>
+          <button type="button" class="btn btn-outline btn-sm" style="font-size:0.68rem;padding:1px 6px;" onclick="resetAlertTemplate()">Reset Template</button>
+        </label>
+        <textarea class="form-input" id="mentorAlertMessageText" rows="4" style="font-size:0.8rem;line-height:1.4;"></textarea>
+      </div>
+
+      <!-- Dispatch Buttons -->
+      <div style="display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:16px;flex-wrap:wrap;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="copyAlertText()">📋 Copy Text</button>
+        <div style="display:flex;gap:8px;">
+          <button type="button" class="btn btn-outline btn-sm" onclick="openWhatsAppAlert()" style="color:#10b981;border-color:rgba(16,185,129,0.4);">💬 Open WhatsApp</button>
+          <button type="button" class="btn btn-blue btn-sm" id="btnSendInAppAlert" onclick="submitMenteeAlert('IN_APP')">⚡ Dispatch In-App Notice</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Grievance response modal -->
   <div id="grievanceRespondModalOverlay" class="auth-overlay" style="display:none;">
     <div class="auth-modal" style="max-width:520px;">
@@ -4311,6 +4359,7 @@
             Attendance</div>
           <div class="sidebar-item" onclick="showSub('faculty','marks',this)"><span class="icon">📝</span> Internal
             Marks</div>
+          <div class="sidebar-item" onclick="showSub('faculty','mentor-hub',this)" id="facultySidebarMentorHub"><span class="icon">👨‍🏫</span> Mentor Hub <span class="sidebar-badge" id="facultyMentorRiskBadge" style="display:none;background:#ef4444;color:#fff;">0</span></div>
         </div>
       </div>
       <div class="main">
@@ -4952,6 +5001,105 @@
               <tbody id="facultyMarksBody">
                 <tr>
                   <td colspan="6" style="text-align:center;color:var(--gray-400);padding:20px;">Loading students...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════
+           FACULTY SUB: MENTOR HUB & EARLY WARNING
+        ════════════════════════════════════════════ -->
+        <div class="sub-content" id="faculty-mentor-hub">
+          <div class="breadcrumb">EduSync <span>›</span> Faculty <span>›</span> Mentor Hub</div>
+          <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+            <div>
+              <h2>👨‍🏫 Mentorship & Early-Warning Command Center</h2>
+              <p>Proactive KTU Academic Risk Detection: Automated monitoring of attendance condonation and CIE pass marks</p>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-outline btn-sm" onclick="loadAdvisorDashboard(true)">🔄 Refresh Batch</button>
+            </div>
+          </div>
+
+          <!-- KTU Guideline Alert Banner -->
+          <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:12px 18px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span style="font-size:1.5rem;">⚠️</span>
+              <div>
+                <strong style="color:var(--red);font-size:0.85rem;">KTU Academic Regulations Monitoring Active</strong>
+                <div style="font-size:0.75rem;color:var(--gray-400);">Students with Attendance &lt; 75% cannot appear for KTU End-Semester Exams without condonation. Minimum CIE pass mark is 40%.</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;font-size:0.72rem;">
+              <span style="background:rgba(239,68,68,0.12);color:#ef4444;padding:4px 8px;border-radius:6px;font-weight:600;">🔴 &lt; 75% Condonation Limit</span>
+              <span style="background:rgba(245,158,11,0.12);color:#f59e0b;padding:4px 8px;border-radius:6px;font-weight:600;">🟡 &lt; 40% CIE Passing Mark</span>
+            </div>
+          </div>
+
+          <!-- Mentorship Metric Cards -->
+          <div class="cards-row cols-4" style="margin-bottom:20px;">
+            <div class="metric-card" onclick="filterAdvisorRoster('ALL')" style="cursor:pointer;">
+              <div class="metric-top">
+                <div class="metric-icon blue">👥</div><span class="metric-change neutral">Batch</span>
+              </div>
+              <div class="metric-val" id="mentorTotalMentees">0</div>
+              <div class="metric-label">Total Assigned Mentees</div>
+            </div>
+            <div class="metric-card" onclick="filterAdvisorRoster('ATTENDANCE_CRITICAL')" style="cursor:pointer;border:1px solid rgba(239,68,68,0.3);">
+              <div class="metric-top">
+                <div class="metric-icon red">🔴</div><span class="metric-change down">Action Required</span>
+              </div>
+              <div class="metric-val" id="mentorAttendanceCriticalCount" style="color:#ef4444;">0</div>
+              <div class="metric-label">Attendance &lt; 75% (At Risk)</div>
+            </div>
+            <div class="metric-card" onclick="filterAdvisorRoster('MARKS_CRITICAL')" style="cursor:pointer;border:1px solid rgba(245,158,11,0.3);">
+              <div class="metric-top">
+                <div class="metric-icon orange">🟡</div><span class="metric-change neutral">Review CIE</span>
+              </div>
+              <div class="metric-val" id="mentorMarksCriticalCount" style="color:#f59e0b;">0</div>
+              <div class="metric-label">Series Marks &lt; 40% (Pass Risk)</div>
+            </div>
+            <div class="metric-card" onclick="filterAdvisorRoster('SAFE')" style="cursor:pointer;">
+              <div class="metric-top">
+                <div class="metric-icon green">🟢</div><span class="metric-change up">Good Standing</span>
+              </div>
+              <div class="metric-val" id="mentorSafeCount" style="color:#10b981;">0</div>
+              <div class="metric-label">Satisfying All Criteria</div>
+            </div>
+          </div>
+
+          <!-- Mentee Risk Roster Table -->
+          <div class="table-card">
+            <div class="table-head" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <h3 style="margin:0;">Mentee Academic Health Roster</h3>
+                <span id="mentorFilterLabel" style="font-size:0.75rem;padding:2px 8px;border-radius:12px;background:rgba(37,99,235,0.1);color:var(--blue-bright);font-weight:600;">Showing: All Students</span>
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button class="btn btn-outline btn-sm active" id="btnFilterMentorAll" onclick="filterAdvisorRoster('ALL')">All</button>
+                <button class="btn btn-outline btn-sm" id="btnFilterMentorCritical" onclick="filterAdvisorRoster('CRITICAL')" style="color:#ef4444;">🔴 Critical (<span id="btnFilterMentorCriticalCount">0</span>)</button>
+                <button class="btn btn-outline btn-sm" id="btnFilterMentorWarning" onclick="filterAdvisorRoster('WARNING')" style="color:#f59e0b;">🟡 Warning (<span id="btnFilterMentorWarningCount">0</span>)</button>
+                <button class="btn btn-outline btn-sm" id="btnFilterMentorSafe" onclick="filterAdvisorRoster('SAFE')" style="color:#10b981;">🟢 Safe</button>
+              </div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Student Info</th>
+                  <th>Sem / Section</th>
+                  <th style="min-width:170px;">Attendance Status</th>
+                  <th style="min-width:170px;">Series CIE Average</th>
+                  <th>Risk Diagnostic</th>
+                  <th style="text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="mentorRosterBody">
+                <tr>
+                  <td colspan="6" style="text-align:center;color:var(--gray-400);padding:32px;">
+                    <div style="font-size:1.5rem;margin-bottom:8px;">⏳</div>
+                    Loading mentee batch diagnostics...
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -9087,6 +9235,7 @@
         updateAllNoticeBadges();
       } catch (e) { /* fallback */ }
       await loadFacultyAssignments();
+      await loadAdvisorDashboard();
       ApexChartsManager.renderFacultyCharts();
     }
 
@@ -9401,6 +9550,274 @@
         }
         toast('Attendance saved to database! ✅', 'success');
       } catch (e) { toast(e.message, 'error'); }
+    }
+
+    /* ══════════════════════ MENTOR HUB & EARLY WARNING ══════════════════════ */
+    window._advisorData = null;
+    window._advisorCurrentFilter = 'ALL';
+    let _selectedMenteeForAlert = null;
+
+    async function loadAdvisorDashboard(showToast) {
+      if (!currentUser) return;
+      try {
+        const res = await api('/advisor/dashboard');
+        window._advisorData = res;
+        renderAdvisorDashboardMetrics(res);
+        filterAdvisorRoster(window._advisorCurrentFilter || 'ALL');
+        if (showToast) toast('Mentee batch diagnostics updated! ✅', 'success');
+      } catch (e) {
+        console.warn('Could not load advisor dashboard:', e);
+      }
+    }
+
+    function renderAdvisorDashboardMetrics(data) {
+      if (!data) return;
+      setText('mentorTotalMentees', data.totalMentees || 0);
+
+      const attCrit = (data.students || []).filter(s => s.attendanceRisk === 'CRITICAL').length;
+      const marksCrit = (data.students || []).filter(s => s.seriesMarksRisk === 'CRITICAL').length;
+
+      setText('mentorAttendanceCriticalCount', attCrit);
+      setText('mentorMarksCriticalCount', marksCrit);
+      setText('mentorSafeCount', data.safeCount || 0);
+
+      setText('btnFilterMentorCriticalCount', data.criticalCount || 0);
+      setText('btnFilterMentorWarningCount', data.warningCount || 0);
+
+      const riskBadge = document.getElementById('facultyMentorRiskBadge');
+      if (riskBadge) {
+        const totalRisk = (data.criticalCount || 0);
+        if (totalRisk > 0) {
+          riskBadge.textContent = totalRisk;
+          riskBadge.style.display = 'inline-block';
+        } else {
+          riskBadge.style.display = 'none';
+        }
+      }
+    }
+
+    function filterAdvisorRoster(filterType) {
+      window._advisorCurrentFilter = filterType;
+
+      // Update button active states
+      ['All', 'Critical', 'Warning', 'Safe'].forEach(f => {
+        const btn = document.getElementById('btnFilterMentor' + f);
+        if (btn) {
+          if (f.toUpperCase() === filterType) {
+            btn.classList.add('active');
+            btn.style.background = 'var(--blue-bright)';
+            btn.style.color = '#fff';
+          } else {
+            btn.classList.remove('active');
+            btn.style.background = '';
+            btn.style.color = '';
+          }
+        }
+      });
+
+      const label = document.getElementById('mentorFilterLabel');
+      if (label) {
+        const labels = {
+          'ALL': 'Showing: All Mentees',
+          'CRITICAL': 'Showing: 🔴 Critical Academic/Attendance Risks',
+          'WARNING': 'Showing: 🟡 Warnings (Borderline Attendance / CIE)',
+          'SAFE': 'Showing: 🟢 Good Standing Students',
+          'ATTENDANCE_CRITICAL': 'Showing: 🔴 Attendance < 75% (Condonation Risk)',
+          'MARKS_CRITICAL': 'Showing: 🟡 Series Marks < 40% (Pass Risk)'
+        };
+        label.textContent = labels[filterType] || 'Showing: Filtered Students';
+      }
+
+      renderAdvisorRosterTable(filterType);
+    }
+
+    function renderAdvisorRosterTable(filterType) {
+      const tbody = document.getElementById('mentorRosterBody');
+      if (!tbody) return;
+      if (!window._advisorData || !window._advisorData.students || !window._advisorData.students.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:32px;">No student records found. Add students to your department to begin tracking diagnostics.</td></tr>';
+        return;
+      }
+
+      let students = window._advisorData.students;
+      if (filterType === 'CRITICAL') {
+        students = students.filter(s => s.overallRisk === 'CRITICAL');
+      } else if (filterType === 'WARNING') {
+        students = students.filter(s => s.overallRisk === 'WARNING');
+      } else if (filterType === 'SAFE') {
+        students = students.filter(s => s.overallRisk === 'SAFE');
+      } else if (filterType === 'ATTENDANCE_CRITICAL') {
+        students = students.filter(s => s.attendanceRisk === 'CRITICAL');
+      } else if (filterType === 'MARKS_CRITICAL') {
+        students = students.filter(s => s.seriesMarksRisk === 'CRITICAL');
+      }
+
+      if (!students.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:32px;">No students match the selected risk filter 🎉</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = students.map(s => {
+        // Attendance Bar & Badge
+        const attPct = s.attendancePercentage;
+        let attColor = '#10b981';
+        let attBadge = '<span class="badge green" style="font-size:0.68rem;padding:2px 6px;">🟢 Good</span>';
+        if (s.attendanceRisk === 'CRITICAL') {
+          attColor = '#ef4444';
+          attBadge = '<span class="badge red" style="font-size:0.68rem;padding:2px 6px;">🔴 &lt; 75% Risk</span>';
+        } else if (s.attendanceRisk === 'WARNING') {
+          attColor = '#f59e0b';
+          attBadge = '<span class="badge yellow" style="font-size:0.68rem;padding:2px 6px;">🟡 Borderline</span>';
+        }
+
+        // Series Marks Bar & Badge
+        const marksPct = s.seriesExamAvgPercentage;
+        let marksColor = '#10b981';
+        let marksBadge = '<span class="badge green" style="font-size:0.68rem;padding:2px 6px;">🟢 Pass</span>';
+        if (s.seriesMarksRisk === 'CRITICAL') {
+          marksColor = '#ef4444';
+          marksBadge = '<span class="badge red" style="font-size:0.68rem;padding:2px 6px;">🔴 &lt; 40% Fail Risk</span>';
+        } else if (s.seriesMarksRisk === 'WARNING') {
+          marksColor = '#f59e0b';
+          marksBadge = '<span class="badge yellow" style="font-size:0.68rem;padding:2px 6px;">🟡 Marginal</span>';
+        }
+
+        // Diagnostic strings
+        const diagHtml = (s.riskFactors && s.riskFactors.length)
+          ? s.riskFactors.map(rf => '<div style="font-size:0.72rem;color:' + (rf.includes('75%') || rf.includes('40%') ? '#ef4444' : '#f59e0b') + ';margin-bottom:2px;">• ' + escapeHtml(rf) + '</div>').join('')
+          : '<div style="font-size:0.72rem;color:#10b981;">• All KTU metrics in good standing</div>';
+
+        return '<tr>' +
+          '<td>' +
+            '<div style="display:flex;align-items:center;gap:10px;">' +
+              '<div class="avatar-sm" style="background:rgba(37,99,235,0.1);color:var(--blue-bright);font-weight:700;">' + initials(s.name) + '</div>' +
+              '<div>' +
+                '<div style="font-weight:600;color:var(--navy);font-size:0.85rem;">' + escapeHtml(s.name) + '</div>' +
+                '<div style="font-size:0.72rem;color:var(--gray-400);">' + escapeHtml(s.rollNumber) + ' · ' + escapeHtml(s.email) + '</div>' +
+              '</div>' +
+            '</div>' +
+          '</td>' +
+          '<td>' +
+            '<div style="font-size:0.8rem;font-weight:600;">' + escapeHtml(s.semester || 'S2') + ' · Sec ' + escapeHtml(s.section || 'A') + '</div>' +
+            '<div style="font-size:0.72rem;color:var(--gray-400);">' + escapeHtml(s.department || 'CSE') + '</div>' +
+          '</td>' +
+          '<td>' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:0.78rem;">' +
+              '<strong style="color:' + attColor + ';">' + attPct + '%</strong>' +
+              attBadge +
+            '</div>' +
+            '<div style="background:rgba(0,0,0,0.06);height:6px;border-radius:4px;overflow:hidden;">' +
+              '<div style="background:' + attColor + ';height:100%;width:' + Math.min(100, Math.max(5, attPct)) + '%;"></div>' +
+            '</div>' +
+          '</td>' +
+          '<td>' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:0.78rem;">' +
+              '<strong style="color:' + marksColor + ';">' + marksPct + '%</strong>' +
+              marksBadge +
+            '</div>' +
+            '<div style="background:rgba(0,0,0,0.06);height:6px;border-radius:4px;overflow:hidden;">' +
+              '<div style="background:' + marksColor + ';height:100%;width:' + Math.min(100, Math.max(5, marksPct)) + '%;"></div>' +
+            '</div>' +
+          '</td>' +
+          '<td>' + diagHtml + '</td>' +
+          '<td style="text-align:right;">' +
+            '<button class="btn btn-outline btn-sm" onclick="openMentorAlertModal(' + s.studentId + ')" style="font-size:0.74rem;padding:4px 10px;white-space:nowrap;">' +
+              '📱 Alert' +
+            '</button>' +
+          '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    function openMentorAlertModal(studentId) {
+      if (!window._advisorData || !window._advisorData.students) return;
+      const s = window._advisorData.students.find(item => item.studentId === studentId);
+      if (!s) return;
+
+      _selectedMenteeForAlert = s;
+
+      document.getElementById('mentorAlertStudentId').value = s.studentId;
+      document.getElementById('mentorAlertStudentPhone').value = s.phone || '+91 98765 43210';
+      setText('mentorAlertStudentName', s.name);
+      setText('mentorAlertRoll', s.rollNumber);
+      setText('mentorAlertAttBadge', 'Attendance: ' + s.attendancePercentage + '% ' + (s.attendancePercentage < 75 ? '(🔴 Risk)' : ''));
+      setText('mentorAlertMarksBadge', 'Series Avg: ' + s.seriesExamAvgPercentage + '% ' + (s.seriesExamAvgPercentage < 40 ? '(🔴 Risk)' : ''));
+      setText('mentorAlertPhone', 'Phone: ' + (s.phone || '+91 98765 43210'));
+
+      resetAlertTemplate();
+
+      const overlay = document.getElementById('mentorAlertModalOverlay');
+      if (overlay) overlay.style.display = 'flex';
+    }
+
+    function closeMentorAlertModal() {
+      const overlay = document.getElementById('mentorAlertModalOverlay');
+      if (overlay) overlay.style.display = 'none';
+      _selectedMenteeForAlert = null;
+    }
+
+    function resetAlertTemplate() {
+      if (!_selectedMenteeForAlert) return;
+      const s = _selectedMenteeForAlert;
+      const advisorName = currentUser ? currentUser.name : 'Class Advisor';
+
+      let msg = 'Dear Parent/Guardian,\n\nThis is an official academic progress update from TKMIT for ' + s.name + ' (' + s.rollNumber + ', ' + s.department + ' ' + s.semester + ').\n\n' +
+                '• Current Attendance: ' + s.attendancePercentage + '% ' + (s.attendancePercentage < 75 ? '[BELOW KTU 75% CONDONATION REQUIREMENT]' : '[Satisfactory]') + '\n' +
+                '• Series CIE Average: ' + s.seriesExamAvgPercentage + '% ' + (s.seriesExamAvgPercentage < 40 ? '[BELOW 40% PASSING CRITERIA]' : '[Passing]') + '\n\n' +
+                'Please attend faculty advisory counseling or contact ' + advisorName + ' (Class Advisor) regarding academic support.';
+
+      const ta = document.getElementById('mentorAlertMessageText');
+      if (ta) ta.value = msg;
+    }
+
+    function copyAlertText() {
+      const ta = document.getElementById('mentorAlertMessageText');
+      if (!ta || !ta.value) return;
+      navigator.clipboard.writeText(ta.value).then(() => {
+        toast('Advisory notice copied to clipboard! 📋', 'success');
+      }).catch(() => {
+        toast('Could not copy text.', 'error');
+      });
+    }
+
+    function openWhatsAppAlert() {
+      const phoneInput = document.getElementById('mentorAlertStudentPhone')?.value || '';
+      const ta = document.getElementById('mentorAlertMessageText');
+      const msg = ta ? ta.value : '';
+
+      // Clean phone number
+      const cleanPhone = phoneInput.replace(/[^0-9]/g, '');
+      const url = 'https://wa.me/' + (cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone) + '?text=' + encodeURIComponent(msg);
+      window.open(url, '_blank');
+      toast('Opening WhatsApp Web with pre-filled message... 💬', 'info');
+    }
+
+    async function submitMenteeAlert(channel) {
+      const studentId = parseInt(document.getElementById('mentorAlertStudentId')?.value, 10);
+      const ta = document.getElementById('mentorAlertMessageText');
+      const message = ta ? ta.value.trim() : '';
+
+      if (!studentId) return;
+
+      const btn = document.getElementById('btnSendInAppAlert');
+      if (btn) btn.disabled = true;
+
+      try {
+        await api('/advisor/alert', {
+          method: 'POST',
+          body: {
+            studentId: studentId,
+            channel: channel || 'IN_APP',
+            message: message
+          }
+        });
+        toast('Advisory alert dispatched in real-time to student! ⚡', 'success');
+        closeMentorAlertModal();
+      } catch (e) {
+        toast('Error sending alert: ' + e.message, 'error');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
     }
 
     /* ══════════════════════ HOD ══════════════════════ */
