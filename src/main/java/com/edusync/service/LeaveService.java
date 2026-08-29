@@ -28,6 +28,7 @@ public class LeaveService {
     private final AuditService auditService;
     private final PdfService pdfService;
     private final NotificationService notificationService;
+    private final EmailService emailService;
 
     // ─── Student: Submit leave ────────────────────────────────────────────
 
@@ -146,6 +147,21 @@ public class LeaveService {
                         .build()
         );
 
+        // Dispatch Email decision update to student
+        emailService.sendLeaveStatusEmail(
+                saved.getStudent().getEmail(),
+                saved.getStudent().getName(),
+                String.valueOf(saved.getLeaveType()),
+                saved.getEventName(),
+                saved.getFromDate().toString(),
+                saved.getToDate().toString(),
+                saved.getNoOfDays(),
+                dto.getStatus().name(),
+                faculty.getName() + " (Faculty Advisor)",
+                saved.getCurrentStage(),
+                dto.getRemark()
+        );
+
         return saved;
     }
 
@@ -204,6 +220,21 @@ public class LeaveService {
                         .build()
         );
 
+        // Dispatch Email decision update to student
+        emailService.sendLeaveStatusEmail(
+                saved.getStudent().getEmail(),
+                saved.getStudent().getName(),
+                String.valueOf(saved.getLeaveType()),
+                saved.getEventName(),
+                saved.getFromDate().toString(),
+                saved.getToDate().toString(),
+                saved.getNoOfDays(),
+                dto.getStatus().name(),
+                hod.getName() + " (Head of Department)",
+                saved.getCurrentStage(),
+                dto.getRemark()
+        );
+
         return saved;
     }
 
@@ -254,6 +285,21 @@ public class LeaveService {
                         .actorName("Principal")
                         .link("#page-leaves")
                         .build()
+        );
+
+        // Dispatch Email decision update to student
+        emailService.sendLeaveStatusEmail(
+                saved.getStudent().getEmail(),
+                saved.getStudent().getName(),
+                String.valueOf(saved.getLeaveType()),
+                saved.getEventName(),
+                saved.getFromDate().toString(),
+                saved.getToDate().toString(),
+                saved.getNoOfDays(),
+                dto.getStatus().name(),
+                "Principal Office",
+                saved.getCurrentStage(),
+                dto.getRemark()
         );
 
         return saved;

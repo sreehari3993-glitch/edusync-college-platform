@@ -31,6 +31,12 @@
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
 
+    <!-- Spring Mail (Email Notifications) -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-mail</artifactId>
+    </dependency>
+
     <!-- Spring Data JPA (database ORM) -->
     <dependency>
       <groupId>org.springframework.boot</groupId>

@@ -29,6 +29,7 @@ public class AdvisorDashboardService {
     private final AttendanceRepository attendanceRepo;
     private final InternalMarkRepository internalMarkRepo;
     private final NotificationService notificationService;
+    private final EmailService emailService;
     private final AuditService auditService;
 
     @Transactional(readOnly = true)
@@ -190,6 +191,25 @@ public class AdvisorDashboardService {
                         .link("#page-student")
                         .build()
         );
+
+        // Dispatch Parent Email if requested or by default on advisory warnings
+        if ("EMAIL".equalsIgnoreCase(channel) || "ALL".equalsIgnoreCase(channel)) {
+            AdvisorDto.StudentMenteeRiskDto risk = calculateStudentRisk(student);
+            String parentEmail = student.getParentEmail() != null && !student.getParentEmail().isBlank()
+                    ? student.getParentEmail()
+                    : student.getEmail();
+
+            emailService.sendParentAcademicAlertEmail(
+                    parentEmail,
+                    student.getName(),
+                    risk.getRollNumber(),
+                    student.getDepartment() != null ? student.getDepartment() : "CSE",
+                    risk.getAttendancePercentage(),
+                    risk.getSeriesExamAvgPercentage(),
+                    advisor.getName(),
+                    message
+            );
+        }
 
         auditService.log(
                 "ADVISORY_ALERT_DISPATCHED",

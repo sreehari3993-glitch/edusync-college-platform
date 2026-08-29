@@ -37,6 +37,9 @@ class AdvisorDashboardServiceTest {
     private NotificationService notificationService;
 
     @Mock
+    private EmailService emailService;
+
+    @Mock
     private AuditService auditService;
 
     @InjectMocks

@@ -22,6 +22,7 @@ public class AssignmentService {
     private final AssignmentRepository assignmentRepo;
     private final UserRepository userRepo;
     private final NotificationService notificationService;
+    private final EmailService emailService;
 
     @Transactional
     public AppDto.AssignmentResponse createAssignment(Long facultyId, AppDto.AssignmentDto dto) {
@@ -57,7 +58,7 @@ public class AssignmentService {
 
         Assignment saved = assignmentRepo.save(assignment);
 
-        // Notify students in department
+        // Notify students in department via real-time SSE
         notificationService.sendToRoleAndDepartment(
                 User.Role.STUDENT,
                 department,
@@ -70,6 +71,23 @@ public class AssignmentService {
                         .link("#page-assignments")
                         .build()
         );
+
+        // Dispatch Email notifications to students in department
+        List<User> students = userRepo.findByRoleAndDepartment(User.Role.STUDENT, department);
+        for (User student : students) {
+            if (student.getEmail() != null && !student.getEmail().isBlank()) {
+                emailService.sendAssignmentNotificationEmail(
+                        student.getEmail(),
+                        student.getName(),
+                        saved.getSubject(),
+                        saved.getTitle(),
+                        saved.getDescription(),
+                        saved.getDueDate().toString(),
+                        saved.getMaxMarks(),
+                        faculty.getName()
+                );
+            }
+        }
 
         return AppDto.AssignmentResponse.from(saved, countRecipients(saved));
     }

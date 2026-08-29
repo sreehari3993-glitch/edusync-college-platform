@@ -2897,9 +2897,10 @@
       <!-- Dispatch Buttons -->
       <div style="display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:16px;flex-wrap:wrap;">
         <button type="button" class="btn btn-outline btn-sm" onclick="copyAlertText()">📋 Copy Text</button>
-        <div style="display:flex;gap:8px;">
-          <button type="button" class="btn btn-outline btn-sm" onclick="openWhatsAppAlert()" style="color:#10b981;border-color:rgba(16,185,129,0.4);">💬 Open WhatsApp</button>
-          <button type="button" class="btn btn-blue btn-sm" id="btnSendInAppAlert" onclick="submitMenteeAlert('IN_APP')">⚡ Dispatch In-App Notice</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button type="button" class="btn btn-outline btn-sm" onclick="openWhatsAppAlert()" style="color:#10b981;border-color:rgba(16,185,129,0.4);">💬 WhatsApp</button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="submitMenteeAlert('EMAIL')" style="color:#2563eb;border-color:rgba(37,99,235,0.4);">📧 Send Email</button>
+          <button type="button" class="btn btn-blue btn-sm" id="btnSendInAppAlert" onclick="submitMenteeAlert('ALL')">⚡ Dispatch All (In-App + Email)</button>
         </div>
       </div>
     </div>

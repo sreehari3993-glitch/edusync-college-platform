@@ -62,6 +62,12 @@ public class User {
     @Column
     private String phone;
 
+    @Column(name = "parent_email")
+    private String parentEmail;
+
+    @Column(name = "parent_phone")
+    private String parentPhone;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "advisor_id")
     @JsonIgnoreProperties({"advisor", "password", "hibernateLazyInitializer", "handler"})

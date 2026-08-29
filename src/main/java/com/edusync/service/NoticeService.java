@@ -24,6 +24,7 @@ public class NoticeService {
     private final UserRepository userRepo;
     private final AuditService auditService;
     private final NotificationService notificationService;
+    private final EmailService emailService;
 
     @Transactional
     public Notice createNotice(Long adminId, AppDto.NoticeDto dto) {
@@ -51,7 +52,7 @@ public class NoticeService {
                 "Published " + saved.getCategory() + " notice: \"" + saved.getTitle() + "\""
         );
 
-        // Broadcast to all active connected users
+        // Broadcast real-time SSE push to all active connected users
         notificationService.broadcast(
                 com.edusync.dto.NotificationDto.builder()
                         .type("NOTICE_PUBLISHED")
@@ -61,6 +62,21 @@ public class NoticeService {
                         .link("#page-notices")
                         .build()
         );
+
+        // Dispatch Email notifications to students
+        List<User> students = userRepo.findByRole(User.Role.STUDENT);
+        for (User student : students) {
+            if (student.getEmail() != null && !student.getEmail().isBlank()) {
+                emailService.sendUrgentNoticeEmail(
+                        student.getEmail(),
+                        student.getName(),
+                        saved.getTitle(),
+                        saved.getCategory().name(),
+                        saved.getContent(),
+                        creator.getName()
+                );
+            }
+        }
 
         return saved;
     }
