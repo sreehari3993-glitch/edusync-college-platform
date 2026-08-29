@@ -62,6 +62,11 @@ public class User {
     @Column
     private String phone;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "advisor_id")
+    @JsonIgnoreProperties({"advisor", "password", "hibernateLazyInitializer", "handler"})
+    private User advisor;
+
     @Column(name = "profile_pic")
     private String profilePic;       // file path
 

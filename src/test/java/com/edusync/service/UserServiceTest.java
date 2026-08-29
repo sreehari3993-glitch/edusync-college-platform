@@ -84,6 +84,90 @@ class UserServiceTest {
     }
 
     @Test
+    void testAdminCreatePrincipalUserRequiresNoDepartment() {
+        AuthDto.RegisterRequest req = new AuthDto.RegisterRequest();
+        req.setName("Dr. Principal");
+        req.setEmail("principal@tkmit.ac.in");
+        req.setPassword("PrincipalPass123");
+        req.setRole(User.Role.PRINCIPAL);
+        req.setDepartment("CSE"); // even if department is provided, should be ignored/null for Principal
+
+        when(userRepo.existsByEmail("principal@tkmit.ac.in")).thenReturn(false);
+        when(passwordEncoder.encode("PrincipalPass123")).thenReturn("encodedPassword");
+
+        User savedPrincipal = User.builder()
+                .id(2L)
+                .name("Dr. Principal")
+                .email("principal@tkmit.ac.in")
+                .role(User.Role.PRINCIPAL)
+                .department(null)
+                .build();
+        when(userRepo.save(any(User.class))).thenReturn(savedPrincipal);
+
+        User result = userService.createUserByAdmin(req);
+
+        assertNotNull(result);
+        assertEquals(User.Role.PRINCIPAL, result.getRole());
+        assertNull(result.getDepartment());
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepo).save(captor.capture());
+        assertNull(captor.getValue().getDepartment());
+    }
+
+    @Test
+    void testFacultyAddStudentWithCustomAdvisor() {
+        AuthDto.RegisterRequest req = new AuthDto.RegisterRequest();
+        req.setName("Kavya Nair");
+        req.setEmail("kavya.n@student.tkmit.ac.in");
+        req.setPassword("tempPass");
+        req.setSemester("S4");
+        req.setAdvisorId(25L);
+
+        User faculty = User.builder()
+                .id(20L)
+                .name("Prof. Alex")
+                .department("CSE")
+                .role(User.Role.FACULTY)
+                .build();
+
+        User selectedAdvisor = User.builder()
+                .id(25L)
+                .name("Prof. Sarah")
+                .department("CSE")
+                .role(User.Role.FACULTY)
+                .build();
+
+        when(userRepo.findById(20L)).thenReturn(java.util.Optional.of(faculty));
+        when(userRepo.findById(25L)).thenReturn(java.util.Optional.of(selectedAdvisor));
+        when(userRepo.existsByEmail("kavya.n@student.tkmit.ac.in")).thenReturn(false);
+        when(passwordEncoder.encode("tempPass")).thenReturn("hashedTemp");
+
+        User savedStudent = User.builder()
+                .id(105L)
+                .name("Kavya Nair")
+                .email("kavya.n@student.tkmit.ac.in")
+                .role(User.Role.STUDENT)
+                .department("CSE")
+                .semester("S4")
+                .advisor(selectedAdvisor)
+                .build();
+        when(userRepo.save(any(User.class))).thenReturn(savedStudent);
+
+        User result = userService.addStudentForFaculty(20L, req);
+
+        assertNotNull(result);
+        assertEquals("Kavya Nair", result.getName());
+        assertEquals("CSE", result.getDepartment());
+        assertNotNull(result.getAdvisor());
+        assertEquals("Prof. Sarah", result.getAdvisor().getName());
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepo).save(captor.capture());
+        assertEquals("Prof. Sarah", captor.getValue().getAdvisor().getName());
+    }
+
+    @Test
     void testAdminCreateUserRejectsDuplicateEmail() {
         AuthDto.RegisterRequest req = new AuthDto.RegisterRequest();
         req.setName("Admin User");

@@ -93,6 +93,15 @@ public class UserController {
         );
     }
 
+    @GetMapping("/faculty-advisors")
+    public ResponseEntity<AppDto.ApiResponse<List<User>>> getFacultyAdvisors(
+            @RequestParam(required = false) String dept
+    ) {
+        return ResponseEntity.ok(
+            AppDto.ApiResponse.ok("Faculty advisors", userService.getFacultyAdvisors(dept))
+        );
+    }
+
     @PostMapping("/faculty/students")
     @PreAuthorize("hasAnyRole('FACULTY','HOD','ADMIN')")
     public ResponseEntity<AppDto.ApiResponse<User>> addStudentForFaculty(

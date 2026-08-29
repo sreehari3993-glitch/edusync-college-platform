@@ -60,6 +60,14 @@ public class UserService {
         return userRepo.findByRoleAndDepartment(User.Role.STUDENT, dept);
     }
 
+    public List<User> getFacultyAdvisors(String dept) {
+        String cleanDept = clean(dept);
+        if (cleanDept != null && !cleanDept.equalsIgnoreCase("ALL")) {
+            return userRepo.findByRoleAndDepartment(User.Role.FACULTY, cleanDept);
+        }
+        return userRepo.findByRole(User.Role.FACULTY);
+    }
+
     @Transactional
     public User createUserByAdmin(AuthDto.RegisterRequest req) {
         if (clean(req.getEmail()) == null || clean(req.getName()) == null || clean(req.getPassword()) == null) {
@@ -72,17 +80,26 @@ public class UserService {
 
         User.Role role = req.getRole() != null ? req.getRole() : User.Role.STUDENT;
 
+        // Admin and Principal roles are institution-wide and do not require a department
+        String dept = (role == User.Role.ADMIN || role == User.Role.PRINCIPAL) ? null : clean(req.getDepartment());
+
+        User advisor = null;
+        if (role == User.Role.STUDENT && req.getAdvisorId() != null) {
+            advisor = userRepo.findById(req.getAdvisorId()).orElse(null);
+        }
+
         User user = User.builder()
                 .name(req.getName().trim())
                 .email(req.getEmail().trim())
                 .password(passwordEncoder.encode(req.getPassword()))
                 .role(role)
-                .department(clean(req.getDepartment()))
+                .department(dept)
                 .semester(clean(req.getSemester()))
                 .section(clean(req.getSection()))
                 .rollNumber(clean(req.getRollNumber()))
                 .employeeId(clean(req.getEmployeeId()))
                 .phone(clean(req.getPhone()))
+                .advisor(advisor)
                 .build();
 
         User saved = userRepo.save(user);
@@ -115,6 +132,11 @@ public class UserService {
             throw new BadRequestException("Name, email, semester and temporary password are required.");
         }
 
+        User advisor = faculty;
+        if (req.getAdvisorId() != null) {
+            advisor = userRepo.findById(req.getAdvisorId()).orElse(faculty);
+        }
+
         User student = User.builder()
                 .name(req.getName().trim())
                 .email(req.getEmail().trim())
@@ -125,6 +147,7 @@ public class UserService {
                 .section(clean(req.getSection()))
                 .rollNumber(clean(req.getRollNumber()))
                 .phone(clean(req.getPhone()))
+                .advisor(advisor)
                 .build();
         User saved = userRepo.save(student);
 
@@ -135,7 +158,7 @@ public class UserService {
                 faculty.getRole(),
                 "User",
                 saved.getId().toString(),
-                "Added student " + saved.getName() + " (" + saved.getEmail() + ") to " + department
+                "Added student " + saved.getName() + " (" + saved.getEmail() + ") to " + department + " (Advisor: " + advisor.getName() + ")"
         );
 
         return saved;

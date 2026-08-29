@@ -44,6 +44,11 @@ public class AuthService {
             );
         }
 
+        User advisor = null;
+        if (req.getAdvisorId() != null) {
+            advisor = userRepository.findById(req.getAdvisorId()).orElse(null);
+        }
+
         User user = User.builder()
                 .name(req.getName())
                 .email(req.getEmail())
@@ -55,6 +60,7 @@ public class AuthService {
                 .rollNumber(req.getRollNumber())
                 .employeeId(req.getEmployeeId())
                 .phone(req.getPhone())
+                .advisor(advisor)
                 .build();
 
         User saved = userRepository.save(user);
@@ -80,6 +86,8 @@ public class AuthService {
                 .role(saved.getRole().name())
                 .department(saved.getDepartment())
                 .semester(saved.getSemester())
+                .advisorId(saved.getAdvisor() != null ? saved.getAdvisor().getId() : null)
+                .advisorName(saved.getAdvisor() != null ? saved.getAdvisor().getName() : null)
                 .message("Registration successful! Welcome to EduSync.")
                 .build();
     }
@@ -120,6 +128,8 @@ public class AuthService {
                 .role(user.getRole().name())
                 .department(user.getDepartment())
                 .semester(user.getSemester())
+                .advisorId(user.getAdvisor() != null ? user.getAdvisor().getId() : null)
+                .advisorName(user.getAdvisor() != null ? user.getAdvisor().getName() : null)
                 .message("Login successful!")
                 .build();
     }

@@ -48,6 +48,7 @@ public class AuthDto {
         private String rollNumber;
         private String employeeId;
         private String phone;
+        private Long advisorId;
     }
 
     // Response: login / register
@@ -63,6 +64,8 @@ public class AuthDto {
         private String role;
         private String department;
         private String semester;
+        private Long advisorId;
+        private String advisorName;
         private String message;
     }
 

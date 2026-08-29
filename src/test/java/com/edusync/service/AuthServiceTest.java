@@ -125,6 +125,51 @@ class AuthServiceTest {
     }
 
     @Test
+    void testPublicRegisterWithFacultyAdvisor() {
+        AuthDto.RegisterRequest req = new AuthDto.RegisterRequest();
+        req.setName("Rahul Sharma");
+        req.setEmail("rahul.s@student.tkmit.ac.in");
+        req.setPassword("SecurePass123");
+        req.setDepartment("CSE");
+        req.setSemester("S2");
+        req.setAdvisorId(10L);
+
+        User facultyAdvisor = User.builder()
+                .id(10L)
+                .name("Dr. Smith")
+                .role(User.Role.FACULTY)
+                .build();
+
+        when(userRepository.existsByEmail("rahul.s@student.tkmit.ac.in")).thenReturn(false);
+        when(userRepository.findById(10L)).thenReturn(java.util.Optional.of(facultyAdvisor));
+        when(passwordEncoder.encode("SecurePass123")).thenReturn("hashedPass");
+
+        User savedUser = User.builder()
+                .id(102L)
+                .name("Rahul Sharma")
+                .email("rahul.s@student.tkmit.ac.in")
+                .role(User.Role.STUDENT)
+                .department("CSE")
+                .semester("S2")
+                .advisor(facultyAdvisor)
+                .build();
+        when(userRepository.save(any(User.class))).thenReturn(savedUser);
+        when(userDetailsService.loadUserByUsername("rahul.s@student.tkmit.ac.in")).thenReturn(userDetails);
+        when(jwtUtil.generateToken(userDetails, 102L, "STUDENT")).thenReturn("mock-jwt-token");
+
+        AuthDto.AuthResponse resp = authService.register(req);
+
+        assertNotNull(resp);
+        assertEquals(10L, resp.getAdvisorId());
+        assertEquals("Dr. Smith", resp.getAdvisorName());
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertNotNull(captor.getValue().getAdvisor());
+        assertEquals("Dr. Smith", captor.getValue().getAdvisor().getName());
+    }
+
+    @Test
     void testPublicRegisterRejectsDuplicateEmail() {
         AuthDto.RegisterRequest req = new AuthDto.RegisterRequest();
         req.setEmail("existing@tkmit.ac.in");

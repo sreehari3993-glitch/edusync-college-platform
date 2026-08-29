@@ -2768,10 +2768,16 @@
           </div>
         </div>
         <div class="two-col" style="gap:12px;margin-bottom:0;">
-          <div class="form-group"><label class="form-label">Department</label><input class="form-input" type="text"
-              id="regDept" placeholder="CSE"></div>
+          <div class="form-group" id="regDeptGroup"><label class="form-label">Department</label><input class="form-input" type="text"
+              id="regDept" placeholder="CSE" oninput="loadRegisterAdvisors()"></div>
           <div class="form-group" id="regSemesterGroup"><label class="form-label">Semester</label><input
               class="form-input" type="text" id="regSemester" placeholder="S2"></div>
+        </div>
+        <div class="form-group" id="regAdvisorGroup" style="margin-bottom:12px;">
+          <label class="form-label">Faculty Advisor</label>
+          <select class="form-select" id="regAdvisor">
+            <option value="">-- Select Faculty Advisor --</option>
+          </select>
         </div>
         <div class="two-col" style="gap:12px;margin-bottom:0;">
           <div class="form-group" id="regRollGroup"><label class="form-label">Roll Number</label><input
@@ -2836,6 +2842,12 @@
               id="modalStudentSection" placeholder="A" value="A"></div>
           <div class="form-group"><label class="form-label">Temporary Password</label><input class="form-input"
               type="text" id="modalStudentPassword" value="student123"></div>
+        </div>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label class="form-label">Faculty Advisor (Tutor)</label>
+          <select class="form-select" id="modalStudentAdvisor">
+            <option value="">-- Assign Faculty Advisor (Default: You) --</option>
+          </select>
         </div>
         <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
           <button type="button" class="btn btn-outline btn-sm" onclick="closeAddStudentModal()">Cancel</button>
@@ -7694,12 +7706,43 @@
       if (!roleEl) return;
       const role = roleEl.value;
       const isStudent = role === 'STUDENT';
+      const isAdminOrPrincipal = role === 'ADMIN' || role === 'PRINCIPAL';
+      const deptGroup = document.getElementById('regDeptGroup');
       const rollGroup = document.getElementById('regRollGroup');
       const empGroup = document.getElementById('regEmpGroup');
       const semGroup = document.getElementById('regSemesterGroup');
+      const advisorGroup = document.getElementById('regAdvisorGroup');
+
+      if (deptGroup) deptGroup.style.display = isAdminOrPrincipal ? 'none' : 'block';
       if (rollGroup) rollGroup.style.display = isStudent ? 'block' : 'none';
       if (empGroup) empGroup.style.display = isStudent ? 'none' : 'block';
       if (semGroup) semGroup.style.display = isStudent ? 'block' : 'none';
+      if (advisorGroup) advisorGroup.style.display = isStudent ? 'block' : 'none';
+
+      if (isStudent) {
+        loadRegisterAdvisors();
+      }
+    }
+
+    async function loadRegisterAdvisors() {
+      const advisorSelect = document.getElementById('regAdvisor');
+      if (!advisorSelect) return;
+      const dept = document.getElementById('regDept') ? document.getElementById('regDept').value.trim() : '';
+      try {
+        const res = await api('/users/faculty-advisors' + (dept ? '?dept=' + encodeURIComponent(dept) : ''), { auth: false });
+        const advisors = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+        const prevVal = advisorSelect.value;
+        advisorSelect.innerHTML = '<option value="">-- Select Faculty Advisor --</option>';
+        advisors.forEach(a => {
+          const opt = document.createElement('option');
+          opt.value = a.id;
+          opt.textContent = a.name + (a.department ? ' (' + a.department + ')' : '') + (a.employeeId ? ' - ' + a.employeeId : '');
+          advisorSelect.appendChild(opt);
+        });
+        if (prevVal) advisorSelect.value = prevVal;
+      } catch (e) {
+        console.warn('Could not load faculty advisors:', e);
+      }
     }
 
     async function handleLogin(evt) {
@@ -7720,16 +7763,20 @@
 
     async function handleRegister(evt) {
       evt.preventDefault();
+      const role = document.getElementById('regRole').value;
+      const isAdminOrPrincipal = role === 'ADMIN' || role === 'PRINCIPAL';
+      const advSelect = document.getElementById('regAdvisor');
       const payload = {
         name: document.getElementById('regName').value.trim(),
         email: document.getElementById('regEmail').value.trim(),
         password: document.getElementById('regPassword').value,
-        role: document.getElementById('regRole').value,
-        department: document.getElementById('regDept').value.trim() || null,
+        role: role,
+        department: isAdminOrPrincipal ? null : (document.getElementById('regDept').value.trim() || null),
         semester: document.getElementById('regSemester').value.trim() || null,
         rollNumber: document.getElementById('regRoll').value.trim() || null,
         employeeId: document.getElementById('regEmpId').value.trim() || null,
-        phone: document.getElementById('regPhone').value.trim() || null
+        phone: document.getElementById('regPhone').value.trim() || null,
+        advisorId: (advSelect && advSelect.value) ? parseInt(advSelect.value) : null
       };
       const errBox = document.getElementById('registerError');
       errBox.style.display = 'none';
@@ -8931,7 +8978,7 @@
     }
 
     /* ─── ADD STUDENT MODAL / WORKFLOW ─── */
-    function openAddStudentModal() {
+    async function openAddStudentModal() {
       const overlay = document.getElementById('addStudentModalOverlay');
       if (!overlay) return;
       overlay.style.display = 'flex';
@@ -8942,6 +8989,26 @@
       if (err) err.style.display = 'none';
       const name = document.getElementById('modalStudentName');
       if (name) name.focus();
+
+      // Populate Faculty Advisor dropdown
+      const advSelect = document.getElementById('modalStudentAdvisor');
+      if (advSelect) {
+        advSelect.innerHTML = '<option value="">-- Assign Faculty Advisor (Default: You) --</option>';
+        try {
+          const dept = (currentUser && currentUser.department) ? currentUser.department : '';
+          const res = await api('/users/faculty-advisors' + (dept ? '?dept=' + encodeURIComponent(dept) : ''), { auth: false });
+          const advisors = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+          advisors.forEach(a => {
+            const opt = document.createElement('option');
+            opt.value = a.id;
+            opt.textContent = a.name + (a.department ? ' (' + a.department + ')' : '') + (a.id === (currentUser && currentUser.id) ? ' [You]' : '');
+            if (a.id === (currentUser && currentUser.id)) opt.selected = true;
+            advSelect.appendChild(opt);
+          });
+        } catch (e) {
+          console.warn('Could not load faculty advisors for modal:', e);
+        }
+      }
     }
 
     function closeAddStudentModal() {
@@ -8966,6 +9033,8 @@
       const semester = document.getElementById('modalStudentSemester').value;
       const section = document.getElementById('modalStudentSection').value.trim() || 'A';
       const password = document.getElementById('modalStudentPassword').value.trim() || 'student123';
+      const advSelect = document.getElementById('modalStudentAdvisor');
+      const advisorId = (advSelect && advSelect.value) ? parseInt(advSelect.value) : (currentUser ? currentUser.id : null);
 
       const errBox = document.getElementById('addStudentModalError');
       if (errBox) errBox.style.display = 'none';
@@ -8988,7 +9057,8 @@
         section: section,
         rollNumber: rollNumber,
         employeeId: null,
-        phone: null
+        phone: null,
+        advisorId: advisorId
       };
 
       const btn = document.getElementById('modalStudentSaveBtn');
