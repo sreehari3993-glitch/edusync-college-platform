@@ -217,29 +217,29 @@ public class AiService {
             return true;
         }
 
-        // Attendance terms
-        boolean hasAttendanceTerm = lower.contains("attend") || lower.contains("percentage") || lower.contains("shortage") || lower.contains("bunk") || lower.contains("%");
+        // Attendance terms with word boundaries
+        boolean hasAttendanceTerm = lower.matches(".*\\b(attendance|attend|shortage|bunk|bunking)\\b.*") || lower.contains("attendance %") || lower.contains("% attendance");
         
-        // Personal Pronouns & query indicators
-        boolean hasPersonalPronoun = lower.contains("my") || lower.contains("me") || lower.contains("mine") || lower.contains("i have") || lower.contains("am i") || lower.contains("can i") || lower.contains("i got") || lower.startsWith("i ") || lower.contains("who am i") || lower.contains("i am in");
+        // Personal Pronouns & query indicators with word boundaries
+        boolean hasPersonalPronoun = lower.matches(".*\\b(my|me|mine|i|i'm|i am|i have|am i|can i|i got)\\b.*");
 
         // Academics / CGPA / SGPA / Marks / Results terms
-        boolean hasAcademicsTerm = lower.contains("cgpa") || lower.contains("sgpa") || lower.contains("gpa") || lower.contains("mark") || lower.contains("marks") || lower.contains("grade") || lower.contains("score") || lower.contains("internal") || lower.contains("series") || lower.contains("result") || lower.contains("backlog") || lower.contains("academic");
+        boolean hasAcademicsTerm = lower.matches(".*\\b(cgpa|sgpa|gpa|mark|marks|grade|grades|score|internal|internals|series|result|results|backlog|backlogs)\\b.*");
 
         // Leaves / OD terms
-        boolean hasLeaveTerm = lower.contains("leave") || lower.contains("od") || lower.contains("duty leave") || lower.contains("application") || lower.contains("medical leave");
+        boolean hasLeaveTerm = lower.matches(".*\\b(duty leave|od|leave|leaves|medical leave)\\b.*");
 
         // Placement / Jobs terms
-        boolean hasPlacementTerm = lower.contains("placement") || lower.contains("drive") || lower.contains("job") || lower.contains("company") || lower.contains("package") || lower.contains("interview") || lower.contains("eligible");
+        boolean hasPlacementTerm = lower.matches(".*\\b(placement|placements|drive|drives|job|jobs|package|interview)\\b.*");
 
         // Profile / Schedule terms
-        boolean hasProfileTerm = lower.contains("profile") || lower.contains("roll") || lower.contains("details") || lower.contains("timetable") || lower.contains("schedule") || lower.contains("class") || lower.contains("semester");
+        boolean hasProfileTerm = lower.matches(".*\\b(profile|roll number|timetable|schedule)\\b.*");
 
         if (hasPersonalPronoun && (hasAttendanceTerm || hasAcademicsTerm || hasLeaveTerm || hasPlacementTerm || hasProfileTerm)) {
             return true;
         }
 
-        if (lower.startsWith("my ") || lower.startsWith("check my") || lower.startsWith("what is my") || lower.startsWith("whats my") || lower.startsWith("what's my") || lower.startsWith("show my") || lower.equals("my cgpa") || lower.equals("my marks") || lower.equals("my attendance")) {
+        if (lower.startsWith("my ") || lower.startsWith("check my ") || lower.startsWith("what is my ") || lower.startsWith("whats my ") || lower.startsWith("what's my ") || lower.startsWith("show my ") || lower.equals("my cgpa") || lower.equals("my marks") || lower.equals("my attendance")) {
             return true;
         }
 

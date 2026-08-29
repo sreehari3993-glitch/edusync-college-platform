@@ -226,6 +226,20 @@ CASE STUDY 5: PERSONAL IDENTITY & SEMESTER INQUIRY ROUTING
   - Injected real-time database student profile extraction (`student.getName()`, `student.getRollNumber()`, `student.getDepartment()`, `student.getSemester()`, `student.getSection()`).
   - Generates instant personalized report: "You are currently enrolled in Semester S4 (B.Tech 2022–2026 Batch) under the Department of Computer Science & Engineering at TKMIT."
 
+CASE STUDY 6: ENGINEERING MATHEMATICS & LOG EXCLUSION FROM RAG
+• User Query: "partial differenciation", "What is partial differentiation in engineering mathematics?"
+• Incorrect Initial Agent Behavior:
+  - When a student typed long mathematical notes on Partial Differentiation, substring matching on "me" in "time" or "%" misclassified it as a personal attendance inquiry.
+  - Furthermore, `RagService` was indexing `student_chat_history.txt` as a knowledge source and citing `student_chat_history.txt (Page 1)` along with generic microeconomics examples (Law of Demand).
+• Root Cause:
+  - `RagService.java` accepted all `.txt` files without excluding conversation transcripts and audit logs.
+  - Substring checks in `isPersonalStudentQuery` lacked word boundaries.
+• How It Was Corrected:
+  - Updated `isSupportedFilename` in `RagService.java` to strictly exclude all chat logs, audit files (`student_chat_history.txt`, `student_chat_audit_log.jsonl`, `*.log`, `*.jsonl`).
+  - Enforced strict word boundaries (`\b(my|me|i|am i|can i)\b`) for personal query detection so mathematical definitions are never misrouted to personal attendance records.
+  - Raised RAG similarity threshold to 0.45 and mapped partial differentiation directly to B.Tech First Year Engineering Mathematics (Calculus, Multivariable Optimization, Wave Equations, Gradient Descent in AI/ML).
+
 ================================================================================
                    END OF CAMPUS AI MASTER TRAINING GUIDE
 ================================================================================
+

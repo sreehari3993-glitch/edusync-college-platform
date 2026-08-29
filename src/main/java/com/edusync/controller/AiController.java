@@ -144,9 +144,9 @@ public class AiController {
     }
 
     /**
-     * Manually trigger bi-directional sync with Google Drive.
+     * Manually trigger bi-directional sync with Google Drive (supports both GET and POST).
      */
-    @PostMapping("/sync-drive")
+    @RequestMapping(value = "/sync-drive", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<AppDto.ApiResponse<java.util.Map<String, Object>>> triggerDriveSync() {
         java.util.Map<String, Object> syncResult = googleDriveService.syncAll();
         return ResponseEntity.ok(AppDto.ApiResponse.ok("Google Drive Sync Result", syncResult));

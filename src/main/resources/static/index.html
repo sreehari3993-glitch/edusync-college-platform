@@ -7473,10 +7473,10 @@
                     class="profile-val">2.8 GB / 50 GB</span></div>
                 <div class="profile-field"><span class="profile-key">Last Backup</span><span class="profile-val"
                     style="color:var(--success);">Today 03:00 AM</span></div>
-                <div style="margin-top:14px;display:flex;gap:8px;">
-                  <button class="btn btn-blue btn-sm">🗄 Backup Now</button>
-                  <button class="btn btn-outline btn-sm">📥 Export Data</button>
-                  <button class="btn btn-red btn-sm">🗑 Clear Logs</button>
+                <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
+                  <button class="btn btn-blue btn-sm" onclick="syncGoogleDriveManual()">☁️ Sync Google Drive</button>
+                  <button class="btn btn-outline btn-sm" onclick="generateReportPdf('audit')">📥 Export Data</button>
+                  <button class="btn btn-red btn-sm" onclick="toast('Log rotation active.', 'info')">🗑 Clear Logs</button>
                 </div>
               </div>
             </div>
@@ -8747,6 +8747,18 @@
 
       toast('Generating institutional ' + (type || 'system').toUpperCase() + ' PDF report...', 'info');
       window.open(baseUrl + endpoint, '_blank');
+    }
+
+    async function syncGoogleDriveManual() {
+      toast('☁️ Connecting to Google Drive & syncing documents...', 'info');
+      try {
+        const res = await api('/ai/sync-drive', { method: 'POST' });
+        const uploaded = res && res.uploadedFiles ? res.uploadedFiles : 0;
+        const downloaded = res && res.downloadedFiles ? res.downloadedFiles.length : 0;
+        toast('Google Drive Sync Complete! ☁️ (Uploaded: ' + uploaded + ', Downloaded: ' + downloaded + ')', 'success');
+      } catch (e) {
+        toast('Google Drive sync: ' + e.message, 'info');
+      }
     }
 
     function renderStudentNotices(notices) {

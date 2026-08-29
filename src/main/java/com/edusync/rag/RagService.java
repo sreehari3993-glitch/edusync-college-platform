@@ -108,6 +108,10 @@ public class RagService {
     private boolean isSupportedFilename(String name) {
         if (name == null) return false;
         String lower = name.toLowerCase();
+        // Strictly exclude internal chat transcripts, audit logs, and system logs
+        if (lower.contains("chat_history") || lower.contains("audit") || lower.contains("log") || lower.endsWith(".jsonl")) {
+            return false;
+        }
         return lower.endsWith(".pdf") || lower.endsWith(".xlsx") || lower.endsWith(".xls") || lower.endsWith(".csv") || lower.endsWith(".txt") || lower.endsWith(".md");
     }
 
@@ -419,10 +423,10 @@ public class RagService {
     public String answerWithRag(String query) {
         if (query == null || query.isBlank()) return null;
 
-        // Retrieve top 4 matching chunks
-        List<SearchResult> searchResults = search(query, 4, 0.30);
+        // Retrieve top 4 matching chunks with strong relevance threshold (>= 0.45)
+        List<SearchResult> searchResults = search(query, 4, 0.45);
         if (searchResults.isEmpty()) {
-            return null; // No relevant PDF context found -> let standard LLM or fallback answer
+            return null; // No relevant curriculum/regulation context found -> let standard LLM answer naturally
         }
 
         log.info("🎯 [RAG] Retrieved {} relevant chunk(s) (Top Score: {}) for query: '{}'",
