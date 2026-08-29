@@ -21,6 +21,7 @@ public class AssignmentService {
 
     private final AssignmentRepository assignmentRepo;
     private final UserRepository userRepo;
+    private final NotificationService notificationService;
 
     @Transactional
     public AppDto.AssignmentResponse createAssignment(Long facultyId, AppDto.AssignmentDto dto) {
@@ -55,6 +56,21 @@ public class AssignmentService {
                 .build();
 
         Assignment saved = assignmentRepo.save(assignment);
+
+        // Notify students in department
+        notificationService.sendToRoleAndDepartment(
+                User.Role.STUDENT,
+                department,
+                com.edusync.dto.NotificationDto.builder()
+                        .type("ASSIGNMENT_NEW")
+                        .title("📚 New Assignment: " + subject)
+                        .message(title + " (Due: " + saved.getDueDate() + ")")
+                        .actorName(faculty.getName())
+                        .department(department)
+                        .link("#page-assignments")
+                        .build()
+        );
+
         return AppDto.AssignmentResponse.from(saved, countRecipients(saved));
     }
 

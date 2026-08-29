@@ -23,6 +23,7 @@ public class NoticeService {
     private final NoticeRepository noticeRepo;
     private final UserRepository userRepo;
     private final AuditService auditService;
+    private final NotificationService notificationService;
 
     @Transactional
     public Notice createNotice(Long adminId, AppDto.NoticeDto dto) {
@@ -48,6 +49,17 @@ public class NoticeService {
                 "Notice",
                 saved.getId().toString(),
                 "Published " + saved.getCategory() + " notice: \"" + saved.getTitle() + "\""
+        );
+
+        // Broadcast to all active connected users
+        notificationService.broadcast(
+                com.edusync.dto.NotificationDto.builder()
+                        .type("NOTICE_PUBLISHED")
+                        .title("📢 Notice: " + saved.getTitle())
+                        .message(saved.getContent().length() > 90 ? saved.getContent().substring(0, 90) + "..." : saved.getContent())
+                        .actorName(creator.getName())
+                        .link("#page-notices")
+                        .build()
         );
 
         return saved;

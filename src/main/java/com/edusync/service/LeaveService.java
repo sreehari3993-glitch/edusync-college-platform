@@ -27,6 +27,7 @@ public class LeaveService {
     private final UserRepository userRepo;
     private final AuditService auditService;
     private final PdfService pdfService;
+    private final NotificationService notificationService;
 
     // ─── Student: Submit leave ────────────────────────────────────────────
 
@@ -64,6 +65,20 @@ public class LeaveService {
                 "LeaveRequest",
                 saved.getId().toString(),
                 "Submitted " + saved.getLeaveType() + " (" + saved.getNoOfDays() + " days)"
+        );
+
+        // Notify department faculty/advisor of incoming duty leave request
+        notificationService.sendToRoleAndDepartment(
+                User.Role.FACULTY,
+                student.getDepartment(),
+                com.edusync.dto.NotificationDto.builder()
+                        .type("LEAVE_SUBMITTED")
+                        .title("📝 New Leave Request")
+                        .message(student.getName() + " (" + student.getRollNumber() + ") submitted " + saved.getLeaveType() + " for " + (saved.getEventName() != null ? saved.getEventName() : "event") + " (" + days + " days)")
+                        .actorName(student.getName())
+                        .department(student.getDepartment())
+                        .link("#page-leaves")
+                        .build()
         );
 
         return saved;
@@ -119,6 +134,18 @@ public class LeaveService {
                 "Faculty decision: " + dto.getStatus() + " for request #" + saved.getId()
         );
 
+        // Real-time notification to the student
+        notificationService.sendToUser(
+                saved.getStudent().getId(),
+                com.edusync.dto.NotificationDto.builder()
+                        .type("LEAVE_UPDATE")
+                        .title(dto.getStatus() == LeaveRequest.Status.APPROVED ? "✅ Leave Approved by Faculty" : "❌ Leave Rejected by Faculty")
+                        .message("Faculty " + faculty.getName() + " has " + dto.getStatus().name().toLowerCase() + " your leave request for " + (saved.getEventName() != null ? saved.getEventName() : "event"))
+                        .actorName(faculty.getName())
+                        .link("#page-leaves")
+                        .build()
+        );
+
         return saved;
     }
 
@@ -165,6 +192,18 @@ public class LeaveService {
                 "HOD decision: " + dto.getStatus() + " for request #" + saved.getId()
         );
 
+        // Real-time notification to the student
+        notificationService.sendToUser(
+                saved.getStudent().getId(),
+                com.edusync.dto.NotificationDto.builder()
+                        .type("LEAVE_UPDATE")
+                        .title(dto.getStatus() == LeaveRequest.Status.APPROVED ? "✅ Leave Approved by HOD" : "❌ Leave Rejected by HOD")
+                        .message("HOD " + hod.getName() + " has " + dto.getStatus().name().toLowerCase() + " your leave request")
+                        .actorName(hod.getName())
+                        .link("#page-leaves")
+                        .build()
+        );
+
         return saved;
     }
 
@@ -203,6 +242,18 @@ public class LeaveService {
                 "LeaveRequest",
                 saved.getId().toString(),
                 "Principal decision: " + dto.getStatus() + " for request #" + saved.getId()
+        );
+
+        // Real-time notification to the student
+        notificationService.sendToUser(
+                saved.getStudent().getId(),
+                com.edusync.dto.NotificationDto.builder()
+                        .type("LEAVE_UPDATE")
+                        .title(dto.getStatus() == LeaveRequest.Status.APPROVED ? "🎉 Leave Sanctioned by Principal" : "❌ Leave Rejected by Principal")
+                        .message("Principal Office has " + dto.getStatus().name().toLowerCase() + " your leave request")
+                        .actorName("Principal")
+                        .link("#page-leaves")
+                        .build()
         );
 
         return saved;

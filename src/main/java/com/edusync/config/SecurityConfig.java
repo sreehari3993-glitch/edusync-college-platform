@@ -75,6 +75,7 @@ public class SecurityConfig {
                     "/favicon.ico",
                     "/api/auth/**",
                     "/api/users/faculty-advisors",
+                    "/api/notifications/**",
                     "/api/notices/public",
                     "/api/placement/drives/public",
                     "/api/leaves/*/pdf",

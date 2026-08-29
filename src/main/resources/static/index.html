@@ -7603,6 +7603,10 @@
       authToken = null; currentUser = null;
       localStorage.removeItem(LS_TOKEN);
       localStorage.removeItem(LS_USER);
+      if (sseEventSource) {
+        try { sseEventSource.close(); } catch(e) {}
+        sseEventSource = null;
+      }
     }
 
     async function api(path, opts) {
@@ -7798,6 +7802,7 @@
       });
       toast('Welcome, ' + data.name + '!', 'success');
       applySessionUI();
+      initLiveNotificationStream();
       showPage(roleToPage(data.role));
     }
 
@@ -7852,6 +7857,9 @@
         if (avatar) {
           avatar.textContent = currentUser.profilePic || initials(currentUser.name);
           avatar.title = currentUser.name + ' (' + currentUser.role + ') — click to log out';
+        }
+        if (!sseEventSource) {
+          initLiveNotificationStream();
         }
       } else {
         if (loginBtn) loginBtn.style.display = 'inline-flex';
@@ -8121,6 +8129,141 @@
       renderNoticeList('adminNoticesContainer', notices);
     }
 
+    /* ─── REAL-TIME SERVER-SENT EVENTS (SSE) & AUDIO CHIME ─── */
+    window._realtimeNotifs = window._realtimeNotifs || [];
+    let sseEventSource = null;
+
+    function playNotificationChime() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const now = ctx.currentTime;
+
+        // Tone 1: 587.33 Hz (D5)
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(587.33, now);
+        gain1.gain.setValueAtTime(0.16, now);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.32);
+
+        // Tone 2: 880.00 Hz (A5)
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(880.00, now + 0.12);
+        gain2.gain.setValueAtTime(0.20, now + 0.12);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.52);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(now + 0.12);
+        osc2.stop(now + 0.52);
+      } catch (e) {
+        console.warn('Audio chime note:', e);
+      }
+    }
+
+    function initLiveNotificationStream() {
+      if (sseEventSource) {
+        try { sseEventSource.close(); } catch(e) {}
+        sseEventSource = null;
+      }
+      if (!authToken || !currentUser) return;
+
+      const url = API_BASE + '/notifications/stream?token=' + encodeURIComponent(authToken) +
+                  '&userId=' + encodeURIComponent(currentUser.id) +
+                  '&role=' + encodeURIComponent(currentUser.role || '') +
+                  '&department=' + encodeURIComponent(currentUser.department || '');
+
+      try {
+        sseEventSource = new EventSource(url);
+
+        sseEventSource.addEventListener('INIT', function() {
+          console.log('⚡ EduSync SSE Real-Time Notification Stream Connected');
+        });
+
+        function handleIncomingEvent(evt) {
+          try {
+            const notif = JSON.parse(evt.data);
+            if (!notif || !notif.title) return;
+
+            // 1. Play synthesized chime
+            playNotificationChime();
+
+            // 2. Prepend to real-time notification list
+            window._realtimeNotifs.unshift({
+              id: notif.id || Date.now(),
+              type: notif.type || 'alert',
+              title: notif.title,
+              message: notif.message,
+              actorName: notif.actorName,
+              timestamp: new Date().toISOString(),
+              unread: true
+            });
+
+            // 3. Update top-nav notification badge count and glow
+            updateNotificationBadge();
+
+            // 4. Flash toast popup
+            toast(notif.title + (notif.message ? ': ' + notif.message : ''), 'success');
+
+            // 5. Automatic contextual background re-fetch for seamless zero-reload UI
+            if (notif.type === 'LEAVE_UPDATE' || notif.type === 'LEAVE_SUBMITTED') {
+              if (currentUser.role === 'STUDENT' && typeof loadStudentLeaves === 'function') loadStudentLeaves();
+              if (currentUser.role === 'FACULTY' && typeof loadFacultyAll === 'function') loadFacultyAll();
+              if (currentUser.role === 'HOD' && typeof loadHodApprovals === 'function') loadHodApprovals();
+              if (currentUser.role === 'PRINCIPAL' && typeof loadPrincipalLeaves === 'function') loadPrincipalLeaves();
+            } else if (notif.type === 'NOTICE_PUBLISHED') {
+              if (typeof loadNoticesData === 'function') loadNoticesData();
+              if (typeof loadAllPublicNotices === 'function') loadAllPublicNotices();
+            } else if (notif.type === 'ASSIGNMENT_NEW') {
+              if (currentUser.role === 'STUDENT' && typeof loadStudentAssignments === 'function') loadStudentAssignments();
+            }
+          } catch(e) {
+            console.warn('Error handling SSE notification event:', e);
+          }
+        }
+
+        sseEventSource.addEventListener('LEAVE_UPDATE', handleIncomingEvent);
+        sseEventSource.addEventListener('LEAVE_SUBMITTED', handleIncomingEvent);
+        sseEventSource.addEventListener('NOTICE_PUBLISHED', handleIncomingEvent);
+        sseEventSource.addEventListener('ASSIGNMENT_NEW', handleIncomingEvent);
+        sseEventSource.addEventListener('TEST_ALERT', handleIncomingEvent);
+        sseEventSource.addEventListener('NOTIFICATION', handleIncomingEvent);
+        sseEventSource.onmessage = handleIncomingEvent;
+
+        sseEventSource.onerror = function(err) {
+          console.debug('SSE connection state change (reconnecting automatically)...');
+        };
+      } catch (e) {
+        console.warn('Could not initialize EventSource stream:', e);
+      }
+    }
+
+    function updateNotificationBadge() {
+      const dot = document.getElementById('navBadgeDot');
+      const pill = document.getElementById('notifUnreadPill');
+      const unreadCount = (window._realtimeNotifs || []).filter(n => n.unread).length;
+      if (dot) {
+        if (unreadCount > 0) {
+          dot.textContent = unreadCount;
+          dot.style.display = 'block';
+          dot.classList.add('badge-pulse');
+        } else {
+          dot.style.display = 'none';
+          dot.classList.remove('badge-pulse');
+        }
+      }
+      if (pill) {
+        pill.textContent = unreadCount + ' new';
+      }
+    }
+
     /* ─── NOTIFICATION BELL & DROPDOWN ─── */
     function toggleNotificationDropdown(evt) {
       if (evt) evt.stopPropagation();
@@ -8150,12 +8293,50 @@
       }
     });
 
+    function markAllNoticesAsRead() {
+      (window._realtimeNotifs || []).forEach(n => n.unread = false);
+      updateNotificationBadge();
+      renderNotificationDropdown();
+    }
+
     function renderNotificationDropdown() {
       const container = document.getElementById('notifList');
       if (!container) return;
       const readSet = getReadNoticeIds();
       const notices = globalNotices || [];
       let items = [];
+
+      // 0. Live Real-time SSE Notifications
+      (window._realtimeNotifs || []).forEach(function(rt) {
+        let icon = '⚡';
+        let iconBg = 'rgba(16,185,129,0.15)';
+        if (rt.type === 'LEAVE_UPDATE') { icon = '📝'; iconBg = 'rgba(37,99,235,0.15)'; }
+        else if (rt.type === 'NOTICE_PUBLISHED') { icon = '📢'; iconBg = 'rgba(245,158,11,0.15)'; }
+        else if (rt.type === 'ASSIGNMENT_NEW') { icon = '📚'; iconBg = 'rgba(139,92,246,0.15)'; }
+
+        items.push({
+          type: 'live',
+          icon: icon,
+          iconBg: iconBg,
+          title: rt.title,
+          desc: rt.message,
+          meta: (rt.actorName ? rt.actorName + ' · ' : '') + 'Just now',
+          unread: rt.unread,
+          action: function() {
+            rt.unread = false;
+            updateNotificationBadge();
+            closeNotificationDropdown();
+            if (rt.type === 'LEAVE_UPDATE' || rt.type === 'LEAVE_SUBMITTED') {
+              if (currentUser.role === 'STUDENT') showSub('student', 'leaves', null);
+              else if (currentUser.role === 'FACULTY') showSub('faculty', 'approvals', null);
+            } else if (rt.type === 'NOTICE_PUBLISHED') {
+              goToAnnouncementsTab();
+            } else if (rt.type === 'ASSIGNMENT_NEW') {
+              showSub('student', 'assignments', null);
+            }
+          }
+        });
+      });
 
       // 1. Role-specific approvals/updates
       if (currentUser) {
