@@ -1,6 +1,7 @@
 package com.edusync.service;
 
 import com.edusync.dto.AppDto;
+import com.edusync.exception.ResourceNotFoundException;
 import com.edusync.model.Notice;
 import com.edusync.model.User;
 import com.edusync.repository.NoticeRepository;
@@ -26,7 +27,7 @@ public class NoticeService {
     @Transactional
     public Notice createNotice(Long adminId, AppDto.NoticeDto dto) {
         User creator = userRepo.findById(adminId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", adminId));
 
         Notice notice = Notice.builder()
                 .title(dto.getTitle())
@@ -59,7 +60,7 @@ public class NoticeService {
     @Transactional
     public void deleteNotice(Long id) {
         Notice notice = noticeRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Notice not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Notice", id));
         notice.setActive(false);
         noticeRepo.save(notice);
 

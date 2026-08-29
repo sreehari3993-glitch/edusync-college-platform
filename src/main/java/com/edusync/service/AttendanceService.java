@@ -1,6 +1,7 @@
 package com.edusync.service;
 
 import com.edusync.dto.AppDto;
+import com.edusync.exception.ResourceNotFoundException;
 import com.edusync.model.Attendance;
 import com.edusync.model.Subject;
 import com.edusync.model.User;
@@ -32,7 +33,7 @@ public class AttendanceService {
     @Transactional
     public Attendance markAttendance(Long facultyId, AppDto.AttendanceMark dto) {
         User student = userRepo.findById(dto.getStudentId())
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Student", dto.getStudentId()));
 
         Subject subject = null;
         if (dto.getSubjectId() != null) {
@@ -57,7 +58,7 @@ public class AttendanceService {
         }
 
         User faculty = userRepo.findById(facultyId)
-                .orElseThrow(() -> new RuntimeException("Faculty not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Faculty", facultyId));
 
         // Update if already marked, else create new
         Attendance existing = attendanceRepo
@@ -86,7 +87,7 @@ public class AttendanceService {
 
     public List<AppDto.AttendanceSummary> getStudentSummary(Long studentId) {
         User student = userRepo.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Student", studentId));
 
         // Find all subjects the student has attendance records for
         List<Attendance> allRecords = attendanceRepo.findByStudent(student);
@@ -118,7 +119,7 @@ public class AttendanceService {
 
     public List<Attendance> getAttendanceBySubjectAndDate(Long subjectId, LocalDate date) {
         Subject subject = subjectRepo.findById(subjectId)
-                .orElseThrow(() -> new RuntimeException("Subject not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Subject", subjectId));
         return attendanceRepo.findBySubjectAndDate(subject, date);
     }
 
@@ -126,7 +127,7 @@ public class AttendanceService {
 
     public List<Attendance> getStudentAttendance(Long studentId) {
         User student = userRepo.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Student", studentId));
         return attendanceRepo.findByStudent(student);
     }
 }

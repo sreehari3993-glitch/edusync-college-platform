@@ -1,6 +1,7 @@
 package com.edusync.service;
 
 import com.edusync.dto.AppDto;
+import com.edusync.exception.ResourceNotFoundException;
 import com.edusync.model.Grievance;
 import com.edusync.model.User;
 import com.edusync.repository.GrievanceRepository;
@@ -23,7 +24,7 @@ public class GrievanceService {
     @Transactional
     public Grievance submitGrievance(Long studentId, AppDto.GrievanceDto dto) {
         User student = userRepository.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Student", studentId));
 
         Grievance grievance = Grievance.builder()
                 .student(student)
@@ -53,7 +54,7 @@ public class GrievanceService {
 
     public List<Grievance> getMyGrievances(Long studentId) {
         User student = userRepository.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Student", studentId));
         return grievanceRepository.findByStudentOrderByCreatedAtDesc(student);
     }
 
@@ -71,10 +72,10 @@ public class GrievanceService {
     @Transactional
     public Grievance respondToGrievance(Long userId, Long grievanceId, AppDto.GrievanceReplyDto dto) {
         User responder = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
 
         Grievance grievance = grievanceRepository.findById(grievanceId)
-                .orElseThrow(() -> new RuntimeException("Grievance not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Grievance", grievanceId));
 
         grievance.setStatus(dto.getStatus() != null ? dto.getStatus() : Grievance.Status.RESOLVED);
         grievance.setResponse(dto.getResponse());

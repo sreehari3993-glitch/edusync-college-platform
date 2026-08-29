@@ -1,6 +1,9 @@
 package com.edusync.service;
 
 import com.edusync.dto.AuthDto;
+import com.edusync.exception.ForbiddenOperationException;
+import com.edusync.exception.ResourceConflictException;
+import com.edusync.exception.ResourceNotFoundException;
 import com.edusync.model.User;
 import com.edusync.repository.UserRepository;
 import com.edusync.security.JwtUtil;
@@ -31,14 +34,21 @@ public class AuthService {
 
     public AuthDto.AuthResponse register(AuthDto.RegisterRequest req) {
         if (userRepository.existsByEmail(req.getEmail())) {
-            throw new RuntimeException("Email already registered: " + req.getEmail());
+            throw new ResourceConflictException("Email already registered: " + req.getEmail());
+        }
+
+        // Prevent privilege escalation: public self-registration is strictly for students
+        if (req.getRole() != null && req.getRole() != User.Role.STUDENT) {
+            throw new ForbiddenOperationException(
+                    "Public registration is restricted to students. Administrative and faculty accounts must be provisioned by an administrator."
+            );
         }
 
         User user = User.builder()
                 .name(req.getName())
                 .email(req.getEmail())
                 .password(passwordEncoder.encode(req.getPassword()))
-                .role(req.getRole() != null ? req.getRole() : User.Role.STUDENT)
+                .role(User.Role.STUDENT)
                 .department(req.getDepartment())
                 .semester(req.getSemester())
                 .section(req.getSection())
@@ -83,10 +93,10 @@ public class AuthService {
         );
 
         User user = userRepository.findByEmail(req.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", req.getEmail()));
 
         if (!user.isActive()) {
-            throw new RuntimeException("Account is deactivated. Contact admin.");
+            throw new ForbiddenOperationException("Account is deactivated. Contact admin.");
         }
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());

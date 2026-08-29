@@ -1,6 +1,8 @@
 package com.edusync.service;
 
 import com.edusync.dto.AppDto;
+import com.edusync.exception.ResourceConflictException;
+import com.edusync.exception.ResourceNotFoundException;
 import com.edusync.model.PlacementApplication;
 import com.edusync.model.PlacementDrive;
 import com.edusync.model.User;
@@ -62,12 +64,12 @@ public class PlacementService {
     @Transactional
     public PlacementApplication applyToDrive(Long studentId, AppDto.PlacementApplicationDto dto) {
         User student = userRepo.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Student", studentId));
         PlacementDrive drive = driveRepo.findById(dto.getDriveId())
-                .orElseThrow(() -> new RuntimeException("Drive not found: " + dto.getDriveId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Placement drive", dto.getDriveId()));
 
         if (appRepo.existsByStudentAndDrive(student, drive)) {
-            throw new RuntimeException("Already applied to this drive.");
+            throw new ResourceConflictException("Already applied to this drive.");
         }
 
         PlacementApplication application = PlacementApplication.builder()
@@ -75,7 +77,7 @@ public class PlacementService {
                 .drive(drive)
                 .cgpa(dto.getCgpa())
                 .status(PlacementApplication.ApplicationStatus.APPLIED)
-                .aiScore(simulateAiScore())    // AI screening placeholder
+                .aiScore(simulateAiScore())
                 .build();
 
         return appRepo.save(application);
@@ -85,7 +87,7 @@ public class PlacementService {
 
     public List<PlacementApplication> getStudentApplications(Long studentId) {
         User student = userRepo.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Student", studentId));
         return appRepo.findByStudent(student);
     }
 
@@ -94,7 +96,7 @@ public class PlacementService {
     @Transactional
     public PlacementApplication updateStatus(Long appId, PlacementApplication.ApplicationStatus status) {
         PlacementApplication app = appRepo.findById(appId)
-                .orElseThrow(() -> new RuntimeException("Application not found: " + appId));
+                .orElseThrow(() -> new ResourceNotFoundException("Application", appId));
         app.setStatus(status);
         return appRepo.save(app);
     }
@@ -103,7 +105,7 @@ public class PlacementService {
 
     public List<PlacementApplication> getDriveApplicants(Long driveId) {
         PlacementDrive drive = driveRepo.findById(driveId)
-                .orElseThrow(() -> new RuntimeException("Drive not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Placement drive", driveId));
         return appRepo.findByDrive(drive);
     }
 
@@ -112,7 +114,7 @@ public class PlacementService {
     @Transactional
     public PlacementDrive updateDriveStatus(Long driveId, PlacementDrive.DriveStatus status) {
         PlacementDrive drive = driveRepo.findById(driveId)
-                .orElseThrow(() -> new RuntimeException("Drive not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Placement drive", driveId));
         drive.setStatus(status);
         return driveRepo.save(drive);
     }

@@ -3,7 +3,7 @@ package com.edusync;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * EduSync College Digital Platform.
@@ -11,6 +11,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  * Main Spring Boot application entry point.
  */
 @SpringBootApplication
+@EnableAsync
 public class EduSyncApplication {
 
     public static void main(String[] args) {

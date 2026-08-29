@@ -56,6 +56,15 @@ public class UserController {
         );
     }
 
+    @PostMapping("/admin/create-user")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<AppDto.ApiResponse<User>> createUserByAdmin(
+            @RequestBody AuthDto.RegisterRequest request
+    ) {
+        User user = userService.createUserByAdmin(request);
+        return ResponseEntity.ok(AppDto.ApiResponse.ok("User account created successfully", user));
+    }
+
     @PutMapping("/admin/{id}/toggle")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AppDto.ApiResponse<User>> toggleActive(@PathVariable Long id) {

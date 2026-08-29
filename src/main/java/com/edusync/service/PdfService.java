@@ -1,5 +1,6 @@
 package com.edusync.service;
 
+import com.edusync.exception.FileProcessingException;
 import com.edusync.model.*;
 import com.lowagie.text.*;
 import com.lowagie.text.pdf.*;
@@ -185,7 +186,7 @@ public class PdfService {
 
             document.close();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to generate Leave Certificate PDF: " + e.getMessage(), e);
+            throw new FileProcessingException("Failed to generate Leave Certificate PDF: " + e.getMessage(), e);
         }
 
         return out.toByteArray();
@@ -242,7 +243,7 @@ public class PdfService {
             document.add(table);
             document.close();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to generate Leave Report PDF: " + e.getMessage(), e);
+            throw new FileProcessingException("Failed to generate Leave Report PDF: " + e.getMessage(), e);
         }
 
         return out.toByteArray();
@@ -297,7 +298,7 @@ public class PdfService {
             document.add(table);
             document.close();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to generate Placement Report PDF: " + e.getMessage(), e);
+            throw new FileProcessingException("Failed to generate Placement Report PDF: " + e.getMessage(), e);
         }
 
         return out.toByteArray();
@@ -351,7 +352,7 @@ public class PdfService {
             document.add(table);
             document.close();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to generate Audit Report PDF: " + e.getMessage(), e);
+            throw new FileProcessingException("Failed to generate Audit Report PDF: " + e.getMessage(), e);
         }
 
         return out.toByteArray();

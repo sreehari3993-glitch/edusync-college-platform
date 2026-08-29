@@ -1,6 +1,9 @@
 package com.edusync.service;
 
 import com.edusync.dto.AppDto;
+import com.edusync.exception.BadRequestException;
+import com.edusync.exception.ForbiddenOperationException;
+import com.edusync.exception.ResourceNotFoundException;
 import com.edusync.model.Assignment;
 import com.edusync.model.User;
 import com.edusync.repository.AssignmentRepository;
@@ -22,22 +25,22 @@ public class AssignmentService {
     @Transactional
     public AppDto.AssignmentResponse createAssignment(Long facultyId, AppDto.AssignmentDto dto) {
         User faculty = userRepo.findById(facultyId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", facultyId));
         String department = clean(faculty.getDepartment());
         if (department == null) {
-            throw new RuntimeException("Your account has no department set. Assignment recipients need a department.");
+            throw new ForbiddenOperationException("Your account has no department set. Assignment recipients need a department.");
         }
 
         String subject = clean(dto.getSubject());
         String title = clean(dto.getTitle());
         String description = clean(dto.getDescription());
         if (subject == null || title == null || description == null || dto.getDueDate() == null) {
-            throw new RuntimeException("Subject, title, description and due date are required.");
+            throw new BadRequestException("Subject, title, description and due date are required.");
         }
 
         Integer maxMarks = dto.getMaxMarks() != null ? dto.getMaxMarks() : 20;
         if (maxMarks <= 0) {
-            throw new RuntimeException("Max marks must be greater than zero.");
+            throw new BadRequestException("Max marks must be greater than zero.");
         }
 
         Assignment assignment = Assignment.builder()
@@ -58,7 +61,7 @@ public class AssignmentService {
     @Transactional(readOnly = true)
     public List<AppDto.AssignmentResponse> getFacultyAssignments(Long facultyId) {
         User faculty = userRepo.findById(facultyId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", facultyId));
         String department = clean(faculty.getDepartment());
         if (department == null) {
             return List.of();
@@ -72,7 +75,7 @@ public class AssignmentService {
     @Transactional(readOnly = true)
     public List<AppDto.AssignmentResponse> getStudentAssignments(Long studentId) {
         User student = userRepo.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", studentId));
         String department = clean(student.getDepartment());
         if (department == null) {
             return List.of();
@@ -87,13 +90,13 @@ public class AssignmentService {
     @Transactional
     public void deleteAssignment(Long userId, Long assignmentId) {
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
         Assignment assignment = assignmentRepo.findById(assignmentId)
-                .orElseThrow(() -> new RuntimeException("Assignment not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Assignment", assignmentId));
         boolean sameDepartment = clean(user.getDepartment()) != null
                 && clean(user.getDepartment()).equals(assignment.getDepartment());
         if (user.getRole() != User.Role.ADMIN && !sameDepartment) {
-            throw new RuntimeException("You can only remove assignments from your department.");
+            throw new ForbiddenOperationException("You can only remove assignments from your department.");
         }
         assignment.setActive(false);
         assignmentRepo.save(assignment);

@@ -1,6 +1,7 @@
 package com.edusync.config;
 
 import com.edusync.dto.AppDto;
+import com.edusync.exception.BaseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -13,10 +14,19 @@ import java.util.stream.Collectors;
 
 /**
  * Global exception handler.
- * Returns consistent JSON error responses for all API errors.
+ * Returns consistent JSON error responses with accurate HTTP status codes for all API errors.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    // ─── Domain-specific business exceptions (404, 409, 403, 400, 422) ────
+
+    @ExceptionHandler(BaseException.class)
+    public ResponseEntity<AppDto.ApiResponse<Void>> handleBaseException(BaseException ex) {
+        return ResponseEntity
+                .status(ex.getStatus())
+                .body(AppDto.ApiResponse.error(ex.getMessage()));
+    }
 
     // ─── Validation errors (e.g. @NotBlank, @Email) ───────────────────────
 
@@ -50,7 +60,7 @@ public class GlobalExceptionHandler {
                 .body(AppDto.ApiResponse.error("Access denied: insufficient permissions."));
     }
 
-    // ─── Business logic errors ────────────────────────────────────────────
+    // ─── Fallback runtime exceptions ──────────────────────────────────────
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<AppDto.ApiResponse<Void>> handleRuntime(RuntimeException ex) {

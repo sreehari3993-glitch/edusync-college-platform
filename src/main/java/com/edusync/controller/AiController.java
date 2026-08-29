@@ -86,7 +86,7 @@ public class AiController {
             @PathVariable Long driveId
     ) {
         PlacementDrive drive = driveRepo.findById(driveId)
-                .orElseThrow(() -> new RuntimeException("Placement drive not found: " + driveId));
+                .orElseThrow(() -> new com.edusync.exception.ResourceNotFoundException("Placement drive", driveId));
 
         List<PlacementApplication> applications = appRepo.findByDrive(drive);
         List<AiDto.CandidateInput> candidates = new ArrayList<>();

@@ -2,6 +2,10 @@ package com.edusync.service;
 
 import com.edusync.dto.AppDto;
 import com.edusync.dto.AuthDto;
+import com.edusync.exception.BadRequestException;
+import com.edusync.exception.ForbiddenOperationException;
+import com.edusync.exception.ResourceConflictException;
+import com.edusync.exception.ResourceNotFoundException;
 import com.edusync.model.User;
 import com.edusync.repository.LeaveRequestRepository;
 import com.edusync.repository.NoticeRepository;
@@ -34,12 +38,12 @@ public class UserService {
 
     public User getProfile(Long userId) {
         return userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
     }
 
     public User getByEmail(String email) {
         return userRepo.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found: " + email));
+                .orElseThrow(() -> new ResourceNotFoundException("User", email));
     }
 
     // ─── Admin: List all users ────────────────────────────────────────────
@@ -57,18 +61,58 @@ public class UserService {
     }
 
     @Transactional
+    public User createUserByAdmin(AuthDto.RegisterRequest req) {
+        if (clean(req.getEmail()) == null || clean(req.getName()) == null || clean(req.getPassword()) == null) {
+            throw new BadRequestException("Name, email, and password are required.");
+        }
+
+        if (userRepo.existsByEmail(req.getEmail().trim())) {
+            throw new ResourceConflictException("Email already registered: " + req.getEmail().trim());
+        }
+
+        User.Role role = req.getRole() != null ? req.getRole() : User.Role.STUDENT;
+
+        User user = User.builder()
+                .name(req.getName().trim())
+                .email(req.getEmail().trim())
+                .password(passwordEncoder.encode(req.getPassword()))
+                .role(role)
+                .department(clean(req.getDepartment()))
+                .semester(clean(req.getSemester()))
+                .section(clean(req.getSection()))
+                .rollNumber(clean(req.getRollNumber()))
+                .employeeId(clean(req.getEmployeeId()))
+                .phone(clean(req.getPhone()))
+                .build();
+
+        User saved = userRepo.save(user);
+
+        auditService.log(
+                "ADMIN_USER_PROVISIONED",
+                "admin@tkmit.ac.in",
+                "Administrator",
+                User.Role.ADMIN,
+                "User",
+                saved.getId().toString(),
+                "Admin provisioned " + role + " account for " + saved.getEmail()
+        );
+
+        return saved;
+    }
+
+    @Transactional
     public User addStudentForFaculty(Long facultyId, AuthDto.RegisterRequest req) {
         User faculty = userRepo.findById(facultyId)
-                .orElseThrow(() -> new RuntimeException("Faculty user not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Faculty user not found"));
         String department = clean(faculty.getDepartment());
         if (department == null) {
-            throw new RuntimeException("Your faculty account needs a department before adding students.");
+            throw new ForbiddenOperationException("Your faculty account needs a department before adding students.");
         }
         if (userRepo.existsByEmail(req.getEmail())) {
-            throw new RuntimeException("Email already registered: " + req.getEmail());
+            throw new ResourceConflictException("Email already registered: " + req.getEmail());
         }
         if (clean(req.getName()) == null || clean(req.getEmail()) == null || clean(req.getPassword()) == null || clean(req.getSemester()) == null) {
-            throw new RuntimeException("Name, email, semester and temporary password are required.");
+            throw new BadRequestException("Name, email, semester and temporary password are required.");
         }
 
         User student = User.builder()
@@ -102,14 +146,14 @@ public class UserService {
     @Transactional
     public void changePassword(Long userId, AuthDto.ChangePasswordRequest req) {
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
 
         if (!passwordEncoder.matches(req.getCurrentPassword(), user.getPassword())) {
-            throw new RuntimeException("Current password does not match.");
+            throw new BadRequestException("Current password does not match.");
         }
 
         if (req.getNewPassword() == null || req.getNewPassword().trim().length() < 6) {
-            throw new RuntimeException("New password must be at least 6 characters.");
+            throw new BadRequestException("New password must be at least 6 characters.");
         }
 
         user.setPassword(passwordEncoder.encode(req.getNewPassword().trim()));
@@ -131,7 +175,7 @@ public class UserService {
     @Transactional
     public User updateProfilePic(Long userId, String profilePic) {
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
         user.setProfilePic(profilePic);
         return userRepo.save(user);
     }
@@ -141,7 +185,7 @@ public class UserService {
     @Transactional
     public User toggleUserActive(Long userId) {
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
         user.setActive(!user.isActive());
         User saved = userRepo.save(user);
 
@@ -192,7 +236,7 @@ public class UserService {
     @Transactional
     public User updateProfile(Long userId, String phone, String profilePic) {
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
         if (phone != null)      user.setPhone(phone);
         if (profilePic != null) user.setProfilePic(profilePic);
         return userRepo.save(user);

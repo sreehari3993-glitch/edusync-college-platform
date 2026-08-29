@@ -1,6 +1,7 @@
 package com.edusync.service;
 
 import com.edusync.dto.AppDto;
+import com.edusync.exception.ResourceNotFoundException;
 import com.edusync.model.LeaveRequest;
 import com.edusync.model.User;
 import com.edusync.repository.LeaveRequestRepository;
@@ -32,7 +33,7 @@ public class LeaveService {
     @Transactional
     public LeaveRequest submitLeave(Long studentId, AppDto.LeaveRequestDto dto) {
         User student = userRepo.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found: " + studentId));
+                .orElseThrow(() -> new ResourceNotFoundException("Student", studentId));
 
         int days = (int) ChronoUnit.DAYS.between(dto.getFromDate(), dto.getToDate()) + 1;
 
@@ -72,7 +73,7 @@ public class LeaveService {
 
     public List<LeaveRequest> getStudentLeaves(Long studentId) {
         User student = userRepo.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Student", studentId));
         return leaveRepo.findByStudentOrderByCreatedAtDesc(student);
     }
 
@@ -92,7 +93,7 @@ public class LeaveService {
     public LeaveRequest facultyAction(Long leaveId, Long facultyId, AppDto.LeaveApprovalDto dto) {
         LeaveRequest leave = getLeave(leaveId);
         User faculty = userRepo.findById(facultyId)
-                .orElseThrow(() -> new RuntimeException("Faculty not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Faculty", facultyId));
 
         leave.setFacultyStatus(dto.getStatus());
         leave.setFacultyRemark(dto.getRemark());
@@ -133,7 +134,7 @@ public class LeaveService {
     public LeaveRequest hodAction(Long leaveId, Long hodId, AppDto.LeaveApprovalDto dto) {
         LeaveRequest leave = getLeave(leaveId);
         User hod = userRepo.findById(hodId)
-                .orElseThrow(() -> new RuntimeException("HOD not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("HOD", hodId));
 
         leave.setHodStatus(dto.getStatus());
         leave.setHodRemark(dto.getRemark());
@@ -234,6 +235,6 @@ public class LeaveService {
 
     private LeaveRequest getLeave(Long id) {
         return leaveRepo.findWithStudentById(id)
-                .orElseThrow(() -> new RuntimeException("Leave request not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Leave request", id));
     }
 }

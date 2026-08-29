@@ -1,6 +1,7 @@
 package com.edusync.service;
 
 import com.edusync.dto.AppDto;
+import com.edusync.exception.ResourceNotFoundException;
 import com.edusync.model.InternalMark;
 import com.edusync.model.User;
 import com.edusync.repository.InternalMarkRepository;
@@ -24,7 +25,7 @@ public class InternalMarkService {
     @Transactional
     public List<InternalMark> saveBatchMarks(Long facultyId, AppDto.BatchInternalMarkDto dto) {
         User faculty = userRepository.findById(facultyId)
-                .orElseThrow(() -> new RuntimeException("Faculty not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Faculty", facultyId));
 
         String series = dto.getSeriesName() != null ? dto.getSeriesName() : "Series I";
         String subject = dto.getSubjectName() != null ? dto.getSubjectName() : "Core Subject";
@@ -82,7 +83,7 @@ public class InternalMarkService {
 
     public List<InternalMark> getMarksForStudent(Long studentId) {
         User student = userRepository.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Student", studentId));
         return internalMarkRepository.findByStudentOrderByCreatedAtDesc(student);
     }
 
