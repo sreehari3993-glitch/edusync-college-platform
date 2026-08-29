@@ -128,4 +128,27 @@ public class AiController {
 
         return ResponseEntity.ok(AppDto.ApiResponse.ok("Drive applicants screened successfully", result));
     }
+
+    private final com.edusync.service.GoogleDriveService googleDriveService;
+
+    /**
+     * Get status of Google Drive cloud synchronization.
+     */
+    @GetMapping("/drive-status")
+    public ResponseEntity<AppDto.ApiResponse<java.util.Map<String, Object>>> getDriveStatus() {
+        java.util.Map<String, Object> status = new java.util.LinkedHashMap<>();
+        status.put("configured", googleDriveService.isConfigured());
+        status.put("folderId", googleDriveService.getFolderId());
+        status.put("folderUrl", "https://drive.google.com/drive/folders/" + googleDriveService.getFolderId());
+        return ResponseEntity.ok(AppDto.ApiResponse.ok("Google Drive Status", status));
+    }
+
+    /**
+     * Manually trigger bi-directional sync with Google Drive.
+     */
+    @PostMapping("/sync-drive")
+    public ResponseEntity<AppDto.ApiResponse<java.util.Map<String, Object>>> triggerDriveSync() {
+        java.util.Map<String, Object> syncResult = googleDriveService.syncAll();
+        return ResponseEntity.ok(AppDto.ApiResponse.ok("Google Drive Sync Result", syncResult));
+    }
 }

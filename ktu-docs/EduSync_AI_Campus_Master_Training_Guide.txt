@@ -1,0 +1,231 @@
+================================================================================
+           EDUSYNC CAMPUS AI MASTER TRAINING & KNOWLEDGE GUIDE
+    Curated University Intelligence, Career Advisory, Core CS & KTU Rules
+================================================================================
+
+TABLE OF CONTENTS:
+--------------------------------------------------------------------------------
+1. APJ ABDUL KALAM TECHNOLOGICAL UNIVERSITY (KTU) ACADEMIC REGULATIONS
+2. CONTINUOUS INTERNAL EVALUATION (CIE) & SGPA/CGPA CALCULATION
+3. DUTY LEAVE (OD), MEDICAL CONDONATION & ATTENDANCE POLICY
+4. ENGINEERING BRANCH COMPARISONS & CAREER PATHWAYS
+5. COMPUTER SCIENCE & SOFTWARE ENGINEERING CORE FUNDAMENTALS
+6. DATA STRUCTURES & ALGORITHMS (DSA) CHEAT SHEET
+7. CAMPUS PLACEMENTS, ATS RESUME SCORING & HR INTERVIEW MASTERY
+8. B.TECH 2024 CURRICULUM, HONOURS, MINORS & MOOC CREDITS
+9. STUDENT GRIEVANCE & CAMPUS E-GOVERNANCE WORKFLOWS
+10. AI AGENT CONVERSATION EVOLUTION, PITFALLS & CORRECTION PLAYBOOK
+--------------------------------------------------------------------------------
+
+
+================================================================================
+SECTION 1: KTU ACADEMIC REGULATIONS & DEGREE CLASSIFICATIONS
+================================================================================
+• Degree Requirements:
+  - B.Tech Regular: 160–170 Credits (depending on scheme).
+  - B.Tech Honours / Minor: 185 Credits (170 base + 15 additional credits).
+  - B.Tech Honours & Minor: 200 Credits (170 base + 15 + 15).
+• Passing Standards:
+  - Minimum 40% in End Semester Examination (ESE).
+  - Minimum 50% in aggregate (CIE + ESE combined).
+• Degree Classifications:
+  - First Class with Distinction: CGPA ≥ 8.0 with zero backlogs across all semesters.
+  - First Class: CGPA ≥ 6.5.
+  - Second Class: CGPA < 6.5.
+• B.Tech Honours Eligibility (Regulation R 16.8):
+  - Must register along with 4th semester registration.
+  - Must maintain CGPA ≥ 8.0 at the end of the 8th semester.
+  - Must complete 15 additional credits across S4, S5, S6, and S7 without failing any registered course.
+
+
+================================================================================
+SECTION 2: CIE, MARKS & OFFICIAL CGPA FORMULAS
+================================================================================
+• Continuous Internal Evaluation (CIE - 50 Marks):
+  - Series Exam 1: 15 Marks (Tests Modules 1 & 2)
+  - Series Exam 2: 15 Marks (Tests Modules 3 & 4)
+  - Micro-Assignments & Quizzes: 10 Marks
+  - Class Attendance: 10 Marks
+• CGPA to Percentage Conversion Formulas:
+  - B.Tech 2024 Scheme: Percentage Marks = 10 × CGPA
+  - B.Tech 2019 Scheme, MCA 2020, MBA 2020: Percentage Marks = (10 × CGPA) - 2.5
+  - B.Tech 2015 Scheme, B.Arch 2016: Percentage Marks = (10 × CGPA) - 3.75
+• SGPA Formula:
+  SGPA = Σ(Course Credit × Grade Point Earned) / Σ(Total Course Credits Registered)
+• Grade Point Scale:
+  - S Grade: 10.0 (≥90%)
+  - A+ Grade: 9.0 (85–89%)
+  - A Grade: 8.5 (80–84%)
+  - B+ Grade: 8.0 (75–79%)
+  - B Grade: 7.5 (70–74%)
+  - C+ Grade: 7.0 (65–69%)
+  - C Grade: 6.5 (60–64%)
+  - D Grade: 6.0 (55–59%)
+  - P Grade: 5.5 (50–54%)
+  - F Grade: 0.0 (<50% aggregate or <40% in ESE)
+
+
+================================================================================
+SECTION 3: ATTENDANCE, DUTY LEAVES (OD) & MEDICAL CONDONATION
+================================================================================
+• Attendance Thresholds:
+  - Regular Requirement: Minimum 75% attendance in each registered course to write ESE.
+  - Medical Condonation Zone (60% to 74% - Regulation R 6.2):
+    Principal can condone shortage down to 60% on genuine medical grounds (hospitalization/accident)
+    with medical fitness certificate. Maximum allowed in 2 semesters across the degree.
+  - Critical Shortage (< 60%): Awarded 'FE' grade (Failed due to Eligibility). Must repeat course.
+  - Semester Promotion Floor (R 7.32): Minimum 40% average attendance required to advance.
+• Special Attendance Relaxations:
+  - Menstrual Leave: 2% relaxation (minimum requirement drops to 73%).
+  - PWD Students: 5% relaxation (minimum requirement drops to 70%).
+• Duty Leave (On-Duty / OD):
+  - Granted for representing college/university in hackathons, sports, NSS, NCC, or cultural fests.
+  - Maximum 10% attendance relaxation for state/national representation; 5% for college events.
+  - Multi-tier digital approval chain: Student Application → Faculty Advisor → HOD → Principal.
+
+
+================================================================================
+SECTION 4: ENGINEERING BRANCH COMPARISON & CAREER ADVISORY
+================================================================================
+• Computer Science & Engineering (CSE) vs. Civil Engineering (CE):
+  - Computer Science: Focus on algorithms, software development, cloud computing, AI/ML, and cybersecurity. High placement drive volume, starting packages ₹4.5–₹25+ LPA, high remote work flexibility.
+  - Civil Engineering: Focus on physical infrastructure, structural design, geotechnical systems, smart cities, and construction management. High job stability in core public sectors, CPWD, NHAI, Railways, and IES (UPSC) exams.
+• Electronics & Communication (ECE) vs. CSE:
+  - ECE provides dual career paths: Core VLSI/Embedded Systems (Intel, Qualcomm, Texas Instruments) + Software engineering.
+• Mechanical Engineering (ME):
+  - Core manufacturing, CAD/CAM, robotics, aerospace, electric vehicles (EV), and PSU jobs (ISRO, BARC, DRDO).
+
+
+================================================================================
+SECTION 5: CORE COMPUTER SCIENCE FUNDAMENTALS
+================================================================================
+• Database Management Systems (ACID Properties):
+  - Atomicity: Transactions are all-or-nothing units.
+  - Consistency: Transitions preserve all integrity constraints.
+  - Isolation: Concurrent transactions do not read uncommitted dirty data.
+  - Durability: Committed updates permanently persist across crashes and power failures.
+• Operating Systems:
+  - 4 Coffman Deadlock Conditions: Mutual Exclusion, Hold & Wait, No Preemption, Circular Wait.
+  - Avoidance: Banker's Algorithm using Available, Allocation, and Max Need matrices.
+  - Paging: Non-contiguous memory allocation dividing memory into fixed frames and logical pages.
+• Computer Networks (OSI 7 Layers):
+  1. Physical (raw bits) -> 2. Data Link (Ethernet frames/MAC) -> 3. Network (IP packets) -> 
+  4. Transport (TCP/UDP segments) -> 5. Session (dialogue) -> 6. Presentation (SSL/TLS) -> 7. Application (HTTP/DNS).
+
+
+================================================================================
+SECTION 6: DATA STRUCTURES & ALGORITHMS (DSA) QUICK REFERENCE
+================================================================================
+• Binary Search:
+  - Array MUST be sorted. Repeatedly divides search space by half (`mid = low + (high - low)/2`).
+  - Time: O(log N) | Space: O(1) iterative.
+• Sorting Complexities:
+  - Merge Sort: Time O(N log N) all cases | Space O(N) | Stable divide-and-conquer.
+  - Quick Sort: Time O(N log N) avg, O(N²) worst | Space O(log N) | In-place partition.
+  - Heap Sort: Time O(N log N) | Space O(1).
+• Dynamic Programming (DP):
+  - Used for optimization problems with overlapping subproblems and optimal substructure.
+  - Approaches: Top-Down (Memoization) or Bottom-Up (Tabulation).
+  - Common Problems: 0/1 Knapsack, Longest Common Subsequence (LCS), Coin Change, Matrix Chain.
+
+
+================================================================================
+SECTION 7: CAMPUS PLACEMENTS, ATS RESUME SCORING & HR INTERVIEWS
+================================================================================
+• Present-Past-Future Framework for "Tell Me About Yourself":
+  - Present (30s): Name, college (TKMIT), branch (CSE), GPA, and technical focus (e.g. backend microservices).
+  - Past (40s): 1–2 key project accomplishments, hackathons, or internships with quantifiable impact.
+  - Future (20s): Why this target company role aligns with your long-term career ambition.
+• STAR Method for Behavioral Interview Questions:
+  - S (Situation): Set the scene and background context.
+  - T (Task): Specify your unique challenge or responsibility.
+  - A (Action): Detail the technical and leadership actions YOU took.
+  - R (Result): Conclude with quantifiable outcomes (e.g. "Improved throughput by 35%").
+• ATS Resume Optimization:
+  - Standard single-column clean format (Inter, Arial, Calibri fonts).
+  - Include quantifiable metrics in bullet points (e.g. "Developed REST API serving 500 req/sec").
+  - Include verified GitHub repository links, live project demos, and LeetCode/HackerRank profiles.
+
+
+================================================================================
+SECTION 8: B.TECH 2024 CURRICULUM, HONOURS, MINORS & MOOC CREDITS
+================================================================================
+• Project-Based Learning (PBL - 16 Credits):
+  - Collaborative learning phase + Self-directed phase (3 Lecture + 1 Project hr/week).
+• Challenge Courses (Credit-by-Examination):
+  - Recognition of Prior Learning (RPL): Pass ESE directly without regular CIA. Marks do not affect GPA.
+• MOOC Courses (NPTEL / SWAYAM):
+  - Must be 12 to 14 weeks duration from the approved Board of Studies list.
+  - Pass/Fail certifications with no marks receive letter grade 'B+'.
+  - Up to 8 credits can be transferred for B.Tech Honours / Minor requirements.
+• Activity Points (120 Points total):
+  - Regular Students: 120 activity points (40 points from each group).
+  - Lateral Entry Students: 90 activity points (30 points from each group).
+  - Categories: NSS/NCC, Sports, Arts, Technical paper presentation, Hackathons, Professional bodies.
+
+
+================================================================================
+SECTION 9: STUDENT GRIEVANCE & E-GOVERNANCE WORKFLOWS
+================================================================================
+• Categories: Academic, Examination, Fee, Infrastructure, Hostel, Anti-Ragging.
+• Escalation Chain: Faculty Advisor → Head of Department (HOD) → Principal → KTU Ombudsman.
+• Anonymous Option: Supported with secure token tracking.
+• Resolution SLA: College resolves submitted grievances within 3 to 5 business days.
+
+
+================================================================================
+SECTION 10: AI AGENT CONVERSATION EVOLUTION, PITFALLS & CORRECTION PLAYBOOK
+================================================================================
+
+CASE STUDY 1: BRANCH & COURSE COMPARISON QUERIES
+• User Query: "IS COMPUTER SCIENCE BEST OR CIVIL" / "WHICH IS THE BEST COURSE"
+• Incorrect Initial Agent Behavior:
+  - The agent attempted strict literal RAG grounding on KTU administrative syllabus tables.
+  - Flawed Output: "Computer Science is not a Civil Engineering program. It is a program that falls under Mechanical department... Therefore, it is not possible to compare Computer Science with Civil Engineering."
+• Root Cause: Over-constraining system prompts with "Answer strictly on verified excerpts only", forcing the LLM to hallucinate literal PDF matches for subjective/advisory questions.
+• How It Was Corrected:
+  - Upgraded RAG generation prompt with Gemini/Claude reasoning instructions.
+  - Implemented multi-dimensional comparison tables: Focus, Industry Demand, Starting Packages (₹4.5–25 LPA vs ₹3.5–10 LPA), Government/IES vs Private Startup roles, and Personalized Recommendation criteria ("Choose CS if... Choose Civil if...").
+
+CASE STUDY 2: PERSONAL ACADEMIC QUERY ROUTING
+• User Query: "MY CGPA" / "I HAVE 83% IS IT GOOD"
+• Incorrect Initial Agent Behavior:
+  - The agent returned a dry theoretical extract from the KTU Academic Manual explaining what a CGPA certificate is and how degrees are awarded.
+• Root Cause: Routing all user messages to static PDF embeddings without inspecting if the query pertained to the logged-in student's personal record.
+• How It Was Corrected:
+  - Added query intent classification `isPersonalStudentQuery(...)` in `AiService.java`.
+  - Injected live MySQL JPA repositories (`MarkRepository`, `InternalMarkRepository`, `AttendanceService`, `LeaveRequestRepository`, `PlacementDriveRepository`).
+  - Fetches the active student's exact marks, calculates live SGPA/CGPA, checks attendance thresholds (75%/60%), and evaluates placement eligibility in real time.
+
+CASE STUDY 3: GENERAL CS, CODING & INTERVIEW PREPARATION
+• User Query: "Explain Binary Search", "ACID Properties in DBMS", "How to answer 'Tell me about yourself'"
+• Incorrect Initial Agent Behavior:
+  - The agent either defaulted to a 5-bullet fallback menu or force-linked CS concepts to KTU course code tables.
+• How It Was Corrected:
+  - Injected Gemini 1.5 Pro and Claude 3.5 Sonnet system instructions into Ollama API calls.
+  - Standardized on structured Markdown, code blocks with time/space complexity analysis (O(log N)), and interview frameworks (Present-Past-Future and the STAR Method).
+  - Seeded dedicated technical knowledge modules in `Campus_AI_Comprehensive_Handbook.csv` and `EduSync_AI_Campus_Master_Training_Guide.txt`.
+
+CASE STUDY 4: CONSOLIDATED MULTI-FORMAT RAG ARCHITECTURE
+• Previous Bottlenecks:
+  - Confusing duplicate directories (`src/main/resources/ktu-docs` vs `./ktu-docs/`).
+  - Inflexible file support (only PDF).
+  - Hardcoded `Modelfile` requiring manual terminal compilation after every prompt change.
+• Modernized Architecture:
+  - Consolidated all documents exclusively into the root `./ktu-docs/` directory.
+  - Extended `RagService.java` to dynamically parse `.pdf` (Apache PDFBox), `.xlsx`/`.xls` (Apache POI), `.csv` (CSV parser), and `.txt`/`.md` (Unicode text chunks).
+  - System prompts and model parameters now inject dynamically via Spring Boot into Ollama's HTTP API without static Modelfiles.
+
+CASE STUDY 5: PERSONAL IDENTITY & SEMESTER INQUIRY ROUTING
+• User Query: "WHICH SEMESTER I AM IN", "WHAT IS MY SEMESTER", "WHO AM I", "MY DETAILS"
+• Incorrect Initial Agent Behavior:
+  - The agent attempted RAG PDF search over the KTU Academic Manual and outputted: "To determine which semester you are in, let's review the academic calendar... If you're a fresh student, you're likely in the first semester. If you're a continuing student, you'll be in the second semester."
+• Root Cause: The query classifier failed to recognize "which semester I am in" as a personal student profile question and mistakenly searched university academic calendar definitions.
+• How It Was Corrected:
+  - Added identity and semester patterns (`which semester`, `my semester`, `who am i`, `my details`, `my branch`) to `isPersonalStudentQuery(...)`.
+  - Injected real-time database student profile extraction (`student.getName()`, `student.getRollNumber()`, `student.getDepartment()`, `student.getSemester()`, `student.getSection()`).
+  - Generates instant personalized report: "You are currently enrolled in Semester S4 (B.Tech 2022–2026 Batch) under the Department of Computer Science & Engineering at TKMIT."
+
+================================================================================
+                   END OF CAMPUS AI MASTER TRAINING GUIDE
+================================================================================

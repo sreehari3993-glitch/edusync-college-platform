@@ -1,0 +1,191 @@
+[2026-08-29 06:08:25] User: Guest/Student | Intent: KTU_RAG_DOCUMENT
+STUDENT: What are the rules for KTU activity points?
+AI AGENT:
+### KTU Activity Points Rules
+
+The rules for KTU activity points can be found in the APJ Abdul Kalam Technological University (KTU) regulations. According to the regulations, activity points are awarded to students for their participation and achievements in various activities, including:
+
+* **Co-curricular activities**: 2-5 points per activity, depending on the type and level of participation.
+* **Extra-curricular activities**: 1-3 points per activity, depending on the type and level of participation.
+* **Sports and games**: 2-5 points per activity, depending on the type and level of participation.
+* **Cultural and literary activities**: 1-3 points per activity, depending on the type and level of participation.
+
+The regulations also specify the minimum and maximum points that can be awarded for each activity, as well as the criteria for evaluating student participation and achievements.
+
+Here are the specific rules for KTU activity points:
+
+* **Minimum points**: 10 points per semester for students to be eligible for the semester-end examination.
+* **Maximum points**: 20 points per semester for students to be eligible for the semester-end examination.
+* **Activity points calculation**: Activity points are calculated based on the student's participation and achievements in various activities, with a maximum of 20 points per semester.
+* **Activity points validation**: Activity points are validated by the college authorities and submitted to the university for verification.
+
+It is essential for students to understand the rules and regulations governing KTU activity points to ensure that they are eligible for the semester-end examination and to maximize their activity points.
+
+**Sources & References:**
+- 📄 *Attachment-1.pdf* (Page 2)
+- 📄 *Attachment3.pdf* (Page 2)
+- 📄 *Attachment3.pdf* (Page 3)
+--------------------------------------------------------------------------------
+
+[2026-08-29 06:27:15] User: ID#10 | Intent: GREETING
+STUDENT: HELLO
+AI AGENT:
+👋 **Hello! I'm doing great, thank you!**
+
+I am **EduSync AI Copilot**, your college assistant for TKMIT & KTU. Here is what I can do for you:
+- 📊 **Live Records:** Check your real-time attendance %, duty leave status, and internal marks
+- 📘 **KTU Regulations:** Minimum attendance (75%), Condonation (60%), Activity points (120 pts), B.Tech 2024 scheme rules
+- 💼 **Placements & Resumes:** Campus recruitment drives, ATS resume screening, and eligibility
+
+How can I help you today?
+--------------------------------------------------------------------------------
+
+[2026-08-29 06:27:24] User: ID#10 | Intent: PERSONAL_ATTENDANCE
+STUDENT: MY ATTENDENCE
+AI AGENT:
+### 📊 Your Attendance Report
+
+- **Student:** Anzal Rahman (TKM22CS001)
+- **Department:** CSE | **Semester:** S4
+- **Overall Attendance:** **70.0%** (7/10 hours)
+- **Status:** ⚠️ **Condonation Zone** (65%–74%). You will require medical certificate and HOD approval for condonation.
+
+> **KTU Requirement:** Minimum **75%** attendance in each subject is required to appear for End Semester Examinations.
+--------------------------------------------------------------------------------
+
+[2026-08-29 06:29:28] User: ID#10 | Intent: KTU_RAG_DOCUMENT
+STUDENT: WHAT IS SFA
+AI AGENT:
+### SFA: Student Faculty Advisor
+
+**What is SFA?**
+
+The Student Faculty Advisor (SFA) is a vital role in the academic journey of students at the university. As per the academic regulations, the SFA is responsible for providing guidance, clarifications, and advice to students and parents on academic matters.
+
+**Key Responsibilities:**
+
+* Arrange separate or combined meetings with advisors, course faculty, parents, and students to discuss academic progress and provide guidance on academic, non-academic, and personal issues (R 5.4)
+* Maintain documents concerning curricular and co-curricular matters of students under an advisory group (R 5.2)
+* Provide guidance on academic, non-academic, and personal issues (R 5.4)
+
+**Role in Academic Progress:**
+
+The SFA plays a crucial role in monitoring and guiding students' academic progress. They work closely with students, parents, and course faculty to ensure that students are on track to meet their academic goals. The SFA also provides support and guidance on academic, non-academic, and personal issues that may impact a student's academic performance.
+
+**Benefits:**
+
+* Personalized guidance and support
+* Improved academic performance
+* Enhanced student-teacher interaction
+* Better understanding of academic regulations and expectations
+
+**Conclusion:**
+
+The SFA is an essential part of the academic ecosystem at the university. By providing guidance, support, and advice, the SFA helps students navigate their academic journey and achieve their goals. If you have any further questions or concerns, please feel free to ask!
+
+**Sources & References:**
+- 📄 *KTU Academic Manual-V3_2022.pdf* (Page 80)
+- 📄 *B.TechRegulations_2024 (1).pdf* (Page 21)
+- 📄 *B.TechRegulations_2024.pdf* (Page 21)
+- 📄 *B.TechRegulations_2024 (1).pdf* (Page 20)
+--------------------------------------------------------------------------------
+
+[2026-08-29 06:29:57] User: ID#10 | Intent: KTU_RAG_DOCUMENT
+STUDENT: WHICH SEMESTER I AM IN
+AI AGENT:
+### Semester Information
+
+**Student Query: Which Semester I Am In**
+
+To determine which semester you are in, let's review the academic calendar and semester structure.
+
+**Academic Year and Semesters**
+
+According to the [KTU Academic Manual-V3_2022.pdf | Page 6], the academic year is divided into two semesters:
+
+* **Odd semester**: 1st July to 31st December
+* **Even semester**: 1st January to 30th June
+
+**Current Semester**
+
+Since you didn't specify the exact date or your admission year, I'll provide a general guideline. If you're a fresh student, you're likely in the first semester. If you're a continuing student, you'll be in the second semester.
+
+**Verify Your Semester**
+
+To confirm your semester, please check your academic records or consult with the university administration. They can provide you with the exact semester information based on your admission date and academic program.
+
+**Additional Resources**
+
+For more information on the academic calendar, semester structure, and course offerings, I recommend reviewing the [KTU Academic Manual-V3_2022.pdf | Page 20] and [KTU Academic Manual-V3_2022.pdf | Page 63] documents.
+
+**Next Steps**
+
+If you have any further questions or concerns, feel free to ask. I'm here to help you navigate your academic journey.
+
+**Sources & References:**
+- 📄 *KTU Academic Manual-V3_2022.pdf* (Page 63)
+- 📄 *KTU Academic Manual-V3_2022.pdf* (Page 20)
+- 📄 *KTU Academic Manual-V3_2022.pdf* (Page 6)
+- 📄 *B.Tech.Curriculum2024-ObjectivesandStructure.pdf* (Page 25)
+--------------------------------------------------------------------------------
+
+[2026-08-29 06:32:02] User: Guest/Student | Intent: PERSONAL_PROFILE
+STUDENT: WHICH SEMESTER I AM IN
+AI AGENT:
+### 👤 Student Academic Profile
+
+> 💡 *Note: Showing profile for demo student **Anzal Rahman**. Log in with your credentials to view your live profile!*
+
+- **Student Name:** **Anzal Rahman**
+- **Register / Roll Number:** `TKM22CS001`
+- **Department:** **CSE**
+- **Current Semester:** **S4** (B.Tech 2022–2026 Batch)
+- **Section:** **A**
+- **Email:** `anzal.r@student.tkmit.ac.in`
+
+> 🎓 You are currently enrolled in **Semester S4** in the Department of **CSE** at TKM Institute of Technology.
+--------------------------------------------------------------------------------
+
+[2026-08-29 06:35:02] User: Guest/Student | Intent: GREETING
+STUDENT: hello
+AI AGENT:
+👋 **Hello! I am EduSync AI Copilot**, your college assistant for TKMIT & KTU.
+
+> 🔒 **Notice:** *Conversations are recorded for the continuous training, evaluation, and quality improvement of this AI agent.*
+
+Here is what I can do for you:
+- 📊 **Live Records:** Check your real-time attendance %, duty leave status, and internal marks
+- 📘 **KTU Regulations:** Minimum attendance (75%), Condonation (60%), Activity points (120 pts), B.Tech 2024 scheme rules
+- 💼 **Placements & Resumes:** Campus recruitment drives, ATS resume screening, and eligibility
+
+How can I help you today?
+--------------------------------------------------------------------------------
+
+[2026-08-29 06:37:40] User: Guest/Student | Intent: KTU_RAG_DOCUMENT
+STUDENT: What is KTU 75% attendance rule?
+AI AGENT:
+### 📊 Your Attendance Report - **Student:** Anzal Rahman (TKM22CS001) - **Department:** CSE | **Semester:** S4 - **Overall Attendance:** **70.**
+
+**KTU 75% Attendance Rule:**
+
+According to the official regulations, the minimum attendance required for writing the end semester examination in a course is 75%. This is stated in the Academic Manual-V3_2022.pdf, Page 30, and also mentioned in Page 52, clause 9.
+
+**Key Points:**
+
+* 75% attendance is mandatory for writing the end semester examination in a course.
+* Students are expected to have 100% attendance.
+* The attendance is marked for each course.
+
+**Additional Information:**
+
+As per the KTU Academic Manual-V3_2022.pdf, Page 112, students who get Part Time Teaching Assistantship (PTTA) or Scholarships from the Central or State Governments or any other agencies are expected to have 100% attendance.
+
+I hope this information helps you, Anzal! If you have any further questions or concerns, feel free to ask.
+
+**Sources & References:**
+- 📄 *KTU Academic Manual-V3_2022.pdf* (Page 112)
+- 📄 *KTU Academic Manual-V3_2022.pdf* (Page 52)
+- 📄 *KTU Academic Manual-V3_2022.pdf* (Page 30)
+- 📄 *student_chat_history.txt* (Page 1)
+--------------------------------------------------------------------------------
+
