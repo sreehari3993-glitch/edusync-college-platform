@@ -192,13 +192,13 @@ public class AdvisorDashboardService {
                         .build()
         );
 
-        // Dispatch Parent Email if requested or by default on advisory warnings
-        if ("EMAIL".equalsIgnoreCase(channel) || "ALL".equalsIgnoreCase(channel)) {
-            AdvisorDto.StudentMenteeRiskDto risk = calculateStudentRisk(student);
-            String parentEmail = student.getParentEmail() != null && !student.getParentEmail().isBlank()
-                    ? student.getParentEmail()
-                    : student.getEmail();
+        // Dispatch Parent / Student Email alert
+        AdvisorDto.StudentMenteeRiskDto risk = calculateStudentRisk(student);
+        String parentEmail = student.getParentEmail() != null && !student.getParentEmail().isBlank()
+                ? student.getParentEmail()
+                : student.getEmail();
 
+        if (parentEmail != null && !parentEmail.isBlank()) {
             emailService.sendParentAcademicAlertEmail(
                     parentEmail,
                     student.getName(),
@@ -218,7 +218,7 @@ public class AdvisorDashboardService {
                 advisor.getRole(),
                 "User",
                 student.getId().toString(),
-                "Sent " + channel + " advisory alert to " + student.getName() + " (" + student.getEmail() + ")"
+                "Sent " + channel + " advisory alert to " + student.getName() + " (" + parentEmail + ")"
         );
     }
 }

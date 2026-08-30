@@ -93,7 +93,10 @@ public class SecurityConfig {
                 // HOD
                 .requestMatchers("/api/hod/**").hasAnyRole("HOD", "ADMIN")
 
-                // Faculty, HOD, Principal, Admin
+                // Student & Faculty Advisor Requests (students submit/check status, faculty manage)
+                .requestMatchers("/api/advisor/requests/**").authenticated()
+
+                // Faculty, HOD, Principal, Admin (Mentorship Hub & Early-Warning Monitoring)
                 .requestMatchers("/api/faculty/**").hasAnyRole("FACULTY", "HOD", "PRINCIPAL", "ADMIN")
                 .requestMatchers("/api/advisor/**").hasAnyRole("FACULTY", "HOD", "PRINCIPAL", "ADMIN")
 

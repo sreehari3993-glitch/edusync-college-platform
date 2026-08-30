@@ -89,4 +89,13 @@ public class AuthDto {
         @NotBlank
         private String profilePic;
     }
+
+    // Request: PUT /api/users/student/{id}/parent-info
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ParentInfoRequest {
+        private String parentEmail;
+        private String parentPhone;
+    }
 }

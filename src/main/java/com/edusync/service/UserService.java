@@ -68,14 +68,38 @@ public class UserService {
         return userRepo.findByRole(User.Role.FACULTY);
     }
 
+    public java.util.Map<String, Object> getDepartmentMembers(String dept) {
+        String cleanDept = clean(dept);
+        if (cleanDept == null) {
+            cleanDept = "CSE";
+        }
+        List<User> faculty = userRepo.findByRoleAndDepartment(User.Role.FACULTY, cleanDept);
+        List<User> hods = userRepo.findByRoleAndDepartment(User.Role.HOD, cleanDept);
+        List<User> students = userRepo.findByRoleAndDepartment(User.Role.STUDENT, cleanDept);
+
+        List<User> allFaculty = new java.util.ArrayList<>();
+        allFaculty.addAll(hods);
+        allFaculty.addAll(faculty);
+
+        java.util.Map<String, Object> result = new java.util.HashMap<>();
+        result.put("department", cleanDept);
+        result.put("hod", hods.isEmpty() ? null : hods.get(0));
+        result.put("faculty", allFaculty);
+        result.put("students", students);
+        result.put("totalFaculty", allFaculty.size());
+        result.put("totalStudents", students.size());
+        return result;
+    }
+
     @Transactional
     public User createUserByAdmin(AuthDto.RegisterRequest req) {
-        if (clean(req.getEmail()) == null || clean(req.getName()) == null || clean(req.getPassword()) == null) {
+        String cleanEmail = req.getEmail() != null ? req.getEmail().trim().toLowerCase() : "";
+        if (cleanEmail.isEmpty() || clean(req.getName()) == null || clean(req.getPassword()) == null) {
             throw new BadRequestException("Name, email, and password are required.");
         }
 
-        if (userRepo.existsByEmail(req.getEmail().trim())) {
-            throw new ResourceConflictException("Email already registered: " + req.getEmail().trim());
+        if (userRepo.existsByEmailIgnoreCase(cleanEmail)) {
+            throw new ResourceConflictException("An account with email '" + cleanEmail + "' is already registered in EduSync.");
         }
 
         User.Role role = req.getRole() != null ? req.getRole() : User.Role.STUDENT;
@@ -90,7 +114,7 @@ public class UserService {
 
         User user = User.builder()
                 .name(req.getName().trim())
-                .email(req.getEmail().trim())
+                .email(cleanEmail)
                 .password(passwordEncoder.encode(req.getPassword()))
                 .role(role)
                 .department(dept)
@@ -125,11 +149,14 @@ public class UserService {
         if (department == null) {
             throw new ForbiddenOperationException("Your faculty account needs a department before adding students.");
         }
-        if (userRepo.existsByEmail(req.getEmail())) {
-            throw new ResourceConflictException("Email already registered: " + req.getEmail());
-        }
-        if (clean(req.getName()) == null || clean(req.getEmail()) == null || clean(req.getPassword()) == null || clean(req.getSemester()) == null) {
+
+        String cleanEmail = req.getEmail() != null ? req.getEmail().trim().toLowerCase() : "";
+        if (cleanEmail.isEmpty() || clean(req.getName()) == null || clean(req.getPassword()) == null || clean(req.getSemester()) == null) {
             throw new BadRequestException("Name, email, semester and temporary password are required.");
+        }
+
+        if (userRepo.existsByEmailIgnoreCase(cleanEmail)) {
+            throw new ResourceConflictException("An account with email '" + cleanEmail + "' is already registered in EduSync.");
         }
 
         User advisor = faculty;
@@ -139,7 +166,7 @@ public class UserService {
 
         User student = User.builder()
                 .name(req.getName().trim())
-                .email(req.getEmail().trim())
+                .email(cleanEmail)
                 .password(passwordEncoder.encode(req.getPassword()))
                 .role(User.Role.STUDENT)
                 .department(department)
@@ -159,6 +186,108 @@ public class UserService {
                 "User",
                 saved.getId().toString(),
                 "Added student " + saved.getName() + " (" + saved.getEmail() + ") to " + department + " (Advisor: " + advisor.getName() + ")"
+        );
+
+        return saved;
+    }
+
+    @Transactional
+    public User addFacultyForHod(Long hodId, AuthDto.RegisterRequest req) {
+        User hod = userRepo.findById(hodId)
+                .orElseThrow(() -> new ResourceNotFoundException("HOD user not found", hodId));
+
+        if (hod.getRole() != User.Role.HOD && hod.getRole() != User.Role.ADMIN && hod.getRole() != User.Role.PRINCIPAL) {
+            throw new ForbiddenOperationException("Only HOD, Admin, or Principal can add faculty members.");
+        }
+
+        String department = clean(hod.getDepartment());
+        if (department == null && req.getDepartment() != null) {
+            department = clean(req.getDepartment());
+        }
+        if (department == null) {
+            throw new BadRequestException("Department is required to register faculty members.");
+        }
+
+        String cleanEmail = req.getEmail() != null ? req.getEmail().trim().toLowerCase() : "";
+        if (cleanEmail.isEmpty() || clean(req.getName()) == null || clean(req.getPassword()) == null) {
+            throw new BadRequestException("Name, email, and temporary password are required.");
+        }
+
+        if (userRepo.existsByEmailIgnoreCase(cleanEmail)) {
+            throw new ResourceConflictException("An account with email '" + cleanEmail + "' is already registered in EduSync.");
+        }
+
+        User faculty = User.builder()
+                .name(req.getName().trim())
+                .email(cleanEmail)
+                .password(passwordEncoder.encode(req.getPassword()))
+                .role(User.Role.FACULTY)
+                .department(department)
+                .employeeId(clean(req.getEmployeeId()))
+                .phone(clean(req.getPhone()))
+                .build();
+
+        User saved = userRepo.save(faculty);
+
+        auditService.log(
+                "FACULTY_ADDED_BY_HOD",
+                hod.getEmail(),
+                hod.getName(),
+                hod.getRole(),
+                "User",
+                saved.getId().toString(),
+                "HOD " + hod.getName() + " added faculty " + saved.getName() + " (" + saved.getEmail() + ") to " + department
+        );
+
+        return saved;
+    }
+
+    // ─── Update Student Parent Info (Strict Advisor Permission) ────────────
+
+    @Transactional
+    public User updateStudentParentInfo(Long requestingUserId, Long studentId, AuthDto.ParentInfoRequest req) {
+        User student = userRepo.findById(studentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Student user not found", studentId));
+
+        if (student.getRole() != User.Role.STUDENT) {
+            throw new BadRequestException("Target user is not a student.");
+        }
+
+        User requestingUser = userRepo.findById(requestingUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found", requestingUserId));
+
+        // Validation: Only assigned Faculty Advisor (or Admin / Principal / Dept HOD) can update parent info
+        boolean isAdvisor = student.getAdvisor() != null && student.getAdvisor().getId().equals(requestingUserId);
+        boolean isAdminOrPrincipal = requestingUser.getRole() == User.Role.ADMIN || requestingUser.getRole() == User.Role.PRINCIPAL;
+        boolean isDeptHod = requestingUser.getRole() == User.Role.HOD && 
+                requestingUser.getDepartment() != null && 
+                requestingUser.getDepartment().equalsIgnoreCase(student.getDepartment());
+
+        if (!isAdvisor && !isAdminOrPrincipal && !isDeptHod) {
+            String advisorName = student.getAdvisor() != null ? student.getAdvisor().getName() : "None Assigned";
+            String formattedAdvisor = advisorName.startsWith("Prof.") ? advisorName : ("Prof. " + advisorName);
+            throw new ForbiddenOperationException(
+                "Access Denied: Only the student's assigned Faculty Advisor (" + formattedAdvisor + ") can add or update parent contact information."
+            );
+        }
+
+        String cleanEmail = clean(req.getParentEmail());
+        String cleanPhone = clean(req.getParentPhone());
+
+        student.setParentEmail(cleanEmail != null ? cleanEmail.toLowerCase() : null);
+        student.setParentPhone(cleanPhone);
+        student.setUpdatedAt(LocalDateTime.now());
+
+        User saved = userRepo.save(student);
+
+        auditService.log(
+                "PARENT_INFO_UPDATED",
+                requestingUser.getEmail(),
+                requestingUser.getName(),
+                requestingUser.getRole(),
+                "User",
+                saved.getId().toString(),
+                "Advisor " + requestingUser.getName() + " updated parent contact for student " + saved.getName() + " (" + saved.getRollNumber() + ")"
         );
 
         return saved;

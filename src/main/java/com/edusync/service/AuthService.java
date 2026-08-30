@@ -33,8 +33,13 @@ public class AuthService {
     // ─── Register ─────────────────────────────────────────────────────────
 
     public AuthDto.AuthResponse register(AuthDto.RegisterRequest req) {
-        if (userRepository.existsByEmail(req.getEmail())) {
-            throw new ResourceConflictException("Email already registered: " + req.getEmail());
+        if (req.getEmail() == null || req.getEmail().trim().isEmpty()) {
+            throw new BadRequestException("Email address is required.");
+        }
+        String cleanEmail = req.getEmail().trim().toLowerCase();
+
+        if (userRepository.existsByEmailIgnoreCase(cleanEmail)) {
+            throw new ResourceConflictException("An account with email '" + cleanEmail + "' already exists in EduSync.");
         }
 
         // Prevent privilege escalation: public self-registration is strictly for students
@@ -50,16 +55,16 @@ public class AuthService {
         }
 
         User user = User.builder()
-                .name(req.getName())
-                .email(req.getEmail())
+                .name(req.getName() != null ? req.getName().trim() : "")
+                .email(cleanEmail)
                 .password(passwordEncoder.encode(req.getPassword()))
                 .role(User.Role.STUDENT)
-                .department(req.getDepartment())
-                .semester(req.getSemester())
-                .section(req.getSection())
-                .rollNumber(req.getRollNumber())
-                .employeeId(req.getEmployeeId())
-                .phone(req.getPhone())
+                .department(req.getDepartment() != null ? req.getDepartment().trim() : null)
+                .semester(req.getSemester() != null ? req.getSemester().trim() : null)
+                .section(req.getSection() != null ? req.getSection().trim() : null)
+                .rollNumber(req.getRollNumber() != null ? req.getRollNumber().trim() : null)
+                .employeeId(req.getEmployeeId() != null ? req.getEmployeeId().trim() : null)
+                .phone(req.getPhone() != null ? req.getPhone().trim() : null)
                 .advisor(advisor)
                 .build();
 
@@ -95,13 +100,15 @@ public class AuthService {
     // ─── Login ────────────────────────────────────────────────────────────
 
     public AuthDto.AuthResponse login(AuthDto.LoginRequest req) {
+        String cleanEmail = req.getEmail() != null ? req.getEmail().trim().toLowerCase() : "";
+
         // Spring Security validates credentials
         authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword())
+                new UsernamePasswordAuthenticationToken(cleanEmail, req.getPassword())
         );
 
-        User user = userRepository.findByEmail(req.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("User", req.getEmail()));
+        User user = userRepository.findByEmailIgnoreCase(cleanEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User", cleanEmail));
 
         if (!user.isActive()) {
             throw new ForbiddenOperationException("Account is deactivated. Contact admin.");

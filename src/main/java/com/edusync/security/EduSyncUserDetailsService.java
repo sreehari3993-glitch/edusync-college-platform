@@ -23,9 +23,12 @@ public class EduSyncUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
+        if (email == null || email.trim().isEmpty()) {
+            throw new UsernameNotFoundException("Email cannot be empty");
+        }
+        User user = userRepository.findByEmailIgnoreCase(email.trim())
                 .orElseThrow(() -> new UsernameNotFoundException(
-                        "User not found with email: " + email
+                        "User not found with email: " + email.trim()
                 ));
 
         return new org.springframework.security.core.userdetails.User(

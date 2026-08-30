@@ -60,6 +60,21 @@ public class GlobalExceptionHandler {
                 .body(AppDto.ApiResponse.error("Access denied: insufficient permissions."));
     }
 
+    // ─── Data integrity / Unique constraint violations (e.g. duplicate email) ───
+
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<AppDto.ApiResponse<Void>> handleDataIntegrityViolation(
+            org.springframework.dao.DataIntegrityViolationException ex
+    ) {
+        String msg = "A user or record with this unique identifier (email or roll number) already exists.";
+        if (ex.getMessage() != null && ex.getMessage().toLowerCase().contains("email")) {
+            msg = "An account with this email address is already registered in EduSync.";
+        }
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(AppDto.ApiResponse.error(msg));
+    }
+
     // ─── Fallback runtime exceptions ──────────────────────────────────────
 
     @ExceptionHandler(RuntimeException.class)

@@ -68,4 +68,35 @@ public class AdvisorDto {
         private String channel; // IN_APP, WHATSAPP, EMAIL
         private String message;
     }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class AdvisorRequestSubmitDto {
+        private Long facultyId;
+        private String message;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class AdvisorRequestActionDto {
+        private String action; // ACCEPT, REJECT
+        private String remark;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class StudentAdvisorStatusDto {
+        private Long advisorId;
+        private String advisorName;
+        private String advisorEmail;
+        private String advisorDepartment;
+        private String advisorPhone;
+        private com.edusync.model.AdvisorRequest latestRequest;
+    }
 }

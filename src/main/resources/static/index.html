@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -42,6 +42,7 @@
        DARK THEME VARIABLES & OVERRIDES
     ═══════════════════════════════════════════════ */
     body.dark-theme {
+      --navy: #f8fafc;
       --page-bg: #070d18;
       --text-main: #f1f5f9;
       --white: #f8fafc;
@@ -88,18 +89,90 @@
       color: var(--text-main) !important;
     }
 
+    body.dark-theme .notif-dropdown {
+      background: #0f172a !important;
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.8) !important;
+    }
+
     body.dark-theme .notif-header,
     body.dark-theme .notif-footer {
-      background: #14233c !important;
-      border-color: var(--card-border) !important;
+      background: #1e293b !important;
+      border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    body.dark-theme .notif-header h4 {
+      color: #f8fafc !important;
     }
 
     body.dark-theme .notif-item {
-      border-color: rgba(255, 255, 255, 0.05) !important;
+      border-color: rgba(255, 255, 255, 0.08) !important;
+      background: transparent;
     }
 
     body.dark-theme .notif-item:hover {
-      background: #172844 !important;
+      background: rgba(255, 255, 255, 0.06) !important;
+    }
+
+    body.dark-theme .notif-item.unread {
+      background: rgba(59, 130, 246, 0.15) !important;
+      border-left: 3px solid #60a5fa !important;
+    }
+
+    body.dark-theme .notif-title {
+      color: #f8fafc !important;
+      font-weight: 600 !important;
+    }
+
+    body.dark-theme .notif-desc {
+      color: #cbd5e1 !important;
+    }
+
+    body.dark-theme .notif-meta {
+      color: #94a3b8 !important;
+    }
+
+    body.dark-theme .notif-footer {
+      color: #60a5fa !important;
+    }
+
+    /* Toast Notifications in Dark Mode */
+    body.dark-theme .toast {
+      background: #0f172a !important;
+      color: #f8fafc !important;
+      border: 1px solid rgba(255, 255, 255, 0.18) !important;
+      border-left: 4px solid #3b82f6 !important;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7) !important;
+    }
+
+    body.dark-theme .toast-success {
+      border-left-color: #10b981 !important;
+      background: #064e3b !important;
+      color: #ecfdf5 !important;
+    }
+
+    body.dark-theme .toast-error {
+      border-left-color: #ef4444 !important;
+      background: #7f1d1d !important;
+      color: #fef2f2 !important;
+    }
+
+    body.dark-theme .toast-info {
+      border-left-color: #3b82f6 !important;
+      background: #1e3a8a !important;
+      color: #eff6ff !important;
+    }
+
+    body.dark-theme .toast-warning {
+      border-left-color: #f59e0b !important;
+      background: #78350f !important;
+      color: #fffbeb !important;
+    }
+
+    body.dark-theme #backendStatusBadge {
+      background: rgba(16, 185, 129, 0.18) !important;
+      border-color: rgba(16, 185, 129, 0.45) !important;
+      color: #34d399 !important;
     }
 
     body.dark-theme .notif-title,
@@ -192,6 +265,15 @@
     body.dark-theme .auth-tabs {
       background: rgba(255, 255, 255, 0.06) !important;
       border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    body.dark-theme .auth-tab {
+      color: #94a3b8 !important;
+    }
+
+    body.dark-theme .auth-tab.active {
+      background: var(--blue-bright) !important;
+      color: #ffffff !important;
     }
 
     body.dark-theme .timetable-cell {
@@ -857,36 +939,55 @@
     }
 
     /* ─── TOASTS ─── */
+    /* ─── TOASTS ─── */
     .toast-container {
       position: fixed;
       top: 72px;
       right: 20px;
-      z-index: 2000;
+      z-index: 99999;
       display: flex;
       flex-direction: column;
       gap: 8px;
-      max-width: 320px;
+      max-width: 360px;
     }
 
     .toast {
-      background: var(--navy);
-      color: #fff;
-      padding: 12px 16px;
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 12px 18px;
       border-radius: 10px;
-      font-size: 0.82rem;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      font-size: 0.84rem;
+      font-weight: 500;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
       opacity: 1;
       transform: translateX(0);
-      transition: all 0.3s ease;
-      border-left: 3px solid var(--blue-light);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-left: 4px solid var(--blue-light);
     }
 
     .toast-success {
-      border-left-color: var(--success);
+      border-left-color: #10b981 !important;
+      background: #064e3b !important;
+      color: #ecfdf5 !important;
     }
 
     .toast-error {
-      border-left-color: var(--danger);
+      border-left-color: #ef4444 !important;
+      background: #7f1d1d !important;
+      color: #fef2f2 !important;
+    }
+
+    .toast-info {
+      border-left-color: #3b82f6 !important;
+      background: #1e3a8a !important;
+      color: #eff6ff !important;
+    }
+
+    .toast-warning {
+      border-left-color: #f59e0b !important;
+      background: #78350f !important;
+      color: #fffbeb !important;
     }
 
     .toast-out {
@@ -2782,8 +2883,7 @@
         <div class="two-col" style="gap:12px;margin-bottom:0;">
           <div class="form-group" id="regRollGroup"><label class="form-label">Roll Number</label><input
               class="form-input" type="text" id="regRoll" placeholder="TKM22CS001"></div>
-          <div class="form-group" id="regEmpGroup" style="display:none;"><label class="form-label">Employee
-              ID</label><input class="form-input" type="text" id="regEmpId" placeholder="EMP102"></div>
+          <div class="form-group" id="regEmpGroup" style="display:none;"><label class="form-label">Employee ID</label><input class="form-input" type="text" id="regEmpId" placeholder="EMP102"></div>
         </div>
         <div class="form-group"><label class="form-label">Phone (optional)</label><input class="form-input" type="text"
             id="regPhone" placeholder="+91 98765 43210"></div>
@@ -2801,6 +2901,66 @@
   <!-- ════════════════════════════════════════════
      ADD STUDENT MODAL (For Attendance, Marks & Students tabs)
 ════════════════════════════════════════════ -->
+    <!-- ============================================
+     FACULTY STUDENT DETAILS & PARENT CONTACT MODAL
+  ============================================ -->
+  <div id="facultyStudentDetailsModalOverlay" class="auth-overlay" style="display:none;" onclick="if(event.target===this) closeFacultyStudentDetailsModal()">
+    <div class="auth-modal" style="max-width:580px;max-height:90vh;overflow-y:auto;">
+      <div class="auth-modal-head">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="avatar-lg" id="fsdModalAvatar" style="width:46px;height:46px;border-radius:12px;font-size:1.1rem;background:linear-gradient(135deg,#2563eb,#3b82f6);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;">ST</div>
+          <div>
+            <h3 id="fsdModalStudentName" style="font-size:1.15rem;font-weight:700;color:var(--text-main);margin:0;">Student Name</h3>
+            <div id="fsdModalStudentSubtitle" style="font-size:0.78rem;color:var(--gray-400);">Roll: TKM22CS001 · S4 (A) · CSE</div>
+          </div>
+        </div>
+        <button class="auth-close" type="button" onclick="closeFacultyStudentDetailsModal()">✕</button>
+      </div>
+
+      <!-- Quick Info Grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:10px;padding:12px;">
+        <div><div style="font-size:0.7rem;color:var(--gray-400);text-transform:uppercase;">Student Email</div><div id="fsdModalEmail" style="font-size:0.82rem;font-weight:600;color:var(--text-main);word-break:break-all;">–</div></div>
+        <div><div style="font-size:0.7rem;color:var(--gray-400);text-transform:uppercase;">Student Phone</div><div id="fsdModalPhone" style="font-size:0.82rem;font-weight:600;color:var(--text-main);">–</div></div>
+        <div><div style="font-size:0.7rem;color:var(--gray-400);text-transform:uppercase;">Department & Batch</div><div id="fsdModalDeptBatch" style="font-size:0.82rem;font-weight:600;color:var(--text-main);">–</div></div>
+        <div><div style="font-size:0.7rem;color:var(--gray-400);text-transform:uppercase;">Faculty Advisor</div><div id="fsdModalAdvisor" style="font-size:0.82rem;font-weight:600;color:var(--blue-bright);">–</div></div>
+      </div>
+
+      <!-- Parent & Guardian Information Section -->
+      <div style="margin-top:18px;border-top:1px solid var(--card-border);padding-top:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+          <h4 style="margin:0;font-size:0.95rem;font-weight:700;color:var(--text-main);display:flex;align-items:center;gap:6px;">
+            <span>👨‍👩‍👦</span> Parent / Guardian Contact Details
+          </h4>
+          <span id="fsdParentPermissionBadge" class="badge green">Faculty Advisor Authorized</span>
+        </div>
+        <div style="font-size:0.75rem;color:var(--gray-400);margin-bottom:14px;line-height:1.4;" id="fsdParentExplainerText">
+          Configured parent email receives automated academic alerts (&lt; 75% attendance / &lt; 40% CIE marks) and urgent advisory notices. 
+          <strong style="color:var(--text-main);">Only the student's assigned Faculty Advisor can add or edit this information.</strong>
+        </div>
+
+        <div id="fsdParentAlertMsg" class="auth-error" style="display:none;"></div>
+
+        <form id="fsdParentForm" onsubmit="return handleSaveStudentParentInfo(event)">
+          <input type="hidden" id="fsdStudentId">
+          <div class="two-col" style="gap:12px;margin-bottom:0;">
+            <div class="form-group">
+              <label class="form-label">Parent / Guardian Email *</label>
+              <input class="form-input" type="email" id="fsdModalParentEmail" placeholder="parent.guardian@gmail.com" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Parent Phone Number</label>
+              <input class="form-input" type="text" id="fsdModalParentPhone" placeholder="+91 98470 12345">
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;">
+            <button type="button" class="btn btn-outline btn-sm" onclick="closeFacultyStudentDetailsModal()">Close</button>
+            <button type="submit" class="btn btn-blue btn-sm" id="fsdParentSaveBtn">💾 Save Parent Info</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <div id="addStudentModalOverlay" class="auth-overlay" style="display:none;">
     <div class="auth-modal" style="max-width:520px;">
       <div class="auth-modal-head">
@@ -2854,6 +3014,260 @@
           <button type="submit" class="btn btn-green btn-sm" id="modalStudentSaveBtn">💾 Save Student</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+     ADD FACULTY MODAL (For HOD & Admin)
+  ════════════════════════════════════════════ -->
+  <div id="addFacultyModalOverlay" class="auth-overlay" style="display:none;" onclick="if(event.target===this) closeAddFacultyModal()">
+    <div class="auth-modal" style="max-width:540px;">
+      <div class="auth-modal-head">
+        <h3 style="font-size:1.1rem;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px;">
+          <span style="background:rgba(37,99,235,0.12);padding:4px 8px;border-radius:8px;">👨‍🏫</span> Add Department Faculty Member
+        </h3>
+        <button class="auth-close" type="button" onclick="closeAddFacultyModal()">✕</button>
+      </div>
+      <div style="font-size:0.8rem;color:var(--gray-400);margin-bottom:16px;">
+        Register a new faculty member into your department roster. They can log in immediately to manage advisees, attendance, marks, and student requests.
+      </div>
+      <div id="addFacultyModalError" class="auth-error" style="display:none;"></div>
+      <form id="addFacultyModalForm" onsubmit="return handleModalAddFaculty(event)">
+        <div class="two-col" style="gap:12px;margin-bottom:0;">
+          <div class="form-group">
+            <label class="form-label">Full Name *</label>
+            <input class="form-input" type="text" id="modalFacultyName" placeholder="e.g. Dr. Priya Nair" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email *</label>
+            <input class="form-input" type="email" id="modalFacultyEmail" placeholder="priya.nair@tkmit.ac.in" required>
+          </div>
+        </div>
+        <div class="two-col" style="gap:12px;margin-bottom:0;">
+          <div class="form-group">
+            <label class="form-label">Employee ID</label>
+            <input class="form-input" type="text" id="modalFacultyEmpId" placeholder="EMP104">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <input class="form-input" type="text" id="modalFacultyPhone" placeholder="+91 98470 12345">
+          </div>
+        </div>
+        <div class="two-col" style="gap:12px;margin-bottom:0;">
+          <div class="form-group">
+            <label class="form-label">Department *</label>
+            <input class="form-input" type="text" id="modalFacultyDept" readonly style="background:rgba(255,255,255,0.05);cursor:not-allowed;">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Temporary Password *</label>
+            <input class="form-input" type="text" id="modalFacultyPassword" value="faculty123" required>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+          <button type="button" class="btn btn-outline btn-sm" onclick="closeAddFacultyModal()">Cancel</button>
+          <button type="submit" class="btn btn-green btn-sm" id="modalFacultySaveBtn">💾 Save Faculty Member</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+     ADMIN ADD USER MODAL
+  ════════════════════════════════════════════ -->
+  <div id="addAdminUserModalOverlay" class="auth-overlay" style="display:none;" onclick="if(event.target===this) closeAddAdminUserModal()">
+    <div class="auth-modal" style="max-width:540px;">
+      <div class="auth-modal-head">
+        <h3 style="font-size:1.1rem;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px;">
+          <span style="background:rgba(37,99,235,0.12);padding:4px 8px;border-radius:8px;">👤</span> Add New User
+        </h3>
+        <button class="auth-close" type="button" onclick="closeAddAdminUserModal()">✕</button>
+      </div>
+      <div style="font-size:0.8rem;color:var(--gray-400);margin-bottom:16px;">
+        Provision a new user account across any role (Student, Faculty, HOD, Principal, Placement Officer, Admin).
+      </div>
+      <div id="addAdminUserModalError" class="auth-error" style="display:none;"></div>
+      <form id="addAdminUserModalForm" onsubmit="return handleModalAddAdminUser(event)">
+        <div class="two-col" style="gap:12px;margin-bottom:0;">
+          <div class="form-group">
+            <label class="form-label">Account Role *</label>
+            <select class="form-select" id="adminUserModalRole" onchange="onAdminUserRoleChange()" required>
+              <option value="STUDENT" selected>Student</option>
+              <option value="FACULTY">Faculty</option>
+              <option value="HOD">Head of Department (HOD)</option>
+              <option value="PRINCIPAL">Principal</option>
+              <option value="PLACEMENT_OFFICER">Placement Officer</option>
+              <option value="ADMIN">System Administrator</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Full Name *</label>
+            <input class="form-input" type="text" id="adminUserModalName" placeholder="e.g. Dr. Rajesh Kumar" required>
+          </div>
+        </div>
+
+        <div class="two-col" style="gap:12px;margin-bottom:0;">
+          <div class="form-group">
+            <label class="form-label">Email Address *</label>
+            <input class="form-input" type="email" id="adminUserModalEmail" placeholder="e.g. rajesh@tkmit.ac.in" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Temporary Password *</label>
+            <input class="form-input" type="text" id="adminUserModalPassword" value="User@123" required>
+          </div>
+        </div>
+
+        <div class="two-col" style="gap:12px;margin-bottom:0;" id="adminUserDeptGroup">
+          <div class="form-group">
+            <label class="form-label" id="adminUserDeptLabel">Department *</label>
+            <select class="form-select" id="adminUserModalDept" onchange="loadAdminUserModalAdvisors()">
+              <option value="CSE">Computer Science & Engineering (CSE)</option>
+              <option value="BME">Biomedical Engineering (BME)</option>
+              <option value="FT">Food Technology (FT)</option>
+              <option value="MECH">Mechanical Engineering (MECH)</option>
+              <option value="ECE">Electronics & Communication (ECE)</option>
+              <option value="EEE">Electrical & Electronics (EEE)</option>
+              <option value="CE">Civil Engineering (CE)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <input class="form-input" type="text" id="adminUserModalPhone" placeholder="+91 98765 43210">
+          </div>
+        </div>
+
+        <!-- Student Specific Fields -->
+        <div id="adminUserStudentFields" style="display:block;">
+          <div class="two-col" style="gap:12px;margin-bottom:0;">
+            <div class="form-group">
+              <label class="form-label">Roll Number *</label>
+              <input class="form-input" type="text" id="adminUserModalRoll" placeholder="e.g. TKM22CS055">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Semester *</label>
+              <select class="form-select" id="adminUserModalSemester">
+                <option value="S1">S1</option>
+                <option value="S2" selected>S2</option>
+                <option value="S3">S3</option>
+                <option value="S4">S4</option>
+                <option value="S5">S5</option>
+                <option value="S6">S6</option>
+                <option value="S7">S7</option>
+                <option value="S8">S8</option>
+              </select>
+            </div>
+          </div>
+          <div class="two-col" style="gap:12px;margin-bottom:0;">
+            <div class="form-group">
+              <label class="form-label">Section</label>
+              <input class="form-input" type="text" id="adminUserModalSection" placeholder="A" value="A">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Faculty Advisor (Tutor)</label>
+              <select class="form-select" id="adminUserModalAdvisor">
+                <option value="">-- Assign Faculty Advisor (Optional) --</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Faculty / Staff Specific Fields -->
+        <div id="adminUserStaffFields" style="display:none;">
+          <div class="form-group" style="margin-bottom:12px;">
+            <label class="form-label">Employee ID</label>
+            <input class="form-input" type="text" id="adminUserModalEmpId" placeholder="e.g. EMP102">
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+          <button type="button" class="btn btn-outline btn-sm" onclick="closeAddAdminUserModal()">Cancel</button>
+          <button type="submit" class="btn btn-blue btn-sm" id="adminUserModalSaveBtn">💾 Create User</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+     DEPARTMENT DETAILS MODAL (Separated Faculty & Students)
+  ════════════════════════════════════════════ -->
+  <div id="deptDetailsModalOverlay" class="auth-overlay" style="display:none;" onclick="if(event.target===this) closeDepartmentDetailsModal()">
+    <div class="auth-modal" style="max-width:880px;width:95%;">
+      <div class="auth-modal-head" style="margin-bottom:12px;">
+        <h3 id="deptDetailsModalTitle" style="font-size:1.15rem;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px;">
+          <span style="background:rgba(37,99,235,0.12);padding:4px 8px;border-radius:8px;">🏛</span> Department Details
+        </h3>
+        <button class="auth-close" type="button" onclick="closeDepartmentDetailsModal()">✕</button>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;background:rgba(37,99,235,0.04);border:1px solid var(--border);border-radius:8px;padding:10px 16px;margin-bottom:16px;">
+        <div>
+          <div id="deptDetailsHodName" style="font-weight:700;color:var(--navy);font-size:0.9rem;">HOD: Loading...</div>
+          <div style="font-size:0.75rem;color:var(--gray-400);margin-top:2px;">TKM Institute of Technology · Department Roster</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <span class="badge green" id="deptDetailsFacultyCount">0 Faculty</span>
+          <span class="badge blue" id="deptDetailsStudentCount">0 Students</span>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+        <div class="auth-tabs" style="margin:0;">
+          <button id="deptTabFacultyBtn" class="auth-tab active" type="button" onclick="switchDeptDetailsTab('faculty')">
+            👨‍🏫 Faculty & Staff (<span id="deptFacultyTabCount">0</span>)
+          </button>
+          <button id="deptTabStudentsBtn" class="auth-tab" type="button" onclick="switchDeptDetailsTab('students')">
+            🎓 Students (<span id="deptStudentTabCount">0</span>)
+          </button>
+        </div>
+        <div>
+          <input class="form-input" type="text" id="deptMemberSearchInput" placeholder="🔍 Search name, roll, email..." oninput="filterDeptMembers()" style="width:230px;padding:6px 12px;font-size:0.78rem;">
+        </div>
+      </div>
+
+      <!-- Faculty Pane -->
+      <div id="deptFacultyPane" style="display:block;">
+        <div class="table-card" style="margin-bottom:0;max-height:380px;overflow-y:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Employee ID</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="deptFacultyTableBody">
+              <tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:20px;">Loading faculty...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Students Pane -->
+      <div id="deptStudentsPane" style="display:none;">
+        <div class="table-card" style="margin-bottom:0;max-height:380px;overflow-y:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Roll Number</th>
+                <th>Semester & Sec</th>
+                <th>Email</th>
+                <th>Faculty Advisor</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="deptStudentsTableBody">
+              <tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:20px;">Loading students...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;margin-top:16px;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeDepartmentDetailsModal()">Close</button>
+      </div>
     </div>
   </div>
 
@@ -4272,11 +4686,41 @@
                 <div class="profile-field"><span class="profile-key">Batch</span><span
                     class="profile-val">2025–2029</span></div>
                 <div class="profile-field"><span class="profile-key">Faculty Advisor</span><span
-                    class="profile-val">Prof. Meera Nair</span></div>
+                    class="profile-val" id="profileFacultyAdvisor">Not Assigned</span></div>
                 <div class="profile-field"><span class="profile-key">CGPA</span><span class="profile-val"
                     style="color:var(--success);">8.4 / 10</span></div>
                 <div class="profile-field"><span class="profile-key">Hostel</span><span class="profile-val">Day
                     Scholar</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Faculty Advisor Assignment Card -->
+          <div class="table-card" style="margin-top:20px;">
+            <div class="table-head">
+              <h3>👨‍🏫 Faculty Advisor / Class Tutor Assignment</h3>
+              <span id="studentAdvisorStatusBadge" class="badge gray">Loading status...</span>
+            </div>
+            <div style="padding:20px;">
+              <div id="studentAdvisorInfoBanner" style="background:rgba(37,99,235,0.06);border:1px solid var(--card-border);border-radius:8px;padding:14px 18px;margin-bottom:16px;">
+                <div style="font-weight:700;color:var(--text-main);font-size:0.92rem;" id="studentAdvisorAssignedName">Current Advisor: Not Assigned</div>
+                <div style="font-size:0.78rem;color:var(--gray-400);margin-top:3px;" id="studentAdvisorAssignedDetail">Select your department faculty advisor below to submit an advisory request.</div>
+              </div>
+
+              <div class="two-col" style="gap:16px;align-items:flex-end;">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label">Select Faculty Advisor *</label>
+                  <select class="form-select" id="studentAdvisorSelect">
+                    <option value="">-- Choose Faculty Member --</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label">Request Note (Optional)</label>
+                  <input class="form-input" type="text" id="studentAdvisorRequestNote" placeholder="e.g. S2 CSE student requesting advisor assignment">
+                </div>
+              </div>
+              <div style="display:flex;justify-content:flex-end;margin-top:16px;">
+                <button class="btn btn-blue" id="studentAdvisorRequestBtn" onclick="submitStudentAdvisorRequest()">📩 Send Advisor Request</button>
               </div>
             </div>
           </div>
@@ -4353,7 +4797,10 @@
             Announcement</div>
         </div>
         <div class="sidebar-section">
-          <div class="sidebar-label">Classes</div>
+          <div class="sidebar-label">Classes & Mentorship</div>
+          <div class="sidebar-item" onclick="showSub('faculty','advisor-requests',this)" id="facultySidebarAdvisorRequests">
+            <span class="icon">📩</span> Advisor Requests <span class="sidebar-badge" id="facultyAdvisorRequestBadge" style="display:none;background:#2563eb;color:#fff;">0</span>
+          </div>
           <div class="sidebar-item" onclick="showSub('faculty','students',this)"><span class="icon">👥</span> My
             Students</div>
           <div class="sidebar-item" onclick="showSub('faculty','attendance',this)"><span class="icon">📊</span>
@@ -4410,6 +4857,19 @@
                 <span class="badge blue">Series Exam I</span>
               </div>
               <div id="facultyPerformanceChart" style="min-height: 240px;"></div>
+            </div>
+          </div>
+
+          <!-- Faculty Pending Advisor Requests Alert -->
+          <div id="facultyAdvisorAlertCard" class="table-card" style="display:none;border-left:4px solid var(--blue-bright);background:rgba(37,99,235,0.04);margin-bottom:20px;">
+            <div style="padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+              <div>
+                <div style="font-weight:700;color:var(--text-main);font-size:0.95rem;display:flex;align-items:center;gap:8px;">
+                  📩 <span id="facultyAdvisorAlertText">New Student Advisor Requests Awaiting Approval</span>
+                </div>
+                <div style="font-size:0.8rem;color:var(--gray-400);margin-top:3px;">Students from your department have requested you as their official Faculty Advisor.</div>
+              </div>
+              <button class="btn btn-blue btn-sm" onclick="showSub('faculty','advisor-requests')">Review Requests →</button>
             </div>
           </div>
 
@@ -4888,39 +5348,40 @@
         <div class="sub-content" id="faculty-students">
           <div class="breadcrumb">EduSync <span>›</span> Faculty <span>›</span> My Students</div>
           <div class="page-header">
-            <h2>👥 My Students</h2>
-            <p id="facultyStudentsPageSub">Students in your department roster</p>
+            <h2>👥 My Students Roster</h2>
+            <p id="facultyStudentsPageSub">Department student directory & advisee mentorship details</p>
           </div>
           <div class="table-card">
             <div class="table-head">
-              <h3>Student List</h3>
+              <h3>Students Directory (<span id="facultyStudentTableCount">0</span>)</h3>
               <div class="table-head-right">
-                <div class="search-box">🔍 Search student...</div><select class="form-select"
-                  style="width:auto;padding:6px 12px;font-size:0.78rem;">
-                  <option>All</option>
-                  <option>Low Attendance</option>
-                  <option>Pending Assignment</option>
-                </select><button class="btn btn-blue btn-sm" onclick="openAddStudentModal()">+ Add Student</button>
+                <input type="text" id="facultyStudentSearchInput" placeholder="🔍 Search roll, name, email..." oninput="filterFacultyStudents()" class="form-input" style="width:200px;padding:6px 12px;font-size:0.78rem;">
+                <select class="form-select" id="facultyStudentFilterSelect" onchange="filterFacultyStudents()" style="width:auto;padding:6px 12px;font-size:0.78rem;">
+                  <option value="ALL">All Students</option>
+                  <option value="MY_ADVISEES">My Advisees Only ⭐</option>
+                </select>
+                <button class="btn btn-blue btn-sm" onclick="openAddStudentModal()">+ Add Student</button>
               </div>
             </div>
-            <div
-              style="padding:10px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:rgba(37,99,235,0.03);">
-              <div style="font-size:0.78rem;color:var(--gray-400);">Registered students in your department</div>
+            <div style="padding:8px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:rgba(37,99,235,0.03);">
+              <div style="font-size:0.78rem;color:var(--gray-400);">💡 Click on any student row or <strong>View Info</strong> to inspect personal info and manage parent contact details.</div>
               <button class="btn btn-blue btn-sm" onclick="openAddStudentModal()">+ Add Student</button>
             </div>
             <table>
               <thead>
                 <tr>
                   <th>Roll No.</th>
-                  <th>Name</th>
+                  <th>Student Name</th>
                   <th>Semester</th>
-                  <th>Email</th>
-                  <th>Status</th>
+                  <th>Email / Phone</th>
+                  <th>Parent Contact Info</th>
+                  <th>Faculty Advisor</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody id="facultyStudentsBody">
                 <tr>
-                  <td colspan="5" style="text-align:center;color:var(--gray-400);padding:20px;">Loading students...</td>
+                  <td colspan="7" style="text-align:center;color:var(--gray-400);padding:20px;">Loading students...</td>
                 </tr>
               </tbody>
             </table>
@@ -5102,6 +5563,59 @@
                     Loading mentee batch diagnostics...
                   </td>
                 </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- FACULTY: ADVISOR REQUESTS -->
+        <div class="sub-content" id="faculty-advisor-requests">
+          <div class="breadcrumb">EduSync <span>›</span> Faculty <span>›</span> Advisor Requests</div>
+          <div class="page-header">
+            <h2>📩 Student Advisor Requests</h2>
+            <p id="facultyAdvisorRequestsSubtitle">Students requesting you as their official Faculty Advisor / Mentor</p>
+          </div>
+
+          <div class="table-card">
+            <div class="table-head">
+              <h3>Pending Requests (<span id="facultyAdvisorPendingCount">0</span>)</h3>
+              <button class="btn btn-outline btn-sm" onclick="loadFacultyAdvisorRequests()">🔄 Refresh</button>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Roll No.</th>
+                  <th>Dept & Semester</th>
+                  <th>Email / Phone</th>
+                  <th>Student Note</th>
+                  <th>Requested Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="facultyAdvisorRequestsBody">
+                <tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:20px;">Loading requests...</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-card" style="margin-top:20px;">
+            <div class="table-head">
+              <h3>Processed Requests History</h3>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Roll No.</th>
+                  <th>Dept & Semester</th>
+                  <th>Status</th>
+                  <th>Faculty Remark</th>
+                  <th>Responded Date</th>
+                </tr>
+              </thead>
+              <tbody id="facultyAdvisorHistoryBody">
+                <tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:16px;">No past requests.</td></tr>
               </tbody>
             </table>
           </div>
@@ -5382,13 +5896,14 @@
           <div class="breadcrumb">EduSync <span>›</span> HOD <span>›</span> Faculty</div>
           <div class="page-header">
             <h2>👥 Faculty Management</h2>
-            <p>CSE Department — 18 faculty members</p>
+            <p id="hodFacultyPageSub">Department faculty roster</p>
           </div>
           <div class="table-card">
             <div class="table-head">
-              <h3>Faculty Directory</h3>
+              <h3>Faculty Directory (<span id="hodFacultyTableCount">0</span>)</h3>
               <div class="table-head-right">
-                <div class="search-box">🔍 Search...</div><button class="btn btn-blue btn-sm">+ Add Faculty</button>
+                <input class="form-input" type="text" id="hodFacultySearchInput" placeholder="🔍 Search name, email, ID..." oninput="filterHodFaculty()" style="width:220px;padding:6px 12px;font-size:0.78rem;">
+                <button class="btn btn-blue btn-sm" onclick="openAddFacultyModal()">+ Add Faculty</button>
               </div>
             </div>
             <table>
@@ -5397,19 +5912,13 @@
                   <th>Name</th>
                   <th>Email</th>
                   <th>Employee ID</th>
+                  <th>Phone</th>
                   <th>Status</th>
                 </tr>
               </thead>
               <tbody id="hodFacultyBody">
                 <tr>
-                  <td>
-                    <div style="display:flex;align-items:center;gap:8px;">
-                      <div class="avatar-sm">MS</div> SOORYA P
-                    </div>
-                  </td>
-                  <td>soorya@tkmit.ac.in</td>
-                  <td>EMP001</td>
-                  <td><span class="badge green">Active</span></td>
+                  <td colspan="5" style="text-align:center;color:var(--gray-400);padding:20px;">Loading faculty...</td>
                 </tr>
               </tbody>
             </table>
@@ -5720,6 +6229,8 @@
           <div class="sidebar-label">Overview</div>
           <div class="sidebar-item active" onclick="showSub('principal','dashboard',this)"><span class="icon">🏠</span>
             Dashboard</div>
+          <div class="sidebar-item" onclick="showSub('principal','departments',this)"><span class="icon">🏛</span>
+            Departments</div>
           <div class="sidebar-item" onclick="showSub('principal','approvals',this)"><span class="icon">📋</span> Final
             Approvals <span class="sidebar-badge">12</span></div>
           <div class="sidebar-item" onclick="showSub('principal','grievances',this)"><span class="icon">📢</span>
@@ -5928,6 +6439,106 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+
+        <!-- PRINCIPAL: DEPARTMENTS -->
+        <div class="sub-content" id="principal-departments">
+          <div class="breadcrumb">EduSync <span>›</span> Principal <span>›</span> Departments</div>
+          <div class="page-header">
+            <h2>🏛 Departments Overview</h2>
+            <p>Institutional department breakdown · TKMIT College</p>
+          </div>
+          <div class="cards-row cols-2">
+            <div class="table-card" style="margin-bottom:0;">
+              <div class="table-head">
+                <div>
+                  <h3>💻 Computer Science & Engineering</h3>
+                  <div style="font-size:0.75rem;color:var(--accent);margin-top:2px;">HOD: Dr.Nijil Raj N</div>
+                </div><span class="badge green">Active</span>
+              </div>
+              <div style="padding:16px 20px;">
+                <div class="profile-field"><span class="profile-key">Students</span><span class="profile-val">300</span></div>
+                <div class="profile-field"><span class="profile-key">Faculty</span><span class="profile-val">18</span></div>
+                <div class="profile-field"><span class="profile-key">Avg CGPA</span><span class="profile-val" style="color:var(--success);">8.4</span></div>
+                <div class="profile-field"><span class="profile-key">Attendance</span><span class="profile-val">87%</span></div>
+              </div>
+              <div style="padding:0 20px 16px;display:flex;gap:8px;">
+                <button class="btn btn-blue btn-sm" onclick="openDepartmentDetails('CSE', 'Computer Science & Engineering', 'Dr.Nijil Raj N')">View Details</button>
+              </div>
+            </div>
+
+            <div class="table-card" style="margin-bottom:0;">
+              <div class="table-head">
+                <div>
+                  <h3>🧬 Biomedical Engineering</h3>
+                  <div style="font-size:0.75rem;color:var(--accent);margin-top:2px;">HOD: MUHAMMED SHAFEEQUE RAHMAN PP</div>
+                </div><span class="badge green">Active</span>
+              </div>
+              <div style="padding:16px 20px;">
+                <div class="profile-field"><span class="profile-key">Students</span><span class="profile-val">60</span></div>
+                <div class="profile-field"><span class="profile-key">Faculty</span><span class="profile-val">18</span></div>
+                <div class="profile-field"><span class="profile-key">Avg CGPA</span><span class="profile-val" style="color:var(--success);">8.4</span></div>
+                <div class="profile-field"><span class="profile-key">Attendance</span><span class="profile-val">87%</span></div>
+              </div>
+              <div style="padding:0 20px 16px;display:flex;gap:8px;">
+                <button class="btn btn-blue btn-sm" onclick="openDepartmentDetails('BME', 'Biomedical Engineering', 'MUHAMMED SHAFEEQUE RAHMAN PP')">View Details</button>
+              </div>
+            </div>
+
+            <div class="table-card" style="margin-bottom:0;">
+              <div class="table-head">
+                <div>
+                  <h3>🧪 Food Technology</h3>
+                  <div style="font-size:0.75rem;color:var(--accent);margin-top:2px;">HOD: Dr. SURENDHAR A</div>
+                </div><span class="badge green">Active</span>
+              </div>
+              <div style="padding:16px 20px;">
+                <div class="profile-field"><span class="profile-key">Students</span><span class="profile-val">60</span></div>
+                <div class="profile-field"><span class="profile-key">Faculty</span><span class="profile-val">16</span></div>
+                <div class="profile-field"><span class="profile-key">Avg CGPA</span><span class="profile-val" style="color:var(--blue-light);">8.2</span></div>
+                <div class="profile-field"><span class="profile-key">Attendance</span><span class="profile-val">84%</span></div>
+              </div>
+              <div style="padding:0 20px 16px;display:flex;gap:8px;">
+                <button class="btn btn-blue btn-sm" onclick="openDepartmentDetails('FT', 'Food Technology', 'Dr. SURENDHAR A')">View Details</button>
+              </div>
+            </div>
+
+            <div class="table-card" style="margin-bottom:0;">
+              <div class="table-head">
+                <div>
+                  <h3>⚙️ Mechanical Engineering</h3>
+                  <div style="font-size:0.75rem;color:var(--accent);margin-top:2px;">HOD: Dr. MUBARAK M</div>
+                </div><span class="badge green">Active</span>
+              </div>
+              <div style="padding:16px 20px;">
+                <div class="profile-field"><span class="profile-key">Students</span><span class="profile-val">30</span></div>
+                <div class="profile-field"><span class="profile-key">Faculty</span><span class="profile-val">14</span></div>
+                <div class="profile-field"><span class="profile-key">Avg CGPA</span><span class="profile-val" style="color:var(--warning);">7.4</span></div>
+                <div class="profile-field"><span class="profile-key">Attendance</span><span class="profile-val">79%</span></div>
+              </div>
+              <div style="padding:0 20px 16px;display:flex;gap:8px;">
+                <button class="btn btn-blue btn-sm" onclick="openDepartmentDetails('MECH', 'Mechanical Engineering', 'Dr. MUBARAK M')">View Details</button>
+              </div>
+            </div>
+
+            <div class="table-card" style="margin-bottom:0;">
+              <div class="table-head">
+                <div>
+                  <h3>🏗 Civil Engineering</h3>
+                  <div style="font-size:0.75rem;color:var(--accent);margin-top:2px;">HOD: Dr. Pradeep K</div>
+                </div><span class="badge green">Active</span>
+              </div>
+              <div style="padding:16px 20px;">
+                <div class="profile-field"><span class="profile-key">Students</span><span class="profile-val">30</span></div>
+                <div class="profile-field"><span class="profile-key">Faculty</span><span class="profile-val">15</span></div>
+                <div class="profile-field"><span class="profile-key">Avg CGPA</span><span class="profile-val" style="color:var(--blue-light);">7.8</span></div>
+                <div class="profile-field"><span class="profile-key">Attendance</span><span class="profile-val">81%</span></div>
+              </div>
+              <div style="padding:0 20px 16px;display:flex;gap:8px;">
+                <button class="btn btn-blue btn-sm" onclick="openDepartmentDetails('CE', 'Civil Engineering', 'Dr. Pradeep K')">View Details</button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -7076,7 +7687,10 @@
             <div class="table-card" style="margin-bottom:0;">
               <div class="table-head">
                 <h3>👥 Recent Users</h3>
-                <button class="btn btn-blue btn-sm" onclick="showSub('admin','users', null)">+ Add User</button>
+                <div style="display:flex;gap:6px;">
+                  <button class="btn btn-outline btn-sm" onclick="showSub('admin','users', null)">View All</button>
+                  <button class="btn btn-blue btn-sm" onclick="openAddAdminUserModal()">+ Add User</button>
+                </div>
               </div>
               <table>
                 <thead>
@@ -7221,14 +7835,17 @@
         <!-- ADMIN: MANAGE USERS -->
         <div class="sub-content" id="admin-users">
           <div class="breadcrumb">EduSync <span>›</span> Admin <span>›</span> Manage Users</div>
-          <div class="page-header">
-            <h2>👥 Manage Users</h2>
-            <p id="adminTotalUsersCountLabel">3,124 registered users across all roles</p>
+          <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+            <div>
+              <h2>👥 Manage Users</h2>
+              <p id="adminTotalUsersCountLabel">3,124 registered users across all roles</p>
+            </div>
+            <button class="btn btn-blue" onclick="openAddAdminUserModal()">+ Add User</button>
           </div>
           <div class="table-card">
             <div class="table-head">
               <h3>All Users</h3>
-              <div class="table-head-right"><select class="form-select" id="adminUserRoleFilter"
+              <div class="table-head-right" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"><select class="form-select" id="adminUserRoleFilter"
                   onchange="filterUsersByRole()" style="width:auto;padding:6px 12px;font-size:0.78rem;">
                   <option value="">All Roles</option>
                   <option value="STUDENT">Student</option>
@@ -7237,7 +7854,7 @@
                   <option value="PRINCIPAL">Principal</option>
                   <option value="PLACEMENT_OFFICER">Placement Officer</option>
                   <option value="ADMIN">Admin</option>
-                </select></div>
+                </select><button class="btn btn-blue btn-sm" onclick="openAddAdminUserModal()">+ Add User</button></div>
             </div>
             <table>
               <thead>
@@ -7294,7 +7911,7 @@
                     class="profile-val">87%</span></div>
               </div>
               <div style="padding:0 20px 16px;display:flex;gap:8px;"><button class="btn btn-outline btn-sm">✏️
-                  Edit</button><button class="btn btn-blue btn-sm">View Details</button></div>
+                  Edit</button><button class="btn btn-blue btn-sm" onclick="openDepartmentDetails('CSE', 'Computer Science & Engineering', 'Dr.Nijil Raj N')">View Details</button></div>
             </div>
             <div class="table-card" style="margin-bottom:0;">
               <div class="table-head">
@@ -7315,7 +7932,7 @@
                     class="profile-val">87%</span></div>
               </div>
               <div style="padding:0 20px 16px;display:flex;gap:8px;"><button class="btn btn-outline btn-sm">✏️
-                  Edit</button><button class="btn btn-blue btn-sm">View Details</button></div>
+                  Edit</button><button class="btn btn-blue btn-sm" onclick="openDepartmentDetails('BME', 'Biomedical Engineering', 'MUHAMMED SHAFEEQUE RAHMAN PP')">View Details</button></div>
             </div>
 
             <div class="table-card" style="margin-bottom:0;">
@@ -7336,7 +7953,7 @@
                     class="profile-val">84%</span></div>
               </div>
               <div style="padding:0 20px 16px;display:flex;gap:8px;"><button class="btn btn-outline btn-sm">✏️
-                  Edit</button><button class="btn btn-blue btn-sm">View Details</button></div>
+                  Edit</button><button class="btn btn-blue btn-sm" onclick="openDepartmentDetails('FT', 'Food Technology', 'Dr. SURENDHAR A')">View Details</button></div>
             </div>
             <div class="table-card" style="margin-bottom:0;">
               <div class="table-head">
@@ -7356,7 +7973,7 @@
                     class="profile-val">79%</span></div>
               </div>
               <div style="padding:0 20px 16px;display:flex;gap:8px;"><button class="btn btn-outline btn-sm">✏️
-                  Edit</button><button class="btn btn-blue btn-sm">View Details</button></div>
+                  Edit</button><button class="btn btn-blue btn-sm" onclick="openDepartmentDetails('MECH', 'Mechanical Engineering', 'Dr. MUBARAK M')">View Details</button></div>
             </div>
             <div class="table-card" style="margin-bottom:0;">
               <div class="table-head">
@@ -7376,7 +7993,7 @@
                     class="profile-val">81%</span></div>
               </div>
               <div style="padding:0 20px 16px;display:flex;gap:8px;"><button class="btn btn-outline btn-sm">✏️
-                  Edit</button><button class="btn btn-blue btn-sm">View Details</button></div>
+                  Edit</button><button class="btn btn-blue btn-sm" onclick="openDepartmentDetails('CE', 'Civil Engineering', 'Dr. Pradeep K')">View Details</button></div>
             </div>
           </div>
         </div>
@@ -8367,6 +8984,10 @@
               if (currentUser.role === 'FACULTY' && typeof loadFacultyAll === 'function') loadFacultyAll();
               if (currentUser.role === 'HOD' && typeof loadHodApprovals === 'function') loadHodApprovals();
               if (currentUser.role === 'PRINCIPAL' && typeof loadPrincipalLeaves === 'function') loadPrincipalLeaves();
+            } else if (notif.type === 'ADVISOR_REQUEST' || notif.type === 'ADVISOR_ACCEPTED' || notif.type === 'ADVISOR_REJECTED') {
+              if (currentUser.role === 'FACULTY' && typeof loadFacultyAdvisorRequests === 'function') loadFacultyAdvisorRequests();
+              if (currentUser.role === 'STUDENT' && typeof loadStudentAdvisorStatus === 'function') loadStudentAdvisorStatus();
+              if (currentUser.role === 'FACULTY' && typeof loadFacultyAll === 'function') loadFacultyAll();
             } else if (notif.type === 'NOTICE_PUBLISHED') {
               if (typeof loadNoticesData === 'function') loadNoticesData();
               if (typeof loadAllPublicNotices === 'function') loadAllPublicNotices();
@@ -8380,6 +9001,9 @@
 
         sseEventSource.addEventListener('LEAVE_UPDATE', handleIncomingEvent);
         sseEventSource.addEventListener('LEAVE_SUBMITTED', handleIncomingEvent);
+        sseEventSource.addEventListener('ADVISOR_REQUEST', handleIncomingEvent);
+        sseEventSource.addEventListener('ADVISOR_ACCEPTED', handleIncomingEvent);
+        sseEventSource.addEventListener('ADVISOR_REJECTED', handleIncomingEvent);
         sseEventSource.addEventListener('NOTICE_PUBLISHED', handleIncomingEvent);
         sseEventSource.addEventListener('ASSIGNMENT_NEW', handleIncomingEvent);
         sseEventSource.addEventListener('TEST_ALERT', handleIncomingEvent);
@@ -8949,6 +9573,7 @@
       await loadStudentAssignments();
       await loadStudentResults();
       await loadStudentGrievances();
+      await loadStudentAdvisorStatus();
       try {
         const drives = await api('/placement/drives/public');
         studentState.drives = drives;
@@ -9236,6 +9861,7 @@
         updateAllNoticeBadges();
       } catch (e) { /* fallback */ }
       await loadFacultyAssignments();
+      await loadFacultyAdvisorRequests();
       await loadAdvisorDashboard();
       ApexChartsManager.renderFacultyCharts();
     }
@@ -9423,13 +10049,195 @@
     }
 
     function renderFacultyStudents(students) {
+      facultyState.allStudents = students || [];
+      setText('facultyStudentTableCount', (students ? students.length : 0));
+      renderFacultyStudentsTableOnly(students || []);
+    }
+
+    function renderFacultyStudentsTableOnly(students) {
       const tbody = document.getElementById('facultyStudentsBody');
       if (!tbody) return;
-      if (!students.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:16px;">No students found for this department. Click "+ Add Student" to add.</td></tr>'; return; }
+      if (!students || !students.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:20px;">No students match the criteria.</td></tr>';
+        return;
+      }
       tbody.innerHTML = students.map(function (s) {
-        return '<tr><td>' + escapeHtml(s.rollNumber || '–') + '</td><td>' + escapeHtml(s.name) + '</td><td>' + escapeHtml(s.semester || '–') + '</td><td>' + escapeHtml(s.email || '–') + '</td>' +
-          '<td><span class="badge ' + (s.active ? 'green' : 'gray') + '">' + (s.active ? 'Active' : 'Inactive') + '</span></td></tr>';
+        const isMyAdvisee = (currentUser && s.advisor && s.advisor.id === currentUser.id);
+        const advText = s.advisor
+          ? (isMyAdvisee ? '<span class="badge green">⭐ Your Advisee</span>' : '<span style="font-size:0.76rem;color:var(--text-main);">Prof. ' + escapeHtml(s.advisor.name) + '</span>')
+          : '<span style="font-size:0.74rem;color:var(--gray-400);">Not Assigned</span>';
+
+        const parentText = (s.parentEmail || s.parentPhone)
+          ? ('<div style="font-size:0.74rem;color:var(--text-main);">' + (s.parentEmail ? '✉️ ' + escapeHtml(s.parentEmail) : '') + (s.parentPhone ? '<br>📞 ' + escapeHtml(s.parentPhone) : '') + '</div>')
+          : '<span style="font-size:0.72rem;color:var(--gray-400);font-style:italic;">No Parent Info</span>';
+
+        return '<tr style="cursor:pointer;" onclick="openFacultyStudentDetailsModal(' + s.id + ')">' +
+          '<td><strong style="color:var(--blue-bright);">' + escapeHtml(s.rollNumber || '–') + '</strong></td>' +
+          '<td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar-sm">' + (s.profilePic || initials(s.name)) + '</div><strong style="color:var(--text-main);">' + escapeHtml(s.name) + '</strong></div></td>' +
+          '<td>' + escapeHtml(s.semester || '–') + (s.section ? ' (' + escapeHtml(s.section) + ')' : '') + '</td>' +
+          '<td><div style="font-size:0.76rem;">' + escapeHtml(s.email || '–') + (s.phone ? '<br><span style="color:var(--gray-400);">' + escapeHtml(s.phone) + '</span>' : '') + '</div></td>' +
+          '<td>' + parentText + '</td>' +
+          '<td>' + advText + '</td>' +
+          '<td><button class="btn btn-outline btn-sm" style="font-size:0.72rem;padding:3px 8px;" onclick="event.stopPropagation(); openFacultyStudentDetailsModal(' + s.id + ')">👤 View Info</button></td>' +
+          '</tr>';
       }).join('');
+    }
+
+    function filterFacultyStudents() {
+      const q = (document.getElementById('facultyStudentSearchInput')?.value || '').toLowerCase().trim();
+      const filter = document.getElementById('facultyStudentFilterSelect')?.value || 'ALL';
+      const list = facultyState.allStudents || [];
+
+      const filtered = list.filter(function (s) {
+        if (filter === 'MY_ADVISEES') {
+          if (!currentUser || !s.advisor || s.advisor.id !== currentUser.id) return false;
+        }
+        if (!q) return true;
+        return (s.name && s.name.toLowerCase().includes(q)) ||
+               (s.rollNumber && s.rollNumber.toLowerCase().includes(q)) ||
+               (s.email && s.email.toLowerCase().includes(q)) ||
+               (s.parentEmail && s.parentEmail.toLowerCase().includes(q)) ||
+               (s.parentPhone && s.parentPhone.toLowerCase().includes(q));
+      });
+
+      renderFacultyStudentsTableOnly(filtered);
+    }
+
+    function openFacultyStudentDetailsModal(studentId) {
+      const list = facultyState.allStudents || [];
+      const student = list.find(s => s.id === studentId);
+      if (!student) return;
+
+      const overlay = document.getElementById('facultyStudentDetailsModalOverlay');
+      if (!overlay) return;
+
+      // Populate student personal fields
+      setText('fsdModalAvatar', student.profilePic || initials(student.name));
+      setText('fsdModalStudentName', student.name);
+      setText('fsdModalStudentSubtitle', 'Roll: ' + (student.rollNumber || '–') + ' · ' + (student.semester || '–') + (student.section ? ' (' + student.section + ')' : '') + ' · ' + (student.department || '–'));
+      setText('fsdModalEmail', student.email || '–');
+      setText('fsdModalPhone', student.phone || 'Not Provided');
+      setText('fsdModalDeptBatch', (student.department || '–') + ' · ' + (student.semester || '–') + (student.section ? ' (' + student.section + ')' : ''));
+
+      const isMyAdvisee = (currentUser && student.advisor && student.advisor.id === currentUser.id);
+      const isPrivileged = currentUser && (currentUser.role === 'ADMIN' || currentUser.role === 'PRINCIPAL' || currentUser.role === 'HOD');
+      const canEditParent = isMyAdvisee || isPrivileged;
+
+      const advName = student.advisor ? ('Prof. ' + student.advisor.name) : 'Not Assigned';
+      setText('fsdModalAdvisor', advName + (isMyAdvisee ? ' (⭐ You)' : ''));
+
+      const idInput = document.getElementById('fsdStudentId');
+      if (idInput) idInput.value = student.id;
+
+      const pEmailInput = document.getElementById('fsdModalParentEmail');
+      const pPhoneInput = document.getElementById('fsdModalParentPhone');
+      const pSaveBtn = document.getElementById('fsdParentSaveBtn');
+      const permBadge = document.getElementById('fsdParentPermissionBadge');
+      const explainer = document.getElementById('fsdParentExplainerText');
+      const errBox = document.getElementById('fsdParentAlertMsg');
+
+      if (errBox) errBox.style.display = 'none';
+
+      if (pEmailInput) {
+        pEmailInput.value = student.parentEmail || '';
+        pEmailInput.readOnly = !canEditParent;
+        pEmailInput.style.background = canEditParent ? '' : 'rgba(255,255,255,0.05)';
+        pEmailInput.style.cursor = canEditParent ? '' : 'not-allowed';
+      }
+
+      if (pPhoneInput) {
+        pPhoneInput.value = student.parentPhone || '';
+        pPhoneInput.readOnly = !canEditParent;
+        pPhoneInput.style.background = canEditParent ? '' : 'rgba(255,255,255,0.05)';
+        pPhoneInput.style.cursor = canEditParent ? '' : 'not-allowed';
+      }
+
+      if (pSaveBtn) {
+        pSaveBtn.style.display = canEditParent ? 'inline-block' : 'none';
+        pSaveBtn.disabled = false;
+      }
+
+      if (permBadge) {
+        if (canEditParent) {
+          permBadge.className = 'badge green';
+          permBadge.textContent = isMyAdvisee ? '✓ Faculty Advisor Authorized' : '✓ Authorized Access';
+        } else {
+          permBadge.className = 'badge gray';
+          permBadge.textContent = '🔒 Read-Only (Assigned to ' + (student.advisor ? student.advisor.name : 'Another Advisor') + ')';
+        }
+      }
+
+      if (explainer) {
+        if (canEditParent) {
+          explainer.innerHTML = 'Parent email receives automatic attendance warnings (&lt; 75%) and CIE series score alerts. <strong style="color:var(--text-main);">As the Faculty Advisor, you can configure these details below.</strong>';
+        } else {
+          explainer.innerHTML = '<span style="color:#f59e0b;">🔒 Read-Only:</span> Only the student\'s designated Faculty Advisor (' + advName + ') can add or update parent contact information.';
+        }
+      }
+
+      overlay.style.display = 'flex';
+    }
+
+    function closeFacultyStudentDetailsModal() {
+      const overlay = document.getElementById('facultyStudentDetailsModalOverlay');
+      if (overlay) overlay.style.display = 'none';
+    }
+
+    async function handleSaveStudentParentInfo(evt) {
+      if (evt) evt.preventDefault();
+      const studentId = document.getElementById('fsdStudentId')?.value;
+      const parentEmail = (document.getElementById('fsdModalParentEmail')?.value || '').trim();
+      const parentPhone = (document.getElementById('fsdModalParentPhone')?.value || '').trim();
+      const errBox = document.getElementById('fsdParentAlertMsg');
+      const btn = document.getElementById('fsdParentSaveBtn');
+
+      if (errBox) errBox.style.display = 'none';
+
+      if (!parentEmail) {
+        if (errBox) {
+          errBox.textContent = 'Parent email is required for automated email alerts.';
+          errBox.style.display = 'block';
+        }
+        return false;
+      }
+
+      if (btn) btn.disabled = true;
+
+      try {
+        const payload = {
+          parentEmail: parentEmail,
+          parentPhone: parentPhone || null
+        };
+
+        const updated = await api('/users/student/' + studentId + '/parent-info', {
+          method: 'PUT',
+          body: payload
+        });
+
+        toast('Parent contact details saved! Alerts enabled for ' + parentEmail + ' 👨‍👩‍👦', 'success');
+
+        // Update locally in facultyState
+        if (facultyState && Array.isArray(facultyState.allStudents)) {
+          const idx = facultyState.allStudents.findIndex(s => s.id === parseInt(studentId, 10));
+          if (idx !== -1) {
+            facultyState.allStudents[idx].parentEmail = parentEmail;
+            facultyState.allStudents[idx].parentPhone = parentPhone;
+          }
+        }
+
+        renderFacultyStudents(facultyState.allStudents || []);
+        closeFacultyStudentDetailsModal();
+        return true;
+      } catch (err) {
+        if (errBox) {
+          errBox.textContent = err.message || 'Failed to update parent info.';
+          errBox.style.display = 'block';
+        }
+        toast(err.message, 'error');
+        return false;
+      } finally {
+        if (btn) btn.disabled = false;
+      }
     }
 
     function renderFacultyAttendanceRoster(students) {
@@ -9821,6 +10629,271 @@
       }
     }
 
+    /* ══════════════════════ STUDENT & FACULTY ADVISOR REQUESTS ══════════════════════ */
+
+    async function loadStudentAdvisorStatus() {
+      if (!currentUser || currentUser.role !== 'STUDENT') return;
+      const selectEl = document.getElementById('studentAdvisorSelect');
+      const bannerName = document.getElementById('studentAdvisorAssignedName');
+      const bannerDetail = document.getElementById('studentAdvisorAssignedDetail');
+      const badge = document.getElementById('studentAdvisorStatusBadge');
+      const profileAdvisorText = document.getElementById('profileFacultyAdvisor');
+      const reqBtn = document.getElementById('studentAdvisorRequestBtn');
+
+      // 1. Fetch available faculty advisors for student's department
+      try {
+        const facultyList = await api('/users/faculty-advisors' + (currentUser.department ? '?dept=' + encodeURIComponent(currentUser.department) : ''), { auth: false }).catch(() => []);
+        if (selectEl && Array.isArray(facultyList)) {
+          const currentVal = selectEl.value;
+          selectEl.innerHTML = '<option value="">-- Choose Faculty Member --</option>' +
+            facultyList.map(f => {
+              const deptBadge = f.department ? ' (' + f.department + ')' : '';
+              return '<option value="' + f.id + '">' + escapeHtml(f.name) + deptBadge + (f.role === 'HOD' ? ' [HOD]' : ' [Faculty]') + '</option>';
+            }).join('');
+          if (currentVal) selectEl.value = currentVal;
+        }
+      } catch (e) {
+        console.warn('Could not populate advisor select:', e);
+      }
+
+      // 2. Fetch current student status & active request (try /users/advisor-request first, fallback to /advisor/requests)
+      try {
+        let res = null;
+        try {
+          res = await api('/users/advisor-request/student-status');
+        } catch (e1) {
+          res = await api('/advisor/requests/student-status');
+        }
+        if (!res) return;
+
+        const advName = res.advisorName;
+        const latest = res.latestRequest;
+
+        if (profileAdvisorText) {
+          profileAdvisorText.textContent = advName ? ('Prof. ' + advName) : 'Not Assigned';
+        }
+
+        if (advName) {
+          if (bannerName) bannerName.textContent = 'Current Advisor: Prof. ' + advName + (res.advisorDepartment ? ' (' + res.advisorDepartment + ')' : '');
+          if (bannerDetail) bannerDetail.textContent = 'Email: ' + (res.advisorEmail || '–') + ' · Phone: ' + (res.advisorPhone || '–') + ' · Assigned officially.';
+          if (badge) {
+            badge.className = 'badge green';
+            badge.textContent = '✓ Active Advisor Assigned';
+          }
+          if (reqBtn) reqBtn.textContent = '🔄 Change Advisor Request';
+        } else {
+          if (bannerName) bannerName.textContent = 'Current Advisor: Not Assigned';
+          if (bannerDetail) bannerDetail.textContent = 'Please choose your department faculty advisor below to submit a mentorship request.';
+          if (badge) {
+            badge.className = 'badge gray';
+            badge.textContent = 'No Advisor Assigned';
+          }
+          if (reqBtn) reqBtn.textContent = '📩 Send Advisor Request';
+        }
+
+        if (latest && latest.status === 'PENDING') {
+          const facName = latest.faculty ? latest.faculty.name : 'Faculty';
+          if (bannerName) bannerName.textContent = '⏳ Pending Request: Prof. ' + facName;
+          if (bannerDetail) bannerDetail.textContent = 'Submitted on ' + fmtDate(latest.createdAt) + (latest.message ? ' ("' + escapeHtml(latest.message) + '")' : '') + '. Awaiting faculty acceptance.';
+          if (badge) {
+            badge.className = 'badge orange';
+            badge.textContent = '⏳ Pending Approval';
+          }
+          if (selectEl && latest.faculty && latest.faculty.id) {
+            selectEl.value = latest.faculty.id;
+          }
+        } else if (latest && latest.status === 'REJECTED' && !advName) {
+          const facName = latest.faculty ? latest.faculty.name : 'Faculty';
+          if (bannerName) bannerName.textContent = 'Declined Request: Prof. ' + facName;
+          if (bannerDetail) bannerDetail.textContent = (latest.responseRemark || 'Request not approved') + '. Please select another faculty member.';
+          if (badge) {
+            badge.className = 'badge red';
+            badge.textContent = 'Declined';
+          }
+        }
+      } catch (e) {
+        console.warn('Could not load student advisor status:', e);
+      }
+    }
+
+    async function submitStudentAdvisorRequest() {
+      const selectEl = document.getElementById('studentAdvisorSelect');
+      const noteEl = document.getElementById('studentAdvisorRequestNote');
+      const facultyId = selectEl ? selectEl.value : null;
+      const message = noteEl ? noteEl.value.trim() : '';
+
+      if (!facultyId) {
+        toast('Please select a faculty member from the dropdown.', 'warning');
+        if (selectEl) selectEl.focus();
+        return;
+      }
+
+      const facultyName = selectEl.options[selectEl.selectedIndex] ? selectEl.options[selectEl.selectedIndex].text : 'selected faculty';
+
+      try {
+        const payload = {
+          facultyId: parseInt(facultyId, 10),
+          message: message
+        };
+
+        try {
+          await api('/users/advisor-request/submit', {
+            method: 'POST',
+            body: payload
+          });
+        } catch (e1) {
+          await api('/advisor/requests/submit', {
+            method: 'POST',
+            body: payload
+          });
+        }
+
+        toast('Advisor request sent to ' + facultyName + '! They will review and accept your request.', 'success');
+        if (noteEl) noteEl.value = '';
+        await loadStudentAdvisorStatus();
+      } catch (e) {
+        toast('Failed to submit advisor request: ' + e.message, 'error');
+      }
+    }
+
+    async function loadFacultyAdvisorRequests() {
+      if (!currentUser || (currentUser.role !== 'FACULTY' && currentUser.role !== 'HOD')) return;
+      try {
+        let list = null;
+        try {
+          list = await api('/users/advisor-request/faculty-list');
+        } catch (e1) {
+          list = await api('/advisor/requests/faculty-list');
+        }
+        const requests = Array.isArray(list) ? list : [];
+
+        const pending = requests.filter(r => r.status === 'PENDING');
+        const history = requests.filter(r => r.status !== 'PENDING');
+
+        // Update counts and badge
+        setText('facultyAdvisorPendingCount', pending.length);
+        const badge = document.getElementById('facultyAdvisorRequestBadge');
+        if (badge) {
+          if (pending.length > 0) {
+            badge.textContent = pending.length;
+            badge.style.display = 'inline-block';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+
+        // Update dashboard banner
+        const alertCard = document.getElementById('facultyAdvisorAlertCard');
+        if (alertCard) {
+          if (pending.length > 0) {
+            alertCard.style.display = 'block';
+            setText('facultyAdvisorAlertText', pending.length + ' Student Advisor Request' + (pending.length > 1 ? 's' : '') + ' Awaiting Your Action');
+          } else {
+            alertCard.style.display = 'none';
+          }
+        }
+
+        // Render Pending Table
+        const pBody = document.getElementById('facultyAdvisorRequestsBody');
+        if (pBody) {
+          if (!pending.length) {
+            pBody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:24px;">No pending advisor requests 🎉</td></tr>';
+          } else {
+            pBody.innerHTML = pending.map(r => {
+              const s = r.student || {};
+              const sName = s.name || 'Student';
+              const deptSem = (s.department || '–') + ' · ' + (s.semester || '–') + (s.section ? ' (' + s.section + ')' : '');
+              const noteText = r.message ? escapeHtml(r.message) : '<span style="color:var(--gray-400);">No note provided</span>';
+
+              return '<tr>' +
+                '<td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar-sm">' + initials(sName) + '</div>' +
+                '<div><strong style="color:var(--text-main);">' + escapeHtml(sName) + '</strong><div style="font-size:0.72rem;color:var(--gray-400);">' + escapeHtml(s.email || '') + '</div></div></div></td>' +
+                '<td><strong style="color:var(--accent);">' + escapeHtml(s.rollNumber || '–') + '</strong></td>' +
+                '<td>' + escapeHtml(deptSem) + '</td>' +
+                '<td>' + escapeHtml(s.phone || s.email || '–') + '</td>' +
+                '<td>' + noteText + '</td>' +
+                '<td>' + fmtDate(r.createdAt) + '</td>' +
+                '<td><div style="display:flex;gap:6px;">' +
+                '<button class="btn btn-green btn-sm" onclick="respondToAdvisorRequest(' + r.id + ", 'ACCEPT')\">✓ Accept</button>" +
+                '<button class="btn btn-red btn-sm" onclick="respondToAdvisorRequest(' + r.id + ", 'REJECT')\">✗ Decline</button>" +
+                '</div></td>' +
+                '</tr>';
+            }).join('');
+          }
+        }
+
+        // Render History Table
+        const hBody = document.getElementById('facultyAdvisorHistoryBody');
+        if (hBody) {
+          if (!history.length) {
+            hBody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:16px;">No processed requests yet.</td></tr>';
+          } else {
+            hBody.innerHTML = history.map(r => {
+              const s = r.student || {};
+              const sName = s.name || 'Student';
+              const deptSem = (s.department || '–') + ' · ' + (s.semester || '–');
+              const isAccepted = r.status === 'ACCEPTED';
+              const statusBadge = isAccepted
+                ? '<span class="badge green">✓ Accepted</span>'
+                : '<span class="badge red">✗ Declined</span>';
+
+              return '<tr>' +
+                '<td><strong style="color:var(--text-main);">' + escapeHtml(sName) + '</strong></td>' +
+                '<td>' + escapeHtml(s.rollNumber || '–') + '</td>' +
+                '<td>' + escapeHtml(deptSem) + '</td>' +
+                '<td>' + statusBadge + '</td>' +
+                '<td>' + escapeHtml(r.responseRemark || '–') + '</td>' +
+                '<td>' + fmtDate(r.respondedAt || r.createdAt) + '</td>' +
+                '</tr>';
+            }).join('');
+          }
+        }
+      } catch (e) {
+        console.warn('Could not load faculty advisor requests:', e);
+      }
+    }
+
+    async function respondToAdvisorRequest(id, action) {
+      let remark = '';
+      if (action === 'REJECT') {
+        remark = prompt('Reason for declining this advisor request (optional):', 'Capacity full for this semester');
+        if (remark === null) return; // User cancelled prompt
+      }
+
+      try {
+        const payload = {
+          action: action,
+          remark: remark
+        };
+
+        try {
+          await api('/users/advisor-request/' + id + '/respond', {
+            method: 'PUT',
+            body: payload
+          });
+        } catch (e1) {
+          await api('/advisor/requests/' + id + '/respond', {
+            method: 'PUT',
+            body: payload
+          });
+        }
+
+        if (action === 'ACCEPT') {
+          toast('Student advisor request accepted! Mentee added to your roster.', 'success');
+        } else {
+          toast('Advisor request declined.', 'info');
+        }
+
+        // Refresh faculty requests, my students roster, and mentor hub
+        await loadFacultyAdvisorRequests();
+        if (typeof loadFacultyAll === 'function') {
+          loadFacultyAll();
+        }
+      } catch (e) {
+        toast('Failed to process advisor request: ' + e.message, 'error');
+      }
+    }
+
     /* ══════════════════════ HOD ══════════════════════ */
     let hodState = { pending: [] };
 
@@ -9891,14 +10964,133 @@
     }
 
     function renderHodFaculty(list) {
+      hodState.faculty = list || [];
+      setText('hodFacultyCount', (list ? list.length : 0));
+      setText('hodFacultyTableCount', (list ? list.length : 0));
+      setText('hodFacultyPageSub', (currentUser && currentUser.department ? currentUser.department + ' Department — ' : '') + (list ? list.length : 0) + ' faculty members');
+      renderHodFacultyTableOnly(hodState.faculty);
+    }
+
+    function renderHodFacultyTableOnly(list) {
       const tbody = document.getElementById('hodFacultyBody');
       if (!tbody) return;
-      if (!list.length) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:16px;">No faculty found for this department.</td></tr>'; return; }
+      if (!list || !list.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:16px;">No faculty members found.</td></tr>';
+        return;
+      }
       tbody.innerHTML = list.map(function (f) {
-        return '<tr><td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar-sm">' + initials(f.name) + '</div> ' + escapeHtml(f.name) + '</div></td>' +
-          '<td>' + escapeHtml(f.email || '–') + '</td><td>' + escapeHtml(f.employeeId || '–') + '</td>' +
-          '<td><span class="badge ' + (f.active ? 'green' : 'gray') + '">' + (f.active ? 'Active' : 'Inactive') + '</span></td></tr>';
+        return '<tr>' +
+          '<td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar-sm">' + initials(f.name) + '</div><strong style="color:var(--text-main);">' + escapeHtml(f.name) + '</strong></div></td>' +
+          '<td>' + escapeHtml(f.email || '–') + '</td>' +
+          '<td>' + escapeHtml(f.employeeId || '–') + '</td>' +
+          '<td>' + escapeHtml(f.phone || '–') + '</td>' +
+          '<td><span class="badge ' + (f.active ? 'green' : 'gray') + '">' + (f.active ? 'Active' : 'Inactive') + '</span></td>' +
+          '</tr>';
       }).join('');
+    }
+
+    function filterHodFaculty() {
+      const q = (document.getElementById('hodFacultySearchInput')?.value || '').toLowerCase().trim();
+      const list = (hodState && Array.isArray(hodState.faculty)) ? hodState.faculty : [];
+      const filtered = list.filter(function (f) {
+        if (!q) return true;
+        return (f.name && f.name.toLowerCase().includes(q)) ||
+               (f.email && f.email.toLowerCase().includes(q)) ||
+               (f.employeeId && f.employeeId.toLowerCase().includes(q)) ||
+               (f.phone && f.phone.toLowerCase().includes(q));
+      });
+      renderHodFacultyTableOnly(filtered);
+    }
+
+    function openAddFacultyModal() {
+      const overlay = document.getElementById('addFacultyModalOverlay');
+      if (!overlay) return;
+      overlay.style.display = 'flex';
+      const dept = currentUser ? (currentUser.department || 'CSE') : 'CSE';
+      const deptInput = document.getElementById('modalFacultyDept');
+      if (deptInput) deptInput.value = dept;
+      const errBox = document.getElementById('addFacultyModalError');
+      if (errBox) errBox.style.display = 'none';
+      const form = document.getElementById('addFacultyModalForm');
+      if (form) form.reset();
+      if (deptInput) deptInput.value = dept;
+      const pass = document.getElementById('modalFacultyPassword');
+      if (pass) pass.value = 'faculty123';
+      const saveBtn = document.getElementById('modalFacultySaveBtn');
+      if (saveBtn) saveBtn.disabled = false;
+    }
+
+    function closeAddFacultyModal() {
+      const overlay = document.getElementById('addFacultyModalOverlay');
+      if (overlay) overlay.style.display = 'none';
+    }
+
+    async function handleModalAddFaculty(evt) {
+      if (evt) evt.preventDefault();
+      if (!currentUser || !currentUser.department) {
+        toast('Your HOD account needs a department before adding faculty.', 'error');
+        return false;
+      }
+      const name = (document.getElementById('modalFacultyName')?.value || '').trim();
+      const email = (document.getElementById('modalFacultyEmail')?.value || '').trim();
+      const empId = (document.getElementById('modalFacultyEmpId')?.value || '').trim();
+      const phone = (document.getElementById('modalFacultyPhone')?.value || '').trim();
+      const dept = currentUser.department;
+      const password = (document.getElementById('modalFacultyPassword')?.value || '').trim() || 'faculty123';
+
+      const errBox = document.getElementById('addFacultyModalError');
+      if (errBox) errBox.style.display = 'none';
+
+      if (!name || !email || !password) {
+        if (errBox) {
+          errBox.textContent = 'Full name, email and password are required.';
+          errBox.style.display = 'block';
+        }
+        return false;
+      }
+
+      const payload = {
+        name: name,
+        email: email,
+        password: password,
+        role: 'FACULTY',
+        department: dept,
+        employeeId: empId || null,
+        phone: phone || null
+      };
+
+      const btn = document.getElementById('modalFacultySaveBtn');
+      if (btn) btn.disabled = true;
+
+      try {
+        let saved = null;
+        try {
+          saved = await api('/users/hod/faculty', {
+            method: 'POST',
+            body: payload
+          });
+        } catch (e1) {
+          console.warn('Fallback to admin create user endpoint:', e1);
+          saved = await api('/users/admin/create-user', {
+            method: 'POST',
+            body: payload
+          });
+        }
+
+        toast('Faculty member ' + name + ' added successfully! 👨‍🏫', 'success');
+        closeAddFacultyModal();
+        await loadHodAll();
+        return true;
+      } catch (err) {
+        if (errBox) {
+          errBox.textContent = err.message || 'Failed to add faculty member.';
+          errBox.style.display = 'block';
+        }
+        toast(err.message, 'error');
+        return false;
+      } finally {
+        if (btn) btn.disabled = false;
+      }
     }
 
     /* ══════════════════════ PRINCIPAL ══════════════════════ */
@@ -10136,12 +11328,16 @@
     }
 
     function renderAdminUsers(users) {
+      function dashRowHtml(u) {
+        return '<tr><td>' + escapeHtml(u.name) + '</td><td>' + roleBadge(u.role) + '</td><td>' + escapeHtml(u.department || '–') + '</td>' +
+          '<td><span class="badge ' + (u.active ? 'green' : 'gray') + '">' + (u.active ? 'Active' : 'Inactive') + '</span></td></tr>';
+      }
       function rowHtml(u) {
         return '<tr><td>' + escapeHtml(u.name) + '</td><td>' + roleBadge(u.role) + '</td><td>' + escapeHtml(u.department || '–') + '</td><td>' + escapeHtml(u.email || '–') + '</td>' +
           '<td><span class="badge ' + (u.active ? 'green' : 'gray') + '">' + (u.active ? 'Active' : 'Inactive') + '</span></td>' +
           '<td><button class="btn ' + (u.active ? 'btn-red' : 'btn-green') + ' btn-sm" onclick="toggleUserActive(' + u.id + ')">' + (u.active ? 'Deactivate' : 'Activate') + '</button></td></tr>';
       }
-      const dash = document.getElementById('adminDashUsersBody'); if (dash) dash.innerHTML = users.slice(0, 6).map(rowHtml).join('');
+      const dash = document.getElementById('adminDashUsersBody'); if (dash) dash.innerHTML = users.slice(0, 6).map(dashRowHtml).join('');
       const full = document.getElementById('adminUsersBody'); if (full) full.innerHTML = users.map(rowHtml).join('');
       setText('adminTotalUsersCountLabel', users.length + ' registered users across all roles');
     }
@@ -10160,6 +11356,346 @@
         const users = role ? await api('/users/by-role?role=' + role) : await api('/users/admin/all');
         renderAdminUsers(users);
       } catch (e) { toast(e.message, 'error'); }
+    }
+
+    /* ─── ADMIN: ADD USER MODAL ─── */
+    async function openAddAdminUserModal() {
+      const overlay = document.getElementById('addAdminUserModalOverlay');
+      if (!overlay) return;
+      overlay.style.display = 'flex';
+
+      const err = document.getElementById('addAdminUserModalError');
+      if (err) err.style.display = 'none';
+
+      // Reset fields
+      const name = document.getElementById('adminUserModalName');
+      if (name) { name.value = ''; name.focus(); }
+      const email = document.getElementById('adminUserModalEmail');
+      if (email) email.value = '';
+      const pwd = document.getElementById('adminUserModalPassword');
+      if (pwd) pwd.value = 'User@123';
+      const roleSel = document.getElementById('adminUserModalRole');
+      if (roleSel) roleSel.value = 'STUDENT';
+      const roll = document.getElementById('adminUserModalRoll');
+      if (roll) roll.value = '';
+      const sec = document.getElementById('adminUserModalSection');
+      if (sec) sec.value = 'A';
+      const empId = document.getElementById('adminUserModalEmpId');
+      if (empId) empId.value = '';
+      const phone = document.getElementById('adminUserModalPhone');
+      if (phone) phone.value = '';
+
+      onAdminUserRoleChange();
+      await loadAdminUserModalAdvisors();
+    }
+
+    function closeAddAdminUserModal() {
+      const overlay = document.getElementById('addAdminUserModalOverlay');
+      if (overlay) overlay.style.display = 'none';
+    }
+
+    function onAdminUserRoleChange() {
+      const role = document.getElementById('adminUserModalRole')?.value || 'STUDENT';
+      const studentFields = document.getElementById('adminUserStudentFields');
+      const staffFields = document.getElementById('adminUserStaffFields');
+      const deptGroup = document.getElementById('adminUserDeptGroup');
+      const deptLabel = document.getElementById('adminUserDeptLabel');
+
+      if (role === 'STUDENT') {
+        if (studentFields) studentFields.style.display = 'block';
+        if (staffFields) staffFields.style.display = 'none';
+        if (deptGroup) deptGroup.style.display = 'grid';
+        if (deptLabel) deptLabel.textContent = 'Department *';
+      } else if (role === 'ADMIN' || role === 'PRINCIPAL') {
+        if (studentFields) studentFields.style.display = 'none';
+        if (staffFields) staffFields.style.display = 'block';
+        if (deptGroup) deptGroup.style.display = 'none';
+      } else {
+        // FACULTY, HOD, PLACEMENT_OFFICER
+        if (studentFields) studentFields.style.display = 'none';
+        if (staffFields) staffFields.style.display = 'block';
+        if (deptGroup) deptGroup.style.display = 'grid';
+        if (deptLabel) deptLabel.textContent = 'Department *';
+      }
+    }
+
+    async function loadAdminUserModalAdvisors() {
+      const advSelect = document.getElementById('adminUserModalAdvisor');
+      if (!advSelect) return;
+      advSelect.innerHTML = '<option value="">-- Assign Faculty Advisor (Optional) --</option>';
+      try {
+        const dept = document.getElementById('adminUserModalDept')?.value || '';
+        const res = await api('/users/faculty-advisors' + (dept ? '?dept=' + encodeURIComponent(dept) : ''), { auth: false });
+        const advisors = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+        advisors.forEach(a => {
+          const opt = document.createElement('option');
+          opt.value = a.id;
+          opt.textContent = a.name + (a.department ? ' (' + a.department + ')' : '');
+          advSelect.appendChild(opt);
+        });
+      } catch (e) {
+        console.warn('Could not load faculty advisors for admin user modal:', e);
+      }
+    }
+
+    async function handleModalAddAdminUser(evt) {
+      if (evt) evt.preventDefault();
+      const errBox = document.getElementById('addAdminUserModalError');
+      if (errBox) errBox.style.display = 'none';
+
+      const role = document.getElementById('adminUserModalRole')?.value || 'STUDENT';
+      const name = document.getElementById('adminUserModalName')?.value.trim();
+      const email = document.getElementById('adminUserModalEmail')?.value.trim();
+      const password = document.getElementById('adminUserModalPassword')?.value.trim();
+      const dept = document.getElementById('adminUserModalDept')?.value;
+      const phone = document.getElementById('adminUserModalPhone')?.value.trim();
+
+      if (!name || !email || !password) {
+        if (errBox) {
+          errBox.textContent = 'Full Name, Email, and Password are required.';
+          errBox.style.display = 'block';
+        }
+        return false;
+      }
+
+      const payload = {
+        name: name,
+        email: email,
+        password: password,
+        role: role,
+        phone: phone || null
+      };
+
+      if (role !== 'ADMIN' && role !== 'PRINCIPAL') {
+        payload.department = dept;
+      }
+
+      if (role === 'STUDENT') {
+        const roll = document.getElementById('adminUserModalRoll')?.value.trim();
+        const sem = document.getElementById('adminUserModalSemester')?.value;
+        const sec = document.getElementById('adminUserModalSection')?.value.trim() || 'A';
+        const advVal = document.getElementById('adminUserModalAdvisor')?.value;
+        if (!roll) {
+          if (errBox) {
+            errBox.textContent = 'Roll Number is required for students.';
+            errBox.style.display = 'block';
+          }
+          return false;
+        }
+        payload.rollNumber = roll;
+        payload.semester = sem;
+        payload.section = sec;
+        if (advVal) payload.advisorId = parseInt(advVal);
+      } else {
+        const empId = document.getElementById('adminUserModalEmpId')?.value.trim();
+        if (empId) payload.employeeId = empId;
+      }
+
+      const saveBtn = document.getElementById('adminUserModalSaveBtn');
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = '⏳ Creating...';
+      }
+
+      try {
+        const created = await api('/users/admin/create-user', {
+          method: 'POST',
+          body: payload
+        });
+        toast('User ' + (created && created.name ? created.name : name) + ' created successfully! 🎉', 'success');
+        closeAddAdminUserModal();
+        await loadAdminAll();
+      } catch (err) {
+        if (errBox) {
+          errBox.textContent = err.message || 'Failed to create user.';
+          errBox.style.display = 'block';
+        } else {
+          toast(err.message || 'Failed to create user.', 'error');
+        }
+      } finally {
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = '💾 Create User';
+        }
+      }
+      return false;
+    }
+
+    /* ─── DEPARTMENT DETAILS MODAL ─── */
+    let currentDeptData = {
+      code: '',
+      fullName: '',
+      hodName: '',
+      faculty: [],
+      students: [],
+      activeTab: 'faculty'
+    };
+
+    async function openDepartmentDetails(deptCode, deptFullName, defaultHodName) {
+      const overlay = document.getElementById('deptDetailsModalOverlay');
+      if (!overlay) return;
+      overlay.style.display = 'flex';
+
+      currentDeptData.code = deptCode || 'CSE';
+      currentDeptData.fullName = deptFullName || deptCode;
+      currentDeptData.hodName = defaultHodName || '';
+      currentDeptData.faculty = [];
+      currentDeptData.students = [];
+      currentDeptData.activeTab = 'faculty';
+
+      setText('deptDetailsModalTitle', '🏛 ' + currentDeptData.fullName + ' (' + currentDeptData.code + ')');
+      setText('deptDetailsHodName', currentDeptData.hodName ? 'HOD: ' + currentDeptData.hodName : 'HOD: Loading...');
+      setText('deptDetailsFacultyCount', 'Loading faculty...');
+      setText('deptDetailsStudentCount', 'Loading students...');
+      setText('deptFacultyTabCount', '...');
+      setText('deptStudentTabCount', '...');
+
+      const searchInput = document.getElementById('deptMemberSearchInput');
+      if (searchInput) searchInput.value = '';
+
+      switchDeptDetailsTab('faculty');
+
+      // Set loading placeholders
+      const fBody = document.getElementById('deptFacultyTableBody');
+      if (fBody) fBody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:24px;">⏳ Loading faculty & staff...</td></tr>';
+      const sBody = document.getElementById('deptStudentsTableBody');
+      if (sBody) sBody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:24px;">⏳ Loading students...</td></tr>';
+
+      try {
+        let faculty = [];
+        let students = [];
+        let hodUser = null;
+
+        try {
+          const res = await api('/users/department-members?dept=' + encodeURIComponent(currentDeptData.code));
+          if (res && (res.faculty || res.students)) {
+            faculty = Array.isArray(res.faculty) ? res.faculty : [];
+            students = Array.isArray(res.students) ? res.students : [];
+            hodUser = res.hod || null;
+          }
+        } catch (e) {
+          console.warn('Fallback to standard dept endpoints:', e);
+          const [deptStudents, deptFaculty] = await Promise.all([
+            api('/users/by-dept?dept=' + encodeURIComponent(currentDeptData.code)).catch(() => []),
+            api('/users/faculty-advisors' + (currentDeptData.code ? '?dept=' + encodeURIComponent(currentDeptData.code) : ''), { auth: false }).catch(() => [])
+          ]);
+          students = Array.isArray(deptStudents) ? deptStudents : [];
+          faculty = Array.isArray(deptFaculty) ? deptFaculty : [];
+        }
+
+        currentDeptData.faculty = faculty;
+        currentDeptData.students = students;
+        if (hodUser && hodUser.name) {
+          currentDeptData.hodName = hodUser.name;
+        }
+
+        setText('deptDetailsHodName', currentDeptData.hodName ? 'HOD: ' + currentDeptData.hodName : 'Department Overview');
+        setText('deptDetailsFacultyCount', currentDeptData.faculty.length + ' Faculty');
+        setText('deptDetailsStudentCount', currentDeptData.students.length + ' Students');
+        setText('deptFacultyTabCount', currentDeptData.faculty.length);
+        setText('deptStudentTabCount', currentDeptData.students.length);
+
+        renderDeptDetailsTables();
+      } catch (err) {
+        console.error('Failed to load department members:', err);
+        toast('Failed to load department members: ' + err.message, 'error');
+        if (fBody) fBody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--danger);padding:16px;">Failed to load faculty members.</td></tr>';
+        if (sBody) sBody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--danger);padding:16px;">Failed to load students.</td></tr>';
+      }
+    }
+
+    function closeDepartmentDetailsModal() {
+      const overlay = document.getElementById('deptDetailsModalOverlay');
+      if (overlay) overlay.style.display = 'none';
+    }
+
+    function switchDeptDetailsTab(tab) {
+      currentDeptData.activeTab = tab;
+      const fTab = document.getElementById('deptTabFacultyBtn');
+      const sTab = document.getElementById('deptTabStudentsBtn');
+      const fPane = document.getElementById('deptFacultyPane');
+      const sPane = document.getElementById('deptStudentsPane');
+
+      if (tab === 'faculty') {
+        if (fTab) fTab.classList.add('active');
+        if (sTab) sTab.classList.remove('active');
+        if (fPane) fPane.style.display = 'block';
+        if (sPane) sPane.style.display = 'none';
+      } else {
+        if (sTab) sTab.classList.add('active');
+        if (fTab) fTab.classList.remove('active');
+        if (sPane) sPane.style.display = 'block';
+        if (fPane) fPane.style.display = 'none';
+      }
+    }
+
+    function filterDeptMembers() {
+      renderDeptDetailsTables();
+    }
+
+    function renderDeptDetailsTables() {
+      const query = (document.getElementById('deptMemberSearchInput')?.value || '').toLowerCase().trim();
+      const fBody = document.getElementById('deptFacultyTableBody');
+      const sBody = document.getElementById('deptStudentsTableBody');
+
+      // Filter Faculty
+      const faculty = currentDeptData.faculty.filter(f => {
+        if (!query) return true;
+        return (f.name && f.name.toLowerCase().includes(query)) ||
+               (f.email && f.email.toLowerCase().includes(query)) ||
+               (f.employeeId && f.employeeId.toLowerCase().includes(query)) ||
+               (f.phone && f.phone.toLowerCase().includes(query)) ||
+               (f.role && f.role.toLowerCase().includes(query));
+      });
+
+      // Filter Students
+      const students = currentDeptData.students.filter(s => {
+        if (!query) return true;
+        return (s.name && s.name.toLowerCase().includes(query)) ||
+               (s.rollNumber && s.rollNumber.toLowerCase().includes(query)) ||
+               (s.email && s.email.toLowerCase().includes(query)) ||
+               (s.semester && s.semester.toLowerCase().includes(query)) ||
+               (s.advisor && s.advisor.name && s.advisor.name.toLowerCase().includes(query));
+      });
+
+      if (fBody) {
+        if (!faculty.length) {
+          fBody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:24px;">No faculty members found in ' + escapeHtml(currentDeptData.code) + '.</td></tr>';
+        } else {
+          fBody.innerHTML = faculty.map(f => {
+            const isHod = f.role === 'HOD';
+            const badgeClass = isHod ? 'purple' : 'blue';
+            const roleName = isHod ? 'Head of Dept (HOD)' : 'Faculty Advisor';
+            return '<tr>' +
+              '<td><div style="font-weight:600;color:var(--text-main);">' + escapeHtml(f.name) + '</div></td>' +
+              '<td><span class="badge ' + badgeClass + '">' + roleName + '</span></td>' +
+              '<td>' + escapeHtml(f.employeeId || '–') + '</td>' +
+              '<td>' + escapeHtml(f.email || '–') + '</td>' +
+              '<td>' + escapeHtml(f.phone || '–') + '</td>' +
+              '<td><span class="badge ' + (f.active ? 'green' : 'gray') + '">' + (f.active ? 'Active' : 'Inactive') + '</span></td>' +
+              '</tr>';
+          }).join('');
+        }
+      }
+
+      if (sBody) {
+        if (!students.length) {
+          sBody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:24px;">No students found in ' + escapeHtml(currentDeptData.code) + '.</td></tr>';
+        } else {
+          sBody.innerHTML = students.map(s => {
+            const semSec = (s.semester || '–') + (s.section ? ' (' + s.section + ')' : '');
+            const adv = s.advisor ? s.advisor.name : '–';
+            return '<tr>' +
+              '<td><div style="font-weight:600;color:var(--text-main);">' + escapeHtml(s.name) + '</div></td>' +
+              '<td><strong style="color:var(--accent);">' + escapeHtml(s.rollNumber || '–') + '</strong></td>' +
+              '<td>' + escapeHtml(semSec) + '</td>' +
+              '<td>' + escapeHtml(s.email || '–') + '</td>' +
+              '<td>' + escapeHtml(adv) + '</td>' +
+              '<td><span class="badge ' + (s.active ? 'green' : 'gray') + '">' + (s.active ? 'Active' : 'Inactive') + '</span></td>' +
+              '</tr>';
+          }).join('');
+        }
+      }
     }
 
     function renderAdminRequests(leaves) {
