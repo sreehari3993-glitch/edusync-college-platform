@@ -3307,6 +3307,26 @@
         </label>
         <textarea class="form-input" id="mentorAlertMessageText" rows="4" style="font-size:0.8rem;line-height:1.4;"></textarea>
       </div>
+      <!-- Email Recipient Target Selector -->
+      <div class="form-group" style="margin-bottom:14px;">
+        <label class="form-label" style="font-size:0.8rem;font-weight:600;display:flex;align-items:center;gap:6px;">
+          <span>📧</span> Email Alert Recipient Target
+        </label>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:8px;background:rgba(255,255,255,0.03);padding:10px;border-radius:8px;border:1px solid var(--border);">
+          <label style="font-size:0.78rem;display:flex;align-items:center;gap:6px;cursor:pointer;background:rgba(37,99,235,0.05);padding:6px 8px;border-radius:6px;border:1px solid rgba(37,99,235,0.15);">
+            <input type="radio" name="mentorAlertEmailTarget" value="BOTH" checked>
+            <span>👥 <strong>Both</strong> (Parent & Student)</span>
+          </label>
+          <label style="font-size:0.78rem;display:flex;align-items:center;gap:6px;cursor:pointer;background:rgba(16,185,129,0.05);padding:6px 8px;border-radius:6px;border:1px solid rgba(16,185,129,0.15);">
+            <input type="radio" name="mentorAlertEmailTarget" value="PARENT">
+            <span>👨‍👩‍👦 <strong>Parent Only</strong> <span id="mentorAlertParentEmailDisplay" style="color:var(--gray-400);font-size:0.72rem;display:block;"></span></span>
+          </label>
+          <label style="font-size:0.78rem;display:flex;align-items:center;gap:6px;cursor:pointer;background:rgba(139,92,246,0.05);padding:6px 8px;border-radius:6px;border:1px solid rgba(139,92,246,0.15);">
+            <input type="radio" name="mentorAlertEmailTarget" value="STUDENT">
+            <span>🎓 <strong>Student Only</strong> <span id="mentorAlertStudentEmailDisplay" style="color:var(--gray-400);font-size:0.72rem;display:block;"></span></span>
+          </label>
+        </div>
+      </div>
 
       <!-- Dispatch Buttons -->
       <div style="display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:16px;flex-wrap:wrap;">
@@ -3343,6 +3363,26 @@
         <label class="form-label">Official Resolution / Response Note</label>
         <textarea class="form-textarea" id="grievanceModalResponse" style="min-height:100px;"
           placeholder="Explain the resolution or steps taken..."></textarea>
+      </div>
+      <!-- Email Recipient Target Selector -->
+      <div class="form-group" style="margin-bottom:14px;">
+        <label class="form-label" style="font-size:0.8rem;font-weight:600;display:flex;align-items:center;gap:6px;">
+          <span>📧</span> Email Alert Recipient Target
+        </label>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:8px;background:rgba(255,255,255,0.03);padding:10px;border-radius:8px;border:1px solid var(--border);">
+          <label style="font-size:0.78rem;display:flex;align-items:center;gap:6px;cursor:pointer;background:rgba(37,99,235,0.05);padding:6px 8px;border-radius:6px;border:1px solid rgba(37,99,235,0.15);">
+            <input type="radio" name="mentorAlertEmailTarget" value="BOTH" checked>
+            <span>👥 <strong>Both</strong> (Parent & Student)</span>
+          </label>
+          <label style="font-size:0.78rem;display:flex;align-items:center;gap:6px;cursor:pointer;background:rgba(16,185,129,0.05);padding:6px 8px;border-radius:6px;border:1px solid rgba(16,185,129,0.15);">
+            <input type="radio" name="mentorAlertEmailTarget" value="PARENT">
+            <span>👨‍👩‍👦 <strong>Parent Only</strong> <span id="mentorAlertParentEmailDisplay" style="color:var(--gray-400);font-size:0.72rem;display:block;"></span></span>
+          </label>
+          <label style="font-size:0.78rem;display:flex;align-items:center;gap:6px;cursor:pointer;background:rgba(139,92,246,0.05);padding:6px 8px;border-radius:6px;border:1px solid rgba(139,92,246,0.15);">
+            <input type="radio" name="mentorAlertEmailTarget" value="STUDENT">
+            <span>🎓 <strong>Student Only</strong> <span id="mentorAlertStudentEmailDisplay" style="color:var(--gray-400);font-size:0.72rem;display:block;"></span></span>
+          </label>
+        </div>
       </div>
       <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
         <button type="button" class="btn btn-outline btn-sm" onclick="closeGrievanceModal()">Cancel</button>

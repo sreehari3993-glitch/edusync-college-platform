@@ -65,7 +65,8 @@ public class AdvisorDto {
     @AllArgsConstructor
     public static class MenteeAlertRequest {
         private Long studentId;
-        private String channel; // IN_APP, WHATSAPP, EMAIL
+        private String channel; // IN_APP, WHATSAPP, EMAIL, ALL
+        private String emailTarget; // PARENT, STUDENT, BOTH
         private String message;
     }
 

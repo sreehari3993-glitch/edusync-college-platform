@@ -192,23 +192,50 @@ public class AdvisorDashboardService {
                         .build()
         );
 
-        // Dispatch Parent / Student Email alert
-        AdvisorDto.StudentMenteeRiskDto risk = calculateStudentRisk(student);
-        String parentEmail = student.getParentEmail() != null && !student.getParentEmail().isBlank()
-                ? student.getParentEmail()
-                : student.getEmail();
+        // Dispatch Email alert based on emailTarget selection (PARENT, STUDENT, BOTH)
+        String emailTarget = req.getEmailTarget() != null && !req.getEmailTarget().isBlank()
+                ? req.getEmailTarget().toUpperCase()
+                : "BOTH";
 
-        if (parentEmail != null && !parentEmail.isBlank()) {
-            emailService.sendParentAcademicAlertEmail(
-                    parentEmail,
-                    student.getName(),
-                    risk.getRollNumber(),
-                    student.getDepartment() != null ? student.getDepartment() : "CSE",
-                    risk.getAttendancePercentage(),
-                    risk.getSeriesExamAvgPercentage(),
-                    advisor.getName(),
-                    message
-            );
+        AdvisorDto.StudentMenteeRiskDto risk = calculateStudentRisk(student);
+        String studentEmail = student.getEmail();
+        String parentEmail = student.getParentEmail();
+        StringBuilder dispatchedTo = new StringBuilder();
+
+        if ("PARENT".equals(emailTarget) || "BOTH".equals(emailTarget)) {
+            String target = (parentEmail != null && !parentEmail.isBlank()) ? parentEmail : studentEmail;
+            if (target != null && !target.isBlank()) {
+                emailService.sendParentAcademicAlertEmail(
+                        target,
+                        student.getName(),
+                        risk.getRollNumber(),
+                        student.getDepartment() != null ? student.getDepartment() : "CSE",
+                        risk.getAttendancePercentage(),
+                        risk.getSeriesExamAvgPercentage(),
+                        advisor.getName(),
+                        message
+                );
+                dispatchedTo.append("Parent (").append(target).append(") ");
+            }
+        }
+
+        if ("STUDENT".equals(emailTarget) || "BOTH".equals(emailTarget)) {
+            if (studentEmail != null && !studentEmail.isBlank()) {
+                // If BOTH was chosen and parentEmail is different from studentEmail, dispatch to student as well
+                if (!"BOTH".equals(emailTarget) || (parentEmail != null && !parentEmail.equalsIgnoreCase(studentEmail))) {
+                    emailService.sendParentAcademicAlertEmail(
+                            studentEmail,
+                            student.getName(),
+                            risk.getRollNumber(),
+                            student.getDepartment() != null ? student.getDepartment() : "CSE",
+                            risk.getAttendancePercentage(),
+                            risk.getSeriesExamAvgPercentage(),
+                            advisor.getName(),
+                            message
+                    );
+                    dispatchedTo.append("Student (").append(studentEmail).append(")");
+                }
+            }
         }
 
         auditService.log(
@@ -218,7 +245,7 @@ public class AdvisorDashboardService {
                 advisor.getRole(),
                 "User",
                 student.getId().toString(),
-                "Sent " + channel + " advisory alert to " + student.getName() + " (" + parentEmail + ")"
+                "Sent " + channel + " advisory alert (" + emailTarget + ") to " + student.getName() + " -> " + dispatchedTo
         );
     }
 }
