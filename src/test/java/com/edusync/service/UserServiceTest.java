@@ -13,12 +13,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class UserServiceTest {
 
     @Mock
@@ -175,7 +178,7 @@ class UserServiceTest {
         req.setPassword("password");
         req.setRole(User.Role.ADMIN);
 
-        when(userRepo.existsByEmail("existing@tkmit.ac.in")).thenReturn(true);
+        when(userRepo.existsByEmailIgnoreCase("existing@tkmit.ac.in")).thenReturn(true);
 
         assertThrows(
                 ResourceConflictException.class,

@@ -28,6 +28,7 @@ public class AppDto {
         @NotNull
         private LocalDate toDate;
         private String eventName;
+        private String attachmentPath;
     }
 
     @Data @NoArgsConstructor @AllArgsConstructor @Builder

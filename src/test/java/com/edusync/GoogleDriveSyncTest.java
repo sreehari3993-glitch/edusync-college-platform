@@ -30,7 +30,7 @@ public class GoogleDriveSyncTest {
                 .setApplicationName("EduSync-Campus-AI")
                 .build();
 
-        String folderId = "1pNjlidTeVa71u0FH4_-PBHhVG6jTtiI4";
+        String folderId = "1BFI1zXYH9gaFGlXsrfjSm_WLki8vpA1p";
         System.out.println("Listing files in Drive folder: " + folderId);
         String q = "'" + folderId + "' in parents and trashed = false";
         FileList fileList = driveService.files().list()

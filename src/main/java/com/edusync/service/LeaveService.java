@@ -7,6 +7,7 @@ import com.edusync.model.User;
 import com.edusync.repository.LeaveRequestRepository;
 import com.edusync.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ import java.util.List;
  * Full approval chain: Student → Faculty → HOD → Principal (for long leaves).
  * Leaves > 3 days automatically go to Principal level.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LeaveService {
@@ -29,6 +31,7 @@ public class LeaveService {
     private final PdfService pdfService;
     private final NotificationService notificationService;
     private final EmailService emailService;
+    private final GoogleDriveService googleDriveService;
 
     // ─── Student: Submit leave ────────────────────────────────────────────
 
@@ -47,6 +50,7 @@ public class LeaveService {
                 .toDate(dto.getToDate())
                 .noOfDays(days)
                 .eventName(dto.getEventName())
+                .attachmentPath(dto.getAttachmentPath())
                 .overallStatus(LeaveRequest.Status.PENDING)
                 .facultyStatus(LeaveRequest.Status.PENDING)
                 .hodStatus(LeaveRequest.Status.PENDING)
@@ -81,6 +85,9 @@ public class LeaveService {
                         .link("#page-leaves")
                         .build()
         );
+
+        // Auto-generate and upload official Duty Leave PDF to Google Drive
+        syncLeavePdfToDrive(saved);
 
         return saved;
     }
@@ -162,6 +169,8 @@ public class LeaveService {
                 dto.getRemark()
         );
 
+        syncLeavePdfToDrive(saved);
+
         return saved;
     }
 
@@ -235,6 +244,8 @@ public class LeaveService {
                 dto.getRemark()
         );
 
+        syncLeavePdfToDrive(saved);
+
         return saved;
     }
 
@@ -302,6 +313,8 @@ public class LeaveService {
                 dto.getRemark()
         );
 
+        syncLeavePdfToDrive(saved);
+
         return saved;
     }
 
@@ -328,6 +341,20 @@ public class LeaveService {
 
     public LeaveRequest getLeaveById(Long id) {
         return getLeave(id);
+    }
+
+    private void syncLeavePdfToDrive(LeaveRequest leave) {
+        try {
+            byte[] pdfBytes = pdfService.generateLeaveCertificatePdf(leave);
+            String studentName = (leave.getStudent() != null && leave.getStudent().getName() != null)
+                    ? leave.getStudent().getName().replaceAll("[^a-zA-Z0-9_-]", "_")
+                    : "Student";
+            String fileName = "TKMIT_DutyLeave_Req_" + leave.getId() + "_" + studentName + ".pdf";
+            googleDriveService.uploadFile("Duty-Leave-Certificates", fileName, "application/pdf", pdfBytes);
+            log.info("☁️ [Google Drive] Successfully synced Leave Request PDF #{} to Google Drive folder 'Duty-Leave-Certificates'", leave.getId());
+        } catch (Exception e) {
+            log.warn("⚠️ [Google Drive] Notice: Could not sync Leave Request PDF #{} to Google Drive: {}", leave.getId(), e.getMessage());
+        }
     }
 
     private LeaveRequest getLeave(Long id) {

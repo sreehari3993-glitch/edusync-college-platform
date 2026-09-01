@@ -6,6 +6,9 @@ import com.edusync.repository.PlacementDriveRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -23,6 +26,72 @@ public class KtuKnowledgeBaseService {
      */
     public AiDto.ChatResponse resolveKnowledgeQuery(String msg) {
         String lower = msg.toLowerCase();
+
+        // 0. CURRENT DATE, DAY & TIME QUERIES (e.g. "what day is this", "what is today's date", "what time is it", "current day")
+        if (lower.contains("what day") || lower.contains("which day") || lower.contains("today's date") ||
+            lower.contains("what date") || lower.contains("what is the date") || lower.contains("current date") ||
+            lower.contains("current time") || lower.contains("what time") || lower.contains("today date") ||
+            lower.matches(".*\\b(day|date|time)\\s+is\\s+(it|today|this)\\b.*")) {
+
+            ZoneId istZone = ZoneId.of("Asia/Kolkata");
+            ZonedDateTime now = ZonedDateTime.now(istZone);
+            String dayOfWeek = now.getDayOfWeek().toString().substring(0, 1) + now.getDayOfWeek().toString().substring(1).toLowerCase();
+            String formattedDate = now.format(DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy"));
+            String formattedTime = now.format(DateTimeFormatter.ofPattern("hh:mm a z"));
+
+            String reply = String.format(
+                    "### 📅 Campus Calendar & Time Information\n\n" +
+                    "- **Today is:** **%s**\n" +
+                    "- **Full Date:** **%s**\n" +
+                    "- **Current IST Time:** `%s`\n\n" +
+                    "**🎓 Academic Highlights:**\n" +
+                    "- Standard college lecture hours run from **09:00 AM to 04:15 PM IST**.\n" +
+                    "- To view your specific class schedule for today (%s), open the **🗓 Timetable** tab from your student dashboard!\n\n" +
+                    "> 💡 **Tip:** You can ask me for today's timetable, current attendance, or KTU academic calendar deadlines anytime.",
+                    dayOfWeek, formattedDate, formattedTime, dayOfWeek
+            );
+
+            return AiDto.ChatResponse.builder()
+                    .reply(reply)
+                    .intent("CALENDAR_DATE_TIME")
+                    .suggestedActions(List.of("Check my attendance", "What is KTU 75% attendance rule?", "KTU Activity Points criteria"))
+                    .fromLocalLlm(false)
+                    .build();
+        }
+
+        // 0.1 COURTESY / THANK YOU / GOODBYE / SYSTEM ABOUT QUERIES
+        if (lower.matches(".*\\b(thank you|thanks|thx|thank u|appreciate it)\\b.*")) {
+            return AiDto.ChatResponse.builder()
+                    .reply("😊 **You are very welcome!**\n\nI'm always here to assist you with your **attendance, internal marks, KTU regulations, and placement preparation**. Let me know if there's anything else you need!")
+                    .intent("COURTESY_THANK_YOU")
+                    .suggestedActions(List.of("Check my attendance", "What are KTU Activity Points rules?", "Upcoming placement drives"))
+                    .fromLocalLlm(false)
+                    .build();
+        }
+
+        if (lower.matches(".*\\b(bye|goodbye|see you|cya|good night)\\b.*")) {
+            return AiDto.ChatResponse.builder()
+                    .reply("👋 **Goodbye! Have a productive and great day ahead!**\n\nFeel free to ask me anytime when you need academic assistance or portal help.")
+                    .intent("COURTESY_GOODBYE")
+                    .suggestedActions(List.of("Check my attendance", "What is KTU 75% attendance rule?"))
+                    .fromLocalLlm(false)
+                    .build();
+        }
+
+        if (lower.contains("who created you") || lower.contains("who made you") || lower.contains("about edusync") || lower.contains("what is edusync")) {
+            return AiDto.ChatResponse.builder()
+                    .reply("### 🤖 About EduSync Campus Copilot\n\n" +
+                           "**EduSync** is the unified next-generation college digital platform for **TKM Institute of Technology (TKMIT)** affiliated with **APJ Abdul Kalam Technological University (KTU)**.\n\n" +
+                           "**Core Capabilities:**\n" +
+                           "- 📊 **Real-time Student ERP:** Live attendance tracking, internal marks (CIE), and automated shortage alerts.\n" +
+                           "- 📝 **E-Governance:** Digital Duty Leave (OD) workflows, grievance redressal, and timetable schedules.\n" +
+                           "- 💼 **AI Placement & ATS:** Resume keyword optimization, candidate ranking, and placement drive notifications.\n" +
+                           "- 🎓 **RAG AI Campus Assistant:** Instant answers based on official KTU ordinances, syllabi, and academic manuals.")
+                    .intent("SYSTEM_ABOUT")
+                    .suggestedActions(List.of("Check my attendance", "What is KTU 75% attendance rule?", "KTU Activity Points criteria"))
+                    .fromLocalLlm(false)
+                    .build();
+        }
 
         // 1. MOOC COURSES & CREDIT TRANSFER RULES
         if (lower.contains("mooc") || lower.contains("nptel") || lower.contains("swayam") || lower.contains("online course")) {
@@ -504,6 +573,112 @@ public class KtuKnowledgeBaseService {
                     .reply(reply)
                     .intent("BRANCH_COMPARISON")
                     .suggestedActions(List.of("Upcoming placement drives", "How to score 9+ CGPA in KTU", "KTU B.Tech Honours requirements"))
+                    .fromLocalLlm(false)
+                    .build();
+        }
+
+        // 21. KTU ACTIVITY POINTS RULES & DEGREE REQUIREMENTS
+        if (lower.contains("activity point") || lower.contains("activity points")) {
+            String reply =
+                    "### 🏆 KTU Activity Points Regulations & Degree Requirements\n\n" +
+                    "Under APJ Abdul Kalam Technological University (KTU) regulations, earning Activity Points is **mandatory** for the award of the B.Tech degree:\n\n" +
+                    "**1. Total Points Required for Degree:**\n" +
+                    "- **Regular 4-Year B.Tech Students:** Minimum **100 Activity Points** (or **120 Points** for B.Tech Honours / 2024 scheme).\n" +
+                    "- **Lateral Entry Students (joining in S3):** Minimum **75 Activity Points** (or **90 Points** for Honours).\n\n" +
+                    "**2. Activity Categories & Maximum Point Caps:**\n" +
+                    "1. **National Initiatives (NCC / NSS):** Up to **60 points** (e.g., NSS 2-year volunteer certificate = 60 pts).\n" +
+                    "2. **Sports & Games:** Up to **60 points** (College level = 10 pts, Zonal = 20 pts, Inter-University / National = 40–60 pts).\n" +
+                    "3. **Cultural Activities:** Up to **40 points** (University Arts Fest winner = 30 pts, College level = 10 pts).\n" +
+                    "4. **Professional Initiatives:** Up to **50 points** (IEEE, CSI, ISTE membership = 10 pts, Paper publication in Scopus/IEEE = 30–40 pts, Hackathon prizes = 30–50 pts).\n" +
+                    "5. **Entrepreneurship & Innovation (IEDC):** Up to **50 points** (Startup ideation/incubation, patent filing, approved MOOC certificates).\n\n" +
+                    "> 💡 **Submission:** Upload certificates to the KTU Student Portal. Your Faculty Advisor (FA) verifies and approves them semester by semester.";
+
+            return AiDto.ChatResponse.builder()
+                    .reply(reply)
+                    .intent("ACTIVITY_POINTS_RULES")
+                    .suggestedActions(List.of("What is Condonation rule?", "How do I apply for Duty Leave?", "What is KTU 75% attendance rule?"))
+                    .fromLocalLlm(false)
+                    .build();
+        }
+
+        // 22. ATTENDANCE CONDONATION REGULATIONS
+        if (lower.contains("condonation") || lower.contains("condone")) {
+            String reply =
+                    "### 🏥 KTU Attendance Condonation Regulations (Regulation R 6.2)\n\n" +
+                    "Condonation in KTU is granted strictly for **Attendance Shortage** due to genuine medical reasons or authorized college duties:\n\n" +
+                    "- **Eligible Range:** Attendance between **60% and 74%** in a course.\n" +
+                    "- **Maximum Limit:** Permitted for a **maximum of 2 semesters** throughout the entire 4-year B.Tech program.\n" +
+                    "- **Critical Floor (< 60%):** Attendance below 60% **CANNOT be condoned** under any circumstances. The student is awarded an **'FE' (Failed due to Eligibility)** grade and must repeat the course.\n" +
+                    "- **Approval Chain:** Student submits Medical Certificate + Application → Recommended by Faculty Advisor (FA) & HOD → Approved by College Principal → Forwarded to KTU Portal.\n\n" +
+                    "> ⚠️ **Important Note:** Condonation is strictly for attendance shortage. Academic subject backlogs (F grades) are cleared through regular supplementary examinations, never through condonation.";
+
+            return AiDto.ChatResponse.builder()
+                    .reply(reply)
+                    .intent("CONDONATION_RULES")
+                    .suggestedActions(List.of("What is KTU 75% attendance rule?", "How do I apply for Duty Leave?", "KTU Activity Points criteria"))
+                    .fromLocalLlm(false)
+                    .build();
+        }
+
+        // 23. SFA / FACULTY ADVISOR ROLE
+        if (lower.contains("sfa") || lower.contains("faculty advisor") || lower.contains("student faculty advisor")) {
+            String reply =
+                    "### 👨‍🏫 SFA (Senior Faculty Advisor) & Faculty Advisor System in KTU\n\n" +
+                    "Every student admitted to KTU is attached to a designated **Faculty Advisor (FA)** and **Senior Faculty Advisor (SFA)**:\n\n" +
+                    "- **Cohort Mentorship:** Each Faculty Advisor mentors a batch of approximately **30 students** from Semester 1 through graduation.\n" +
+                    "- **Key Responsibilities:**\n" +
+                    "  1. **Course Registration:** Approves semester course registrations, professional electives, and Minor/Honours course selections.\n" +
+                    "  2. **Academic Monitoring:** Tracks Continuous Internal Evaluation (CIE) marks and attendance records.\n" +
+                    "  3. **Duty Leaves & Condonations:** First approving authority for On-Duty (OD) applications and Medical Condonation requests.\n" +
+                    "  4. **Parent Advisory:** Communicates progress to parents and organizes semester Class Committee / Parent-Teacher meetings.\n" +
+                    "  5. **Activity Points:** Verifies and validates student activity certificates uploaded to the KTU portal.";
+
+            return AiDto.ChatResponse.builder()
+                    .reply(reply)
+                    .intent("SFA_INFO")
+                    .suggestedActions(List.of("What are the rules for KTU activity points?", "Check my attendance", "How to apply for Duty Leave?"))
+                    .fromLocalLlm(false)
+                    .build();
+        }
+
+        // 24. DISCRETE MATHEMATICS STUDY GUIDE
+        if (lower.contains("discrete math") || lower.contains("discrete mathematics") || lower.contains("mat203") || lower.contains("mat206") || lower.contains("cst201")) {
+            String reply =
+                    "### 📐 KTU Discrete Mathematical Structures (MAT203 / CST201) Study Guide\n\n" +
+                    "Discrete Mathematics is a foundational core course for Computer Science & IT engineering. Here is how to master each module:\n\n" +
+                    "**Module-wise Breakdown & Key Topics:**\n" +
+                    "- **Module 1 (Logic & Proofs):** Propositional logic, Truth tables, Logical equivalences, Predicates & Quantifiers, Rules of inference, Proof techniques (Direct, Contradiction, Induction).\n" +
+                    "- **Module 2 (Sets, Relations & Functions):** Set operations, Equivalence relations & Partitions, Partial order relations (Posets & Hasse diagrams), Lattices, Pigeonhole Principle.\n" +
+                    "- **Module 3 (Algebraic Structures):** Semigroups, Monoids, Groups, Subgroups, Cosets, Lagrange's Theorem, Homomorphisms, Rings & Fields.\n" +
+                    "- **Module 4 (Combinatorics & Recurrence):** Permutations & Combinations, Inclusion-Exclusion principle, Generating functions, Solving Linear Recurrence Relations.\n" +
+                    "- **Module 5 (Graph Theory):** Basic graph definitions, Isomorphism, Eulerian & Hamiltonian paths, Trees, Minimum Spanning Trees (Prim's/Kruskal's), Planar graphs.\n\n" +
+                    "**📚 Recommended Textbooks:**\n" +
+                    "1. *Kenneth H. Rosen*, \"Discrete Mathematics and Its Applications\" (Standard KTU Reference).\n" +
+                    "2. *J.P. Tremblay & R. Manohar*, \"Discrete Mathematical Structures with Applications to Computer Science\".\n\n" +
+                    "💡 **Exam Tip:** Solve the last 5 years' KTU question papers—induction proofs, Hasse diagrams, and solving recurrence relations frequently repeat in Part B!";
+
+            return AiDto.ChatResponse.builder()
+                    .reply(reply)
+                    .intent("DISCRETE_MATH_GUIDE")
+                    .suggestedActions(List.of("Binary search & time complexity", "ACID properties in DBMS", "How to score 9+ CGPA in KTU"))
+                    .fromLocalLlm(false)
+                    .build();
+        }
+
+        // 25. KTU 75% ATTENDANCE REGULATION (GENERAL)
+        if (lower.contains("75% attendance") || lower.contains("attendance rule") || lower.contains("minimum attendance")) {
+            String reply =
+                    "### 📊 KTU 75% Mandatory Attendance Regulation\n\n" +
+                    "Under APJ Abdul Kalam Technological University (KTU) regulations:\n\n" +
+                    "- **Mandatory Requirement:** Minimum **75% attendance** in each registered subject is required to appear for the End Semester Examination (ESE).\n" +
+                    "- **Condonation Zone (60% to 74%):** Attendance shortage in this bracket can be condoned by the Principal on genuine medical grounds (hospitalization) or institutional representation. Permitted for a maximum of 2 semesters in a degree.\n" +
+                    "- **Critical Shortage (< 60%):** Results in an **'FE' (Failed due to Eligibility)** grade. The student is disqualified from writing the exam and must repeat the course when offered next.\n" +
+                    "- **Duty Leave (OD):** Students representing the college in sports, hackathons, or university events can receive up to 10% attendance relaxation via approved Duty Leave.";
+
+            return AiDto.ChatResponse.builder()
+                    .reply(reply)
+                    .intent("KTU_ATTENDANCE_RULE")
+                    .suggestedActions(List.of("What is Condonation rule?", "How do I apply for Duty Leave?", "KTU Activity Points criteria"))
                     .fromLocalLlm(false)
                     .build();
         }

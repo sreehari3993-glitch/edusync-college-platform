@@ -44,3 +44,15 @@ desktop.ini
 credentials*.json
 .agents/
 
+# Node & Frontend dependencies
+node_modules/
+package-lock.json
+
+# Android & Gradle build artifacts
+.gradle/
+android/.gradle/
+android/build/
+android/app/build/
+*.apk
+*.aab
+

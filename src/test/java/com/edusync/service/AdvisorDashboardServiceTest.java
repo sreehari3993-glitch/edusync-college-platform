@@ -173,6 +173,7 @@ class AdvisorDashboardServiceTest {
         AdvisorDto.MenteeAlertRequest req = new AdvisorDto.MenteeAlertRequest(
                 101L,
                 "IN_APP",
+                "STUDENT",
                 "Attendance alert: please report to department office"
         );
 

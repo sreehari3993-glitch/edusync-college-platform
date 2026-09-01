@@ -12,6 +12,7 @@ import com.edusync.repository.LeaveRequestRepository;
 import com.edusync.repository.MarkRepository;
 import com.edusync.repository.PlacementDriveRepository;
 import com.edusync.repository.UserRepository;
+import com.edusync.service.AcademicCalculatorService;
 import com.edusync.service.AttendanceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,12 +38,22 @@ public class StudentContextResolver {
     private final AttendanceService attendanceService;
     private final PlacementDriveRepository driveRepo;
     private final LeaveRequestRepository leaveRepo;
+    private final AcademicCalculatorService calculatorService;
 
     /**
-     * Determines whether a query refers to the student's personal records.
+     * Determines whether a query refers to the student's personal records or academic calculations.
      */
     public boolean isPersonalStudentQuery(String lower) {
         if (lower == null) return false;
+
+        // What-if attendance and grade calculation queries
+        if (lower.contains("if i don't attend") || lower.contains("if i dont attend") || lower.contains("if i miss") ||
+            lower.contains("if i skip") || lower.contains("if i bunk") || lower.contains("can i bunk") ||
+            lower.contains("can i skip") || lower.contains("how many classes can i miss") || lower.contains("how many classes can i bunk") ||
+            lower.contains("how many marks") || lower.contains("marks needed") || lower.contains("marks required") ||
+            lower.contains("marks to get") || lower.contains("marks to pass") || lower.contains("what will be my attendance")) {
+            return true;
+        }
 
         // Identity & Semester inquiry
         if (lower.contains("which semester") || lower.contains("what semester") || lower.contains("my semester") ||
@@ -91,12 +102,147 @@ public class StudentContextResolver {
     public AiDto.ChatResponse resolvePersonalQuery(String msg, Long userId) {
         String lower = msg.toLowerCase();
         User student = (userId != null) ? userRepo.findById(userId).orElse(null) : null;
-        boolean isDemo = false;
 
-        // If not logged in, select the first student in database for realistic demo responses
+        // If not logged in, prompt user to log in rather than defaulting to hardcoded demo student
         if (student == null) {
-            student = userRepo.findByRole(User.Role.STUDENT).stream().findFirst().orElse(null);
-            isDemo = true;
+            // If the query is just a numeric percentage evaluation (e.g. "I have 82% attendance is it good?"), evaluate mathematically
+            Pattern pctPattern = Pattern.compile("(\\d{1,2}(?:\\.\\d+)?)\\s*%");
+            Matcher pctMatcher = pctPattern.matcher(msg);
+            if (pctMatcher.find()) {
+                try {
+                    double enteredPct = Double.parseDouble(pctMatcher.group(1));
+                    String verdict = enteredPct >= 75.0
+                            ? String.format("🎉 **Yes! %.1f%% attendance is very good.**\n\nYou are above the KTU mandatory **75%% minimum requirement** and fully eligible to write the End Semester Examinations (ESE) without needing any condonation.", enteredPct)
+                            : (enteredPct >= 60.0
+                            ? String.format("⚠️ **Caution:** With **%.1f%% attendance**, you are below the regular 75%% threshold and in the **Condonation Zone (60%%–74%%)**.\n\n- You will require a genuine medical certificate and approval from your HOD and Principal.\n- Condonation is permitted for a maximum of 2 semesters across your degree program.", enteredPct)
+                            : String.format("🚨 **Critical Shortage:** With **%.1f%% attendance**, you fall below the minimum 60%% condonation floor.\n\n- Under KTU regulations, attendance below 60%% results in an **'FE' (Failed due to Eligibility)** grade.\n- You will not be permitted to write the ESE and must repeat the course.", enteredPct));
+
+                    return AiDto.ChatResponse.builder()
+                            .reply(verdict + "\n\n> **KTU Rule:** Minimum 75% per registered course. Condonation range: 60%–74%.")
+                            .intent("ATTENDANCE_EVALUATION")
+                            .suggestedActions(List.of("What is Condonation rule?", "How do I apply for Duty Leave?", "What is KTU 75% attendance rule?"))
+                            .fromLocalLlm(false)
+                            .build();
+                } catch (Exception ignored) {}
+            }
+
+            return AiDto.ChatResponse.builder()
+                    .reply("### 🔒 Student Sign-in Required\n\n" +
+                           "To view your **personal real-time attendance, internal marks, CGPA, and leave applications**, please sign in with your student institutional account.\n\n" +
+                           "> 💡 **Tip:** You can also ask me general questions about **KTU 75% attendance regulations, condonation rules, activity points criteria, or internal calculation formulas** anytime!")
+                    .intent("AUTH_REQUIRED")
+                    .suggestedActions(List.of("What is KTU 75% attendance rule?", "How are internal marks calculated?", "KTU Activity Points criteria"))
+                    .fromLocalLlm(false)
+                    .build();
+        }
+
+        // 0.2 WHAT-IF ATTENDANCE / PERIOD SKIP SIMULATION
+        if (lower.contains("if i don't attend") || lower.contains("if i dont attend") || lower.contains("if i miss") ||
+            lower.contains("if i skip") || lower.contains("if i bunk") || lower.contains("can i bunk") ||
+            lower.contains("can i skip") || lower.contains("how many classes can i miss") || lower.contains("how many classes can i bunk") ||
+            lower.contains("what will be my attendance")) {
+
+            if (student != null) {
+                var summary = attendanceService.getStudentSummary(student.getId());
+                long totalClasses = summary.stream().mapToLong(AppDto.AttendanceSummary::getTotalClasses).sum();
+                long attended = summary.stream().mapToLong(AppDto.AttendanceSummary::getAttended).sum();
+                if (totalClasses == 0) { totalClasses = 60; attended = 52; }
+
+                long missedPeriods = 1;
+                String targetScope = "Single Period";
+                if (lower.contains("all period") || lower.contains("all periods") || lower.contains("today") || lower.contains("full day") || lower.contains("whole day")) {
+                    missedPeriods = 6;
+                    targetScope = "Today's Full Day (6 periods)";
+                } else if (lower.contains("math") || lower.contains("discrete") || lower.contains("cst201")) {
+                    targetScope = "Discrete Mathematics (1 period)";
+                    missedPeriods = 1;
+                } else {
+                    Pattern countPattern = Pattern.compile("(\\d+)\\s*(?:class|classes|period|periods|hour|hours)");
+                    Matcher cm = countPattern.matcher(lower);
+                    if (cm.find()) {
+                        try {
+                            missedPeriods = Long.parseLong(cm.group(1));
+                            targetScope = missedPeriods + " period(s)";
+                        } catch (Exception ignored) {}
+                    }
+                }
+
+                var sim = calculatorService.simulateAttendance(targetScope, attended, totalClasses, missedPeriods, 0);
+
+                String reply = String.format(
+                        "### 🧮 Attendance \"What-If\" Simulation Result\n\n" +
+                        "- **Student:** %s (%s, %s)\n" +
+                        "- **Simulation Scenario:** Missing **%s**\n\n" +
+                        "**📊 Attendance Impact Analysis:**\n" +
+                        "- **Current Overall Attendance:** **%.1f%%** (%d/%d hours)\n" +
+                        "- **Projected Attendance After Skip:** **%.1f%%** (%d/%d hours) `(Drop: %.1f%%)`\n" +
+                        "- **KTU Eligibility Status:** %s\n" +
+                        "- **Safe Bunks Remaining (above 75%%):** **%d period(s)**\n\n" +
+                        "**💡 Guidance & Recommendation:**\n" +
+                        "%s\n\n" +
+                        "> 📌 **Official KTU Rule:** Minimum **75%%** is required in every individual subject. If you fall between 60%%–74%%, medical condonation is permitted at most twice throughout the 4-year degree.",
+                        student.getName(), student.getDepartment() != null ? student.getDepartment() : "CSE",
+                        student.getSemester() != null ? student.getSemester() : "S4",
+                        targetScope,
+                        sim.getCurrentPercentage(), sim.getCurrentPresent(), sim.getCurrentTotal(),
+                        sim.getSimulatedPercentage(), sim.getSimulatedPresent(), sim.getSimulatedTotal(),
+                        Math.abs(sim.getPercentageChange()),
+                        sim.getStatus().equals("SAFE") ? "🟢 **ELIGIBLE** (Above 75%)" : (sim.getStatus().equals("CONDONATION_RISK") ? "🟡 **CONDONATION ZONE** (60%–74%)" : "🔴 **CRITICAL SHORTAGE** (<60%)"),
+                        sim.getSafeBunksRemaining(),
+                        sim.getGuidance()
+                );
+
+                return AiDto.ChatResponse.builder()
+                        .reply(reply)
+                        .intent("ATTENDANCE_WHAT_IF")
+                        .suggestedActions(List.of("What is Condonation rule?", "How do I apply for Duty Leave?", "Check my current attendance"))
+                        .fromLocalLlm(false)
+                        .build();
+            }
+        }
+
+        // 0.3 KTU GRADE PREDICTOR & ESE SCORE SOLVER
+        if (lower.contains("how many marks") || lower.contains("marks needed") || lower.contains("marks required") ||
+            lower.contains("marks to get") || lower.contains("marks to pass") || (lower.contains("for") && lower.contains("grade") && lower.contains("marks"))) {
+
+            String targetGrade = "A";
+            if (lower.contains(" s grade") || lower.contains(" 's' ") || lower.contains(" s+ ") || lower.contains("grade s")) targetGrade = "S";
+            else if (lower.contains(" a+ ") || lower.contains(" a+ grade") || lower.contains("grade a+")) targetGrade = "A+";
+            else if (lower.contains(" a grade") || lower.contains("grade a")) targetGrade = "A";
+            else if (lower.contains(" b+ ") || lower.contains(" b+ grade") || lower.contains("grade b+")) targetGrade = "B+";
+            else if (lower.contains(" b grade") || lower.contains("grade b")) targetGrade = "B";
+            else if (lower.contains("pass") || lower.contains("passing")) targetGrade = "P";
+
+            double estimatedCie = 40.0;
+            if (student != null) {
+                List<InternalMark> imList = internalMarkRepo.findByStudentOrderByCreatedAtDesc(student);
+                if (!imList.isEmpty()) {
+                    estimatedCie = Math.min(50.0, imList.get(0).getTotalMarks());
+                }
+            }
+
+            var pred = calculatorService.predictEseRequired("Semester Course", estimatedCie, targetGrade);
+
+            String reply = String.format(
+                    "### 🎯 KTU Semester Grade & Exam Predictor\n\n" +
+                    "- **Target Letter Grade:** **%s** (Minimum Total: **%.1f / 100**)\n" +
+                    "- **Current CIE Internal Score:** **%.1f / 50**\n" +
+                    "- **Required End-Semester Exam (ESE) Score:** **%.0f / 100**\n\n" +
+                    "**📋 Formula & Analysis:**\n" +
+                    "- **Official KTU Scoring Formula:** `Final Total (100) = CIE (50) + [ESE (100) / 2]`\n" +
+                    "- **Mandatory Passing Floor:** Minimum **40/100** in ESE and Total ≥ 45/100.\n\n" +
+                    "> 💡 **Exam Advice:** %s",
+                    pred.getTargetGrade(), pred.getTargetGradeMinTotal(),
+                    pred.getInternalMarks(), pred.getRequiredEseMarks(),
+                    pred.getAdvice()
+            );
+
+            return AiDto.ChatResponse.builder()
+                    .reply(reply)
+                    .intent("GRADE_PREDICTOR")
+                    .suggestedActions(List.of("How are internal marks calculated?", "What is KTU Honours criteria?", "Check my current marks"))
+                    .fromLocalLlm(false)
+                    .build();
         }
 
         // 1. PERSONAL ACADEMICS / CGPA / SGPA / MARKS / SERIES RESULTS
@@ -145,11 +291,8 @@ public class StudentContextResolver {
                         : (cgpa >= 6.5 ? "✅ **First Class** (Eligible for Core & IT Campus Placements)"
                         : "⚠️ **Second Class** (Focus on improving internal CIE marks)");
 
-                String demoNotice = isDemo ? "> 💡 *Note: Showing profile for demo student **" + student.getName() + "**. Log in with your credentials to view your personal real-time records!*\n\n" : "";
-
                 String reply = String.format(
                         "### 🎓 Academic Performance & CGPA Report\n\n" +
-                        demoNotice +
                         "- **Student Name:** %s\n" +
                         "- **Roll Number:** `%s` | **Department:** %s\n" +
                         "- **Current Semester:** %s (%s)\n\n" +
@@ -215,11 +358,8 @@ public class StudentContextResolver {
                         : (pct >= 65.0 ? "⚠️ **Condonation Zone** (65%–74%). You will require medical certificate and HOD approval for condonation."
                         : "🚨 **Shortage Zone** (< 65%). Critical attendance shortage. Please meet your Faculty Advisor immediately.");
 
-                String demoNotice = isDemo ? "> 💡 *Note: Showing profile for demo student **" + student.getName() + "**. Log in to view your live attendance!*\n\n" : "";
-
                 String reply = String.format(
                         "### 📊 Your Attendance Report\n\n" +
-                        demoNotice +
                         "- **Student:** %s (%s)\n" +
                         "- **Department:** %s | **Semester:** %s\n" +
                         "- **Overall Attendance:** **%.1f%%** (%d/%d hours)\n" +
@@ -246,11 +386,8 @@ public class StudentContextResolver {
             lower.contains("semester i am in") || lower.contains("who am i") || lower.contains("my details") ||
             lower.contains("my profile") || lower.contains("my roll") || lower.contains("my branch") || lower.contains("my department")) {
             if (student != null) {
-                String demoNotice = isDemo ? "> 💡 *Note: Showing profile for demo student **" + student.getName() + "**. Log in with your credentials to view your live profile!*\n\n" : "";
-
                 String reply = String.format(
                         "### 👤 Student Academic Profile\n\n" +
-                        demoNotice +
                         "- **Student Name:** **%s**\n" +
                         "- **Register / Roll Number:** `%s`\n" +
                         "- **Department:** **%s**\n" +

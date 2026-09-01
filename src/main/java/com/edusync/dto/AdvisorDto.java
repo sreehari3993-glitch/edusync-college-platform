@@ -63,6 +63,7 @@ public class AdvisorDto {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    @Builder
     public static class MenteeAlertRequest {
         private Long studentId;
         private String channel; // IN_APP, WHATSAPP, EMAIL, ALL

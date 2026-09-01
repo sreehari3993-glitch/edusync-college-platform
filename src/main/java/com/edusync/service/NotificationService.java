@@ -70,6 +70,15 @@ public class NotificationService {
         return emitter;
     }
 
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private FcmPushNotificationService fcmPushService;
+
+    public NotificationService() {}
+
+    public NotificationService(FcmPushNotificationService fcmPushService) {
+        this.fcmPushService = fcmPushService;
+    }
+
     /**
      * Sends a notification to a specific user.
      */
@@ -82,6 +91,10 @@ public class NotificationService {
             for (ClientConnection conn : connections) {
                 dispatch(conn, dto);
             }
+        }
+        // Asynchronously dispatch native mobile push notification (FCM)
+        if (fcmPushService != null) {
+            fcmPushService.sendPushToUser(userId, dto);
         }
     }
 
@@ -105,6 +118,11 @@ public class NotificationService {
                 }
             }
         });
+
+        // Asynchronously dispatch native mobile push notification (FCM)
+        if (fcmPushService != null) {
+            fcmPushService.sendPushToDepartment(department, dto);
+        }
     }
 
     /**
@@ -123,6 +141,11 @@ public class NotificationService {
                 }
             }
         });
+
+        // Asynchronously dispatch native mobile push notification (FCM)
+        if (fcmPushService != null) {
+            fcmPushService.sendPushToRole(role, dto);
+        }
     }
 
     /**
@@ -144,6 +167,11 @@ public class NotificationService {
                 }
             }
         });
+
+        // Asynchronously dispatch native mobile push notification (FCM)
+        if (fcmPushService != null) {
+            fcmPushService.sendPushToRoleAndDepartment(role, department, dto);
+        }
     }
 
     /**
@@ -158,6 +186,11 @@ public class NotificationService {
                 dispatch(conn, dto);
             }
         });
+
+        // Asynchronously dispatch native mobile push notification (FCM)
+        if (fcmPushService != null) {
+            fcmPushService.broadcastPush(dto);
+        }
     }
 
     /**

@@ -417,3 +417,80 @@ I'll make sure to structure my responses with Markdown headings, bold key terms,
 --------------------------------------------------------------------------------
 
 
+[2026-09-01 04:44:53] User: ID#18 | Intent: GREETING
+STUDENT: hi
+AI AGENT:
+👋 **Hello! I am EduSync AI Copilot**, your college assistant for TKMIT & KTU.
+
+> 🔒 **Notice:** *Conversations are recorded for the continuous training, evaluation, and quality improvement of this AI agent.*
+
+Here is what I can do for you:
+- 📊 **Live Records:** Check your real-time attendance %, duty leave status, and internal marks
+- 📘 **KTU Regulations:** Minimum attendance (75%), Condonation (60%), Activity points (120 pts), B.Tech 2024 scheme rules
+- 💼 **Placements & Resumes:** Campus recruitment drives, ATS resume screening, and eligibility
+
+How can I help you today?
+--------------------------------------------------------------------------------
+
+[2026-09-01 04:45:05] User: ID#18 | Intent: PERSONAL_PROFILE
+STUDENT: who am i
+AI AGENT:
+### 👤 Student Academic Profile
+
+- **Student Name:** **Ananth Ram**
+- **Register / Roll Number:** `52`
+- **Department:** **CSE**
+- **Current Semester:** **S2** (B.Tech 2022–2026 Batch)
+- **Section:** **A**
+- **Email:** `ananthram@gmail.com`
+
+> 🎓 You are currently enrolled in **Semester S2** in the Department of **CSE** at TKM Institute of Technology.
+--------------------------------------------------------------------------------
+
+[2026-09-01 04:45:25] User: ID#18 | Intent: GREETING
+STUDENT: who are you
+AI AGENT:
+👋 **Hello! I am EduSync AI Copilot**, your college assistant for TKMIT & KTU.
+
+> 🔒 **Notice:** *Conversations are recorded for the continuous training, evaluation, and quality improvement of this AI agent.*
+
+Here is what I can do for you:
+- 📊 **Live Records:** Check your real-time attendance %, duty leave status, and internal marks
+- 📘 **KTU Regulations:** Minimum attendance (75%), Condonation (60%), Activity points (120 pts), B.Tech 2024 scheme rules
+- 💼 **Placements & Resumes:** Campus recruitment drives, ATS resume screening, and eligibility
+
+How can I help you today?
+--------------------------------------------------------------------------------
+
+[2026-09-01 04:45:34] User: ID#18 | Intent: GREETING
+STUDENT: hello
+AI AGENT:
+👋 **Hello! I am EduSync AI Copilot**, your college assistant for TKMIT & KTU.
+
+> 🔒 **Notice:** *Conversations are recorded for the continuous training, evaluation, and quality improvement of this AI agent.*
+
+Here is what I can do for you:
+- 📊 **Live Records:** Check your real-time attendance %, duty leave status, and internal marks
+- 📘 **KTU Regulations:** Minimum attendance (75%), Condonation (60%), Activity points (120 pts), B.Tech 2024 scheme rules
+- 💼 **Placements & Resumes:** Campus recruitment drives, ATS resume screening, and eligibility
+
+How can I help you today?
+--------------------------------------------------------------------------------
+
+[2026-09-01 04:45:58] User: ID#18 | Intent: GENERAL_QUERY
+STUDENT: what day is this
+AI AGENT:
+### 🤖 EduSync Campus AI Assistant
+
+I understand you're asking about: *"what day is this"*
+
+Here are the key areas I can assist you with right now:
+1. 🎓 **MOOC & Credit Transfer:** 12-14 week rules, NPTEL/SWAYAM, B+ grade mapping, and Honours/Minor credits.
+2. 📘 **KTU 2024 Curriculum:** 170 credits, Project-Based Learning (PBL), Challenge Courses, and Multilevel Levels 3 & 5.
+3. 🏫 **College Transfer & Migration:** Inter-college transfer (before S3, Rs. 3,000) and University migration (up to S5, 80% syllabus match).
+4. 🎯 **CGPA & Grade Calculations:** Conversion formulas (`10 × CGPA - 2.5`), CIE 1:2 weightage, and normalization.
+5. 📊 **Attendance & Duty Leave:** 75% regular, 60% condonation, OD certificate workflow, and placement drives.
+
+Feel free to click any of the suggested topics below or ask a specific question!
+--------------------------------------------------------------------------------
+

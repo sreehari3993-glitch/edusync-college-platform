@@ -216,8 +216,47 @@ public class GoogleDriveService {
      * Creates or updates a file in the target Google Drive folder.
      */
     public void uploadOrUpdateFile(String fileName, String mimeType, byte[] data) throws Exception {
-        // Check if file already exists in folder
-        String q = "'" + folderId + "' in parents and name = '" + fileName.replace("'", "\\'") + "' and trashed = false";
+        uploadFileToFolder(folderId, fileName, mimeType, data);
+    }
+
+    /**
+     * Uploads a file into a specific named subfolder (e.g., "Assignments", "Study-Materials", "Duty-Leave-Certificates").
+     */
+    public com.edusync.dto.DriveFileDto uploadFile(String subfolderName, String fileName, String mimeType, byte[] data) throws Exception {
+        if (!isConfigured || driveService == null) {
+            init();
+        }
+
+        String targetParentId = folderId;
+        if (subfolderName != null && !subfolderName.trim().isEmpty()) {
+            targetParentId = getOrCreateSubfolder(subfolderName.trim());
+        }
+
+        File uploaded = uploadFileToFolder(targetParentId, fileName, mimeType, data);
+        String fileId = uploaded.getId();
+        String webView = uploaded.getWebViewLink() != null ? uploaded.getWebViewLink() : "https://drive.google.com/file/d/" + fileId + "/view";
+        String download = "https://drive.google.com/uc?id=" + fileId + "&export=download";
+
+        return com.edusync.dto.DriveFileDto.builder()
+                .fileId(fileId)
+                .fileName(fileName)
+                .originalFileName(fileName)
+                .mimeType(mimeType)
+                .fileSize(data.length)
+                .subfolder(subfolderName)
+                .webViewLink(webView)
+                .downloadUrl(download)
+                .uploadedAt(java.time.LocalDateTime.now())
+                .build();
+    }
+
+    /**
+     * Finds or creates a subfolder inside the root Google Drive folder.
+     */
+    public synchronized String getOrCreateSubfolder(String subfolderName) throws Exception {
+        if (driveService == null) return folderId;
+
+        String q = "'" + folderId + "' in parents and name = '" + subfolderName.replace("'", "\\'") + "' and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
         FileList result = driveService.files().list()
                 .setQ(q)
                 .setSupportsAllDrives(true)
@@ -225,27 +264,91 @@ public class GoogleDriveService {
                 .setFields("files(id, name)")
                 .execute();
 
+        if (result.getFiles() != null && !result.getFiles().isEmpty()) {
+            return result.getFiles().get(0).getId();
+        }
+
+        // Create new subfolder
+        File folderMetadata = new File();
+        folderMetadata.setName(subfolderName);
+        folderMetadata.setMimeType("application/vnd.google-apps.folder");
+        folderMetadata.setParents(Collections.singletonList(folderId));
+
+        File created = driveService.files().create(folderMetadata)
+                .setSupportsAllDrives(true)
+                .setFields("id, name")
+                .execute();
+        log.info("📁 [Google Drive] Created subfolder [{}] (ID: {}) in root folder [{}]", subfolderName, created.getId(), folderId);
+
+        try {
+            com.google.api.services.drive.model.Permission perm = new com.google.api.services.drive.model.Permission()
+                    .setType("anyone")
+                    .setRole("reader");
+            driveService.permissions().create(created.getId(), perm)
+                    .setSupportsAllDrives(true)
+                    .execute();
+        } catch (Exception ignored) {}
+
+        return created.getId();
+    }
+
+    private File uploadFileToFolder(String parentFolderId, String fileName, String mimeType, byte[] data) throws Exception {
+        if (driveService == null) throw new IllegalStateException("Google Drive API is not initialized. Please ensure credentials.json is present.");
+
+        String q = "'" + parentFolderId + "' in parents and name = '" + fileName.replace("'", "\\'") + "' and trashed = false";
+        FileList result = driveService.files().list()
+                .setQ(q)
+                .setSupportsAllDrives(true)
+                .setIncludeItemsFromAllDrives(true)
+                .setFields("files(id, name, webViewLink)")
+                .execute();
+
         ByteArrayContent mediaContent = new ByteArrayContent(mimeType, data);
 
         if (result.getFiles() != null && !result.getFiles().isEmpty()) {
-            // Update existing file
             String existingId = result.getFiles().get(0).getId();
             File fileMetadata = new File();
-            driveService.files().update(existingId, fileMetadata, mediaContent)
+            File updated = driveService.files().update(existingId, fileMetadata, mediaContent)
                     .setSupportsAllDrives(true)
+                    .setFields("id, name, webViewLink")
                     .execute();
             log.debug("☁️ [Google Drive] Updated existing file [{}] (ID: {})", fileName, existingId);
+            return updated;
         } else {
-            // Create new file
             File fileMetadata = new File();
             fileMetadata.setName(fileName);
-            fileMetadata.setParents(Collections.singletonList(folderId));
+            fileMetadata.setParents(Collections.singletonList(parentFolderId));
             File uploaded = driveService.files().create(fileMetadata, mediaContent)
                     .setSupportsAllDrives(true)
-                    .setFields("id, name")
+                    .setFields("id, name, webViewLink")
                     .execute();
             log.info("☁️ [Google Drive] Uploaded new file [{}] (ID: {})", fileName, uploaded.getId());
+
+            try {
+                com.google.api.services.drive.model.Permission perm = new com.google.api.services.drive.model.Permission()
+                        .setType("anyone")
+                        .setRole("reader");
+                driveService.permissions().create(uploaded.getId(), perm)
+                        .setSupportsAllDrives(true)
+                        .execute();
+            } catch (Exception pe) {
+                log.debug("Permission notice for {}: {}", fileName, pe.getMessage());
+            }
+
+            return uploaded;
         }
+    }
+
+    /**
+     * Downloads file content as byte array by file ID.
+     */
+    public byte[] downloadFile(String fileId) throws Exception {
+        if (driveService == null) throw new IllegalStateException("Google Drive service not configured.");
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        driveService.files().get(fileId)
+                .setSupportsAllDrives(true)
+                .executeMediaAndDownloadTo(out);
+        return out.toByteArray();
     }
 
     public boolean isConfigured() {

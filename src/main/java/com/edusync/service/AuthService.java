@@ -1,6 +1,7 @@
 package com.edusync.service;
 
 import com.edusync.dto.AuthDto;
+import com.edusync.exception.BadRequestException;
 import com.edusync.exception.ForbiddenOperationException;
 import com.edusync.exception.ResourceConflictException;
 import com.edusync.exception.ResourceNotFoundException;

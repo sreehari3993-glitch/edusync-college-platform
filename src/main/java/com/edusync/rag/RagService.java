@@ -108,8 +108,8 @@ public class RagService {
     private boolean isSupportedFilename(String name) {
         if (name == null) return false;
         String lower = name.toLowerCase();
-        // Strictly exclude internal chat transcripts, audit logs, and system logs
-        if (lower.contains("chat_history") || lower.contains("audit") || lower.contains("log") || lower.endsWith(".jsonl")) {
+        // Strictly exclude internal chat transcripts, user histories, audit logs, and system logs
+        if (lower.contains("chat") || lower.contains("history") || lower.contains("audit") || lower.contains("log") || lower.endsWith(".jsonl")) {
             return false;
         }
         return lower.endsWith(".pdf") || lower.endsWith(".xlsx") || lower.endsWith(".xls") || lower.endsWith(".csv") || lower.endsWith(".txt") || lower.endsWith(".md");
@@ -137,7 +137,7 @@ public class RagService {
     }
 
     public void indexBytes(String filename, byte[] bytes) {
-        if (filename == null || bytes == null || bytes.length == 0 || indexedFiles.contains(filename)) return;
+        if (filename == null || bytes == null || bytes.length == 0 || indexedFiles.contains(filename) || !isSupportedFilename(filename)) return;
 
         String lower = filename.toLowerCase();
         if (lower.endsWith(".pdf")) {

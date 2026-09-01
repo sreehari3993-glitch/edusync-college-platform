@@ -229,7 +229,7 @@ CASE STUDY 5: PERSONAL IDENTITY & SEMESTER INQUIRY ROUTING
 CASE STUDY 6: ENGINEERING MATHEMATICS & LOG EXCLUSION FROM RAG
 • User Query: "partial differenciation", "What is partial differentiation in engineering mathematics?"
 • Incorrect Initial Agent Behavior:
-  - When a student typed long mathematical notes on Partial Differentiation, substring matching on "me" in "time" or "%" misclassified it as a personal attendance inquiry.
+  - When a student typed mathematical notes on Partial Differentiation, substring matching on "me" in "time" or "%" misclassified it as a personal attendance inquiry.
   - Furthermore, `RagService` was indexing `student_chat_history.txt` as a knowledge source and citing `student_chat_history.txt (Page 1)` along with generic microeconomics examples (Law of Demand).
 • Root Cause:
   - `RagService.java` accepted all `.txt` files without excluding conversation transcripts and audit logs.
@@ -238,6 +238,67 @@ CASE STUDY 6: ENGINEERING MATHEMATICS & LOG EXCLUSION FROM RAG
   - Updated `isSupportedFilename` in `RagService.java` to strictly exclude all chat logs, audit files (`student_chat_history.txt`, `student_chat_audit_log.jsonl`, `*.log`, `*.jsonl`).
   - Enforced strict word boundaries (`\b(my|me|i|am i|can i)\b`) for personal query detection so mathematical definitions are never misrouted to personal attendance records.
   - Raised RAG similarity threshold to 0.45 and mapped partial differentiation directly to B.Tech First Year Engineering Mathematics (Calculus, Multivariable Optimization, Wave Equations, Gradient Descent in AI/ML).
+
+CASE STUDY 7: KTU ACTIVITY POINTS RULES & DEGREE REQUIREMENTS
+• User Query: "What are the rules for KTU activity points?" / "How many activity points are required for B.Tech degree?"
+• Incorrect Initial Agent Behavior:
+  - Stated: "Minimum 10 points per semester, Maximum 20 points per semester".
+• Correct KTU Regulation:
+  - Under KTU B.Tech Regulations:
+    * Regular B.Tech Students: Minimum 100 Activity Points (or 120 points for B.Tech Honours / 2024 scheme) cumulative over 8 semesters to earn the degree.
+    * Lateral Entry Students: Minimum 75 Activity Points (or 90 points for Honours).
+  - Activity Categories:
+    1. National Initiatives: NCC / NSS (up to 60 points)
+    2. Sports & Games: College, University, State, National representation (up to 60 points)
+    3. Cultural Activities: University arts fest, inter-college events (up to 40 points)
+    4. Professional Initiatives: IEEE, CSI, ISTE memberships, paper presentations, hackathons (up to 50 points)
+    5. Entrepreneurship & Innovation: IEDC, startup incubation, patents, MOOC courses (up to 50 points)
+
+CASE STUDY 8: ATTENDANCE CONDONATION VS ACADEMIC BACKLOGS
+• User Query: "What is condonation in KTU and how many times can a student apply?"
+• Incorrect Initial Agent Behavior:
+  - Hallucinated: "Condonation is a process that allows students to regularize backlogs and continue studies... one-time opportunity to condone backlogs".
+• Correct KTU Regulation:
+  - Condonation in KTU is strictly for ATTENDANCE SHORTAGE (Regulation R 6.2).
+  - Eligibility: Attendance between 60% and 74% in a course due to genuine medical illness or authorized institutional duty.
+  - Limit: A student can apply for attendance condonation for a MAXIMUM OF 2 SEMESTERS across their entire 4-year B.Tech degree.
+  - Minimum Floor: Attendance below 60% cannot be condoned under any circumstances and results in an 'FE' (Failed due to Eligibility) grade.
+  - Note: Academic course backlogs (F grades) are cleared through regular supplementary university examinations, NEVER through condonation.
+
+CASE STUDY 9: DISCRETE MATHEMATICS & SEMESTER EXAM PREPARATION
+• User Query: "How can I study discrete mathematics" / "How to prepare for semester exams"
+• Incorrect Initial Agent Behavior:
+  - The agent outputted a generic fallback menu without academic advice.
+• Correct Guidance & Recommendations:
+  - KTU Course: Discrete Mathematical Structures (MAT203 / CST201 / MAT206).
+  - Key Modules to Master:
+    * Module 1: Propositional Logic, Truth Tables, Predicate Logic, Inference Rules.
+    * Module 2: Set Theory, Relations, Equivalence Relations, Functions, Pigeonhole Principle.
+    * Module 3: Group Theory, Semigroups, Monoids, Subgroups, Homomorphisms, Rings.
+    * Module 4: Combinatorics, Permutations & Combinations, Generating Functions, Recurrence Relations.
+    * Module 5: Graph Theory, Euler & Hamiltonian Graphs, Trees, Spanning Trees (Kruskal/Prim), Planar Graphs.
+  - Recommended Textbooks: Kenneth H. Rosen ("Discrete Mathematics and Its Applications"), Tremblay & Manohar.
+  - Practice Strategy: Solve the last 5 years of KTU university question papers and focus on induction proofs and recurrence relations.
+
+CASE STUDY 10: SFA (STUDENT FACULTY ADVISOR) ROLE & ADVISORY SYSTEM
+• User Query: "WHAT IS SFA" / "What is the role of Faculty Advisor"
+• Correct KTU Definition:
+  - SFA = Senior Faculty Advisor / FA = Faculty Advisor appointed by the Department Head.
+  - Core Functions:
+    1. Mentors a cohort of ~30 students from Semester 1 through Semester 8.
+    2. Approves course registration, elective selections, and credit transfers.
+    3. Reviews student attendance and CIE marks; sends early alerts for attendance shortage (<75%).
+    4. First authority in the digital approval chain for Duty Leave (OD) and medical condonation.
+    5. Conducts parent-teacher advisory consultations every semester.
+
+CASE STUDY 12: REAL-TIME DATE, DAY, CALENDAR & CONVERSATIONAL QUERIES
+• User Query: "what day is this", "what is today's date", "what time is it", "thank you", "who created you"
+• Incorrect Initial Agent Behavior:
+  - The fallback engine returned a static university syllabus menu ("I understand you're asking about: 'what day is this' - 1. MOOC & Credit Transfer, 2. KTU 2024 Curriculum...").
+• Correct Agent Behavior & Grounding:
+  - Dynamically calculates the live Indian Standard Time (IST) calendar day, date, and time.
+  - Formats: "Today is Tuesday, September 1, 2026 (04:48 AM IST)" with helpful academic contextual shortcuts to the student Timetable, working hours (09:00 AM to 04:15 PM), and campus calendar.
+  - Handles courtesy queries (thank you, goodbye, about EduSync) warmly with smart action recommendations.
 
 ================================================================================
                    END OF CAMPUS AI MASTER TRAINING GUIDE
