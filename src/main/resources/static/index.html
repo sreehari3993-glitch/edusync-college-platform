@@ -12491,13 +12491,32 @@
 
     function renderAdminUsers(users) {
       function dashRowHtml(u) {
+        const isActive = u.active !== false;
+        const statusBadge = isActive
+          ? '<span class="badge green">Active</span>'
+          : '<span class="badge red" style="background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);">Deactivated</span>';
         return '<tr><td>' + escapeHtml(u.name) + '</td><td>' + roleBadge(u.role) + '</td><td>' + escapeHtml(u.department || '–') + '</td>' +
-          '<td><span class="badge ' + (u.active ? 'green' : 'gray') + '">' + (u.active ? 'Active' : 'Inactive') + '</span></td></tr>';
+          '<td>' + statusBadge + '</td></tr>';
       }
       function rowHtml(u) {
+        const isSelf = currentUser && (currentUser.userId === u.id || (currentUser.email && u.email && currentUser.email.toLowerCase() === u.email.toLowerCase()));
+        const isActive = u.active !== false;
+        const statusBadge = isActive
+          ? '<span class="badge green">Active</span>'
+          : '<span class="badge red" style="background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);font-weight:600;">Deactivated</span>';
+        
+        let actionBtn = '';
+        if (isSelf) {
+          actionBtn = '<span style="font-size:0.75rem;color:var(--gray-400);font-style:italic;">(Active Account)</span>';
+        } else if (isActive) {
+          actionBtn = '<button class="btn btn-red btn-sm" onclick="toggleUserActive(' + u.id + ')" title="Deactivate user login and access">Deactivate</button>';
+        } else {
+          actionBtn = '<button class="btn btn-green btn-sm" onclick="toggleUserActive(' + u.id + ')" title="Restore user account access">Activate</button>';
+        }
+
         return '<tr><td>' + escapeHtml(u.name) + '</td><td>' + roleBadge(u.role) + '</td><td>' + escapeHtml(u.department || '–') + '</td><td>' + escapeHtml(u.email || '–') + '</td>' +
-          '<td><span class="badge ' + (u.active ? 'green' : 'gray') + '">' + (u.active ? 'Active' : 'Inactive') + '</span></td>' +
-          '<td><button class="btn ' + (u.active ? 'btn-red' : 'btn-green') + ' btn-sm" onclick="toggleUserActive(' + u.id + ')">' + (u.active ? 'Deactivate' : 'Activate') + '</button></td></tr>';
+          '<td>' + statusBadge + '</td>' +
+          '<td>' + actionBtn + '</td></tr>';
       }
       const dash = document.getElementById('adminDashUsersBody'); if (dash) dash.innerHTML = users.slice(0, 6).map(dashRowHtml).join('');
       const full = document.getElementById('adminUsersBody'); if (full) full.innerHTML = users.map(rowHtml).join('');
@@ -12506,10 +12525,21 @@
 
     async function toggleUserActive(id) {
       try {
-        await api('/users/admin/' + id + '/toggle', { method: 'PUT' });
-        toast('User status updated.', 'success');
-        loadAdminAll();
-      } catch (e) { toast(e.message, 'error'); }
+        const updated = await api('/users/admin/' + id + '/toggle', { method: 'PUT' });
+        const isNowActive = updated && updated.active !== undefined ? updated.active : true;
+        const name = updated && updated.name ? updated.name : 'User';
+        toast('Account for ' + name + ' is now ' + (isNowActive ? 'activated' : 'deactivated') + '.', 'success');
+        
+        const filterSel = document.getElementById('adminUserRoleFilter');
+        const role = filterSel ? filterSel.value : '';
+        if (role) {
+          await filterUsersByRole();
+        } else {
+          await loadAdminAll();
+        }
+      } catch (e) {
+        toast(e.message, 'error');
+      }
     }
 
     async function filterUsersByRole() {

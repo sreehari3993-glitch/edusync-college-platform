@@ -1,5 +1,5 @@
 {
-  "appId": "com.edusync.app",
+  "appId": "com.edusync.college.platform",
   "appName": "EduSync",
   "webDir": "src/main/resources/static",
   "server": {

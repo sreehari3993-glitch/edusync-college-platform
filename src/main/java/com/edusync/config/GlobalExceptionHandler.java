@@ -51,6 +51,16 @@ public class GlobalExceptionHandler {
                 .body(AppDto.ApiResponse.error("Invalid email or password."));
     }
 
+    // ─── Deactivated account ───────────────────────────────────────────────
+    @ExceptionHandler(org.springframework.security.authentication.DisabledException.class)
+    public ResponseEntity<AppDto.ApiResponse<Void>> handleDisabledException(
+            org.springframework.security.authentication.DisabledException ex
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(AppDto.ApiResponse.error("Your account has been deactivated by administrator. Please contact admin@tkmit.ac.in."));
+    }
+
     // ─── Access denied (wrong role) ───────────────────────────────────────
 
     @ExceptionHandler(AccessDeniedException.class)

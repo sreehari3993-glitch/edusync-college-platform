@@ -71,10 +71,19 @@ public class UserController {
 
     @PutMapping("/admin/{id}/toggle")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<AppDto.ApiResponse<User>> toggleActive(@PathVariable Long id) {
-        User user = userService.toggleUserActive(id);
+    public ResponseEntity<AppDto.ApiResponse<User>> toggleActive(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @PathVariable Long id
+    ) {
+        Long adminUserId = null;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            try {
+                adminUserId = jwtUtil.extractUserId(authHeader.substring(7));
+            } catch (Exception ignored) {}
+        }
+        User user = userService.toggleUserActive(adminUserId, id);
         String status = user.isActive() ? "activated" : "deactivated";
-        return ResponseEntity.ok(AppDto.ApiResponse.ok("User " + status, user));
+        return ResponseEntity.ok(AppDto.ApiResponse.ok("User " + status + " successfully", user));
     }
 
     @GetMapping("/by-role")

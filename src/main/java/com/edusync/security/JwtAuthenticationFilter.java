@@ -51,7 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
-                if (jwtUtil.isTokenValid(jwt, userDetails)) {
+                if (jwtUtil.isTokenValid(jwt, userDetails) && userDetails.isEnabled()) {
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(
                                     userDetails,
@@ -62,6 +62,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             new WebAuthenticationDetailsSource().buildDetails(request)
                     );
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                } else if (!userDetails.isEnabled()) {
+                    logger.warn("JWT rejected: User " + userEmail + " account is deactivated.");
                 }
             }
         } catch (Exception e) {

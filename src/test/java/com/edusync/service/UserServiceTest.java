@@ -185,4 +185,48 @@ class UserServiceTest {
                 () -> userService.createUserByAdmin(req)
         );
     }
+
+    @Test
+    void testAdminCanToggleUserActiveState() {
+        User student = User.builder()
+                .id(10L)
+                .name("Test Student")
+                .email("student@tkmit.ac.in")
+                .role(User.Role.STUDENT)
+                .active(true)
+                .build();
+
+        when(userRepo.findById(10L)).thenReturn(java.util.Optional.of(student));
+        when(userRepo.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
+
+        User deactivated = userService.toggleUserActive(1L, 10L);
+        assertFalse(deactivated.isActive());
+
+        User reactivated = userService.toggleUserActive(1L, 10L);
+        assertTrue(reactivated.isActive());
+    }
+
+    @Test
+    void testAdminCannotDeactivateSelf() {
+        assertThrows(
+                com.edusync.exception.BadRequestException.class,
+                () -> userService.toggleUserActive(1L, 1L)
+        );
+    }
+
+    @Test
+    void testCannotDeactivatePrimaryAdminAccount() {
+        User primaryAdmin = User.builder()
+                .id(99L)
+                .email("admin@tkmit.ac.in")
+                .role(User.Role.ADMIN)
+                .active(true)
+                .build();
+        when(userRepo.findById(99L)).thenReturn(java.util.Optional.of(primaryAdmin));
+
+        assertThrows(
+                com.edusync.exception.ForbiddenOperationException.class,
+                () -> userService.toggleUserActive(2L, 99L)
+        );
+    }
 }

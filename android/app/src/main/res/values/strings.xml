@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">EduSync</string>
     <string name="title_activity_main">EduSync</string>
-    <string name="package_name">com.edusync.app</string>
-    <string name="custom_url_scheme">com.edusync.app</string>
+    <string name="package_name">com.edusync.college.platform</string>
+    <string name="custom_url_scheme">com.edusync.college.platform</string>
 </resources>

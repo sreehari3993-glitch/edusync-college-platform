@@ -1,4 +1,4 @@
-package com.edusync.app;
+package com.edusync.college.platform;
 
 import android.os.Bundle;
 import android.webkit.WebSettings;

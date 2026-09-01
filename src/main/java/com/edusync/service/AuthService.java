@@ -102,18 +102,21 @@ public class AuthService {
 
     public AuthDto.AuthResponse login(AuthDto.LoginRequest req) {
         String cleanEmail = req.getEmail() != null ? req.getEmail().trim().toLowerCase() : "";
+        if (cleanEmail.isEmpty()) {
+            throw new BadRequestException("Email address is required.");
+        }
+
+        User user = userRepository.findByEmailIgnoreCase(cleanEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User with email '" + cleanEmail + "' was not found."));
+
+        if (!user.isActive()) {
+            throw new ForbiddenOperationException("Your account has been deactivated by administrator. Please contact admin@tkmit.ac.in.");
+        }
 
         // Spring Security validates credentials
         authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(cleanEmail, req.getPassword())
         );
-
-        User user = userRepository.findByEmailIgnoreCase(cleanEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User", cleanEmail));
-
-        if (!user.isActive()) {
-            throw new ForbiddenOperationException("Account is deactivated. Contact admin.");
-        }
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
         String token = jwtUtil.generateToken(userDetails, user.getId(), user.getRole().name());

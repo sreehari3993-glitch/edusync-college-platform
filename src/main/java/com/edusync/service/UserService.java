@@ -336,19 +336,39 @@ public class UserService {
 
     @Transactional
     public User toggleUserActive(Long userId) {
+        return toggleUserActive(null, userId);
+    }
+
+    @Transactional
+    public User toggleUserActive(Long adminUserId, Long userId) {
+        // Prevent administrator from deactivating their own currently logged-in account
+        if (adminUserId != null && adminUserId.equals(userId)) {
+            throw new BadRequestException("You cannot deactivate your own administrator account.");
+        }
+
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", userId));
+
+        // Prevent locking out primary default admin account
+        if (user.getEmail() != null && user.getEmail().equalsIgnoreCase("admin@tkmit.ac.in") && user.isActive()) {
+            throw new ForbiddenOperationException("The primary system administrator account cannot be deactivated.");
+        }
+
         user.setActive(!user.isActive());
+        user.setUpdatedAt(LocalDateTime.now());
         User saved = userRepo.save(user);
 
+        String statusAction = saved.isActive() ? "USER_ACTIVATED" : "USER_DEACTIVATED";
+        String details = (saved.isActive() ? "Activated" : "Deactivated") + " user account: " + saved.getEmail() + " (" + saved.getName() + " - " + saved.getRole() + ")";
+
         auditService.log(
-                user.isActive() ? "USER_ACTIVATED" : "USER_DEACTIVATED",
+                statusAction,
                 "admin@tkmit.ac.in",
                 "Administrator",
                 User.Role.ADMIN,
                 "User",
                 saved.getId().toString(),
-                (user.isActive() ? "Activated" : "Deactivated") + " user " + saved.getEmail()
+                details
         );
 
         return saved;

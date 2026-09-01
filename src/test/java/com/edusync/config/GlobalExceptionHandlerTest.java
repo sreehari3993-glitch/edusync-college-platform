@@ -83,4 +83,16 @@ class GlobalExceptionHandlerTest {
         assertFalse(response.getBody().isSuccess());
         assertEquals("Failed to generate Leave Certificate PDF: Out of memory", response.getBody().getMessage());
     }
+
+    @Test
+    void testHandleDisabledException() {
+        org.springframework.security.authentication.DisabledException ex =
+                new org.springframework.security.authentication.DisabledException("User is disabled");
+        ResponseEntity<AppDto.ApiResponse<Void>> response = exceptionHandler.handleDisabledException(ex);
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertFalse(response.getBody().isSuccess());
+        assertTrue(response.getBody().getMessage().contains("deactivated by administrator"));
+    }
 }
