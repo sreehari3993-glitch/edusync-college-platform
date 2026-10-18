@@ -103,6 +103,22 @@ public class SecurityConfig {
                 // Placement officer
                 .requestMatchers("/api/placement/manage/**").hasAnyRole("PLACEMENT_OFFICER", "ADMIN")
 
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/industry/internships/open").authenticated()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/industry/internships/my-applications").hasRole("STUDENT")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/industry/internships/*/apply").hasRole("STUDENT")
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/industry/overview").hasAnyRole("INDUSTRIAL_CONNECT_HEAD", "PRINCIPAL", "HOD", "ADMIN")
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/industry/companies", "/api/industry/companies/**").hasAnyRole("INDUSTRIAL_CONNECT_HEAD", "PLACEMENT_OFFICER", "ADMIN")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/industry/visits/propose").hasAnyRole("FACULTY", "HOD")
+                .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/industry/visits/*/hod-action").hasAnyRole("HOD", "ADMIN")
+                .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/industry/visits/*/principal-action").hasAnyRole("PRINCIPAL", "ADMIN")
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/industry/visits", "/api/industry/visits/**").hasAnyRole("FACULTY", "HOD", "PRINCIPAL", "INDUSTRIAL_CONNECT_HEAD", "ADMIN")
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/industry/reports/**").hasAnyRole("INDUSTRIAL_CONNECT_HEAD", "PRINCIPAL", "HOD", "ADMIN")
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/industry/lectures", "/api/industry/lectures/**").hasAnyRole("FACULTY", "HOD", "PRINCIPAL", "INDUSTRIAL_CONNECT_HEAD", "ADMIN")
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/industry/projects", "/api/industry/projects/**").hasAnyRole("FACULTY", "HOD", "PRINCIPAL", "INDUSTRIAL_CONNECT_HEAD", "ADMIN")
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/industry/advisory", "/api/industry/advisory/**").hasAnyRole("FACULTY", "HOD", "PRINCIPAL", "INDUSTRIAL_CONNECT_HEAD", "ADMIN")
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/industry/alumni", "/api/industry/alumni/**").hasAnyRole("FACULTY", "HOD", "PRINCIPAL", "INDUSTRIAL_CONNECT_HEAD", "ADMIN")
+                .requestMatchers("/api/industry/**").hasAnyRole("INDUSTRIAL_CONNECT_HEAD", "ADMIN")
+
                 // All authenticated users
                 .anyRequest().authenticated()
             )

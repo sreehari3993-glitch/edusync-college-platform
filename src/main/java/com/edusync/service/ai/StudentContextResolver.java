@@ -39,6 +39,8 @@ public class StudentContextResolver {
     private final PlacementDriveRepository driveRepo;
     private final LeaveRequestRepository leaveRepo;
     private final AcademicCalculatorService calculatorService;
+    @org.springframework.context.annotation.Lazy
+    private final com.edusync.service.IndustryService industryService;
 
     /**
      * Determines whether a query refers to the student's personal records or academic calculations.
@@ -63,7 +65,7 @@ public class StudentContextResolver {
         }
 
         // Attendance terms with word boundaries
-        boolean hasAttendanceTerm = lower.matches(".*\\b(attendance|attend|shortage|bunk|bunking)\\b.*") || lower.contains("attendance %") || lower.contains("% attendance");
+        boolean hasAttendanceTerm = lower.matches(".*\\b(attendance|attendence|attend|shortage|bunk|bunking)\\b.*") || lower.contains("attendance") || lower.contains("attendence") || lower.contains("attendance %") || lower.contains("% attendance");
 
         // Personal Pronouns & query indicators with word boundaries
         boolean hasPersonalPronoun = lower.matches(".*\\b(my|me|mine|i|i'm|i am|i have|am i|can i|i got)\\b.*");
@@ -89,6 +91,11 @@ public class StudentContextResolver {
         }
 
         if (hasAttendanceTerm && (lower.contains("is it good") || lower.contains("is good") || lower.contains("enough"))) {
+            return true;
+        }
+
+        // Industry Connect / MoUs / Internships / Visits
+        if (lower.matches(".*\\b(mou|mous|internship|internships|industrial visit|industry visit|partner companies|corporate partner|corporate connect|active partner|active partners)\\b.*")) {
             return true;
         }
 
@@ -136,7 +143,120 @@ public class StudentContextResolver {
                     .build();
         }
 
-        // 0.2 WHAT-IF ATTENDANCE / PERIOD SKIP SIMULATION
+        // 0.1 INDUSTRIAL CONNECT HEAD (ICH) ROLE-AWARE CONTEXT
+        if (student.getRole() == User.Role.INDUSTRIAL_CONNECT_HEAD) {
+            var overview = industryService.getOverview();
+            if (lower.contains("mou") || lower.contains("agreement")) {
+                String reply = String.format("### 📜 Institutional MoU Status\n\n" +
+                        "- **Active MoUs:** %d agreements in force\n" +
+                        "- **Expiring within 60 days:** %d MoUs require renewal attention\n\n" +
+                        "> 💡 *Proactive renewal notifications are dispatched to ICH and company points-of-contact at 60 and 30 days before expiration.*",
+                        overview.getActiveMoUs(), overview.getMousExpiringWithin60Days());
+                return AiDto.ChatResponse.builder()
+                        .reply(reply)
+                        .intent("ICH_MOU_SUMMARY")
+                        .suggestedActions(List.of("Show partner companies pipeline", "Open internships overview", "Industrial visit approvals"))
+                        .fromLocalLlm(false)
+                        .build();
+            }
+            if (lower.contains("company") || lower.contains("partner") || lower.contains("pipeline")) {
+                long total = overview.getTotalCompanies();
+                var stages = overview.getCompaniesByPartnershipStage();
+                String reply = String.format("### 🏢 Corporate Partner Pipeline\n\n" +
+                        "Total registered companies: **%d**\n\n" +
+                        "- **Lead / Identified:** %d\n" +
+                        "- **Contacted:** %d\n" +
+                        "- **Negotiating:** %d\n" +
+                        "- **MoU Signed:** %d\n" +
+                        "- **Active Partners:** %d\n\n" +
+                        "> 🚀 All partner records can be searched and managed from the **Industry Partners** tab.",
+                        total,
+                        stages != null ? stages.getOrDefault("LEAD", 0L) : 0L,
+                        stages != null ? stages.getOrDefault("CONTACTED", 0L) : 0L,
+                        stages != null ? stages.getOrDefault("NEGOTIATING", 0L) : 0L,
+                        stages != null ? stages.getOrDefault("MOU_SIGNED", 0L) : 0L,
+                        stages != null ? stages.getOrDefault("ACTIVE", 0L) : 0L);
+                return AiDto.ChatResponse.builder()
+                        .reply(reply)
+                        .intent("ICH_COMPANIES_SUMMARY")
+                        .suggestedActions(List.of("Check MoUs expiring soon", "Open internships count", "Industrial visits pending review"))
+                        .fromLocalLlm(false)
+                        .build();
+            }
+            if (lower.contains("internship") || lower.contains("intern")) {
+                String reply = String.format("### 💼 Student Internships Status\n\n" +
+                        "- **Open Opportunities:** %d postings currently accepting student applications\n" +
+                        "- **Total Applications Received:** %d\n" +
+                        "- **Students Currently Interning:** %d joined industry partners\n\n" +
+                        "> 📌 Students can browse open positions, apply with their resumes, and track recruitment outcomes in the student portal.",
+                        overview.getOpenInternships(), overview.getApplications(), overview.getStudentsCurrentlyInterning());
+                return AiDto.ChatResponse.builder()
+                        .reply(reply)
+                        .intent("ICH_INTERNSHIP_SUMMARY")
+                        .suggestedActions(List.of("Check MoUs expiring soon", "Show partner companies", "Industrial visit approvals"))
+                        .fromLocalLlm(false)
+                        .build();
+            }
+            if (lower.contains("visit") || lower.contains("tour")) {
+                int pendingVisits = overview.getPendingVisits() != null ? overview.getPendingVisits().size() : 0;
+                String reply = String.format("### 🚌 Industrial Visits & Field Training\n\n" +
+                        "- **Visits Awaiting ICH Review:** %d proposals\n" +
+                        "- **Multi-tier Workflow:** Faculty/HOD Proposes ➔ **ICH Review & Industry Confirmation** ➔ HOD Endorsement ➔ Principal Final Sanction\n\n" +
+                        "> ⚠️ Proposals with student groups exceeding 50 require special bus safety and faculty escort checks.",
+                        pendingVisits);
+                return AiDto.ChatResponse.builder()
+                        .reply(reply)
+                        .intent("ICH_VISITS_SUMMARY")
+                        .suggestedActions(List.of("Show partner companies", "MoUs expiring soon", "Open internships overview"))
+                        .fromLocalLlm(false)
+                        .build();
+            }
+
+            String reply = String.format("### 🤝 Industrial Connect Head Executive Briefing\n\n" +
+                    "Welcome **%s**! Here is your live relationship summary:\n\n" +
+                    "- **Partner Companies:** %d organizations\n" +
+                    "- **Active MoUs:** %d (with %d expiring within 60 days)\n" +
+                    "- **Open Internships:** %d postings (%d student applications)\n" +
+                    "- **Students in Industry:** %d active interns\n" +
+                    "- **Pending Visit Reviews:** %d proposals in queue\n\n" +
+                    "How can I assist your corporate relations work today?",
+                    student.getName() != null ? student.getName() : "Industrial Connect Head",
+                    overview.getTotalCompanies(),
+                    overview.getActiveMoUs(),
+                    overview.getMousExpiringWithin60Days(),
+                    overview.getOpenInternships(),
+                    overview.getApplications(),
+                    overview.getStudentsCurrentlyInterning(),
+                    overview.getPendingVisits() != null ? overview.getPendingVisits().size() : 0);
+
+            return AiDto.ChatResponse.builder()
+                    .reply(reply)
+                    .intent("ICH_EXECUTIVE_SUMMARY")
+                    .suggestedActions(List.of("MoUs expiring in 60 days", "Partner companies pipeline", "Internships status", "Industrial visits queue"))
+                    .fromLocalLlm(false)
+                    .build();
+        }
+
+        // 0.2 STUDENT INTERNSHIP INQUIRY
+        if (student.getRole() == User.Role.STUDENT && (lower.contains("internship") || lower.contains("internships"))) {
+            var openInternships = industryService.getOpenInternshipsForStudent(student.getDepartment());
+            var myApps = industryService.getStudentApplications(student.getId());
+            String reply = String.format("### 💼 Student Internship Hub\n\n" +
+                    "- **Open Opportunities for %s:** %d approved industry internships currently accepting applications\n" +
+                    "- **Your Applications:** %d submitted applications\n\n" +
+                    "You can browse full opportunity descriptions, stipend packages, and apply directly in the **Internships** tab!",
+                    student.getDepartment() != null ? student.getDepartment() : "All Departments",
+                    openInternships != null ? openInternships.size() : 0,
+                    myApps != null ? myApps.size() : 0);
+            return AiDto.ChatResponse.builder()
+                    .reply(reply)
+                    .intent("STUDENT_INTERNSHIP_INFO")
+                    .suggestedActions(List.of("How do I apply for an internship?", "Check my current attendance", "Upcoming placement drives"))
+                    .fromLocalLlm(false)
+                    .build();
+        }
+
+        // 0.3 WHAT-IF ATTENDANCE / PERIOD SKIP SIMULATION
         if (lower.contains("if i don't attend") || lower.contains("if i dont attend") || lower.contains("if i miss") ||
             lower.contains("if i skip") || lower.contains("if i bunk") || lower.contains("can i bunk") ||
             lower.contains("can i skip") || lower.contains("how many classes can i miss") || lower.contains("how many classes can i bunk") ||

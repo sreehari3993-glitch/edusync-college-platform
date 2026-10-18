@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.annotation.PostConstruct;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -48,6 +50,8 @@ public class RagService {
     private static final String LLM_MODEL = "edusync-ai";
     private static final String FALLBACK_LLM_MODEL = "llama3";
 
+    private static final String CACHE_FILE = "ktu-docs/.rag_vector_cache.json";
+
     private final List<DocumentChunk> vectorStore = new CopyOnWriteArrayList<>();
     private final Set<String> indexedFiles = ConcurrentHashMap.newKeySet();
 
@@ -56,6 +60,8 @@ public class RagService {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class DocumentChunk {
         private String id;
         private String sourceName;
@@ -66,6 +72,8 @@ public class RagService {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class SearchResult {
         private DocumentChunk chunk;
         private double score;
@@ -89,15 +97,55 @@ public class RagService {
                 Files.createDirectories(localDir);
             }
 
+            // 1. Instantly load pre-computed embeddings from local cache if present
+            loadVectorCache();
+            int initialCount = vectorStore.size();
+
+            // 2. Scan and index any newly added files
             try (var stream = Files.walk(localDir, 2)) {
                 stream.filter(Files::isRegularFile)
                       .filter(this::isSupportedDocument)
                       .forEach(this::indexFilePath);
             }
 
+            // 3. Persist updated embeddings to cache if new chunks were indexed
+            if (vectorStore.size() > initialCount) {
+                saveVectorCache();
+            }
+
             log.info("✅ [RAG] Document Indexing Complete. Total vector chunks in memory: {}", vectorStore.size());
         } catch (Exception e) {
             log.warn("⚠️ [RAG] Document ingestion notice: {}", e.getMessage());
+        }
+    }
+
+    private void loadVectorCache() {
+        File cache = new File(CACHE_FILE);
+        if (!cache.exists() || cache.length() == 0) return;
+        try {
+            List<DocumentChunk> cached = OBJECT_MAPPER.readValue(cache, new com.fasterxml.jackson.core.type.TypeReference<List<DocumentChunk>>() {});
+            if (cached != null && !cached.isEmpty()) {
+                vectorStore.addAll(cached);
+                for (DocumentChunk c : cached) {
+                    if (c.getSourceName() != null) {
+                        indexedFiles.add(c.getSourceName());
+                    }
+                }
+                log.info("⚡ [RAG] Instantly loaded {} vector chunks from local disk cache [{}]", cached.size(), CACHE_FILE);
+            }
+        } catch (Exception e) {
+            log.warn("⚠️ [RAG] Could not read vector cache: {}", e.getMessage());
+        }
+    }
+
+    private synchronized void saveVectorCache() {
+        try {
+            if (vectorStore.isEmpty()) return;
+            File cache = new File(CACHE_FILE);
+            OBJECT_MAPPER.writeValue(cache, vectorStore);
+            log.info("💾 [RAG] Saved {} vector chunks to disk cache [{}]", vectorStore.size(), CACHE_FILE);
+        } catch (Exception e) {
+            log.warn("⚠️ [RAG] Could not write vector cache: {}", e.getMessage());
         }
     }
 
@@ -180,7 +228,9 @@ public class RagService {
                 }
             }
 
-            indexedFiles.add(filename);
+            if (chunkCount > 0) {
+                indexedFiles.add(filename);
+            }
             log.info("✅ [RAG] Indexed Text Guide [{}] successfully ({} chunks generated)", filename, chunkCount);
         } catch (Exception e) {
             log.error("❌ [RAG] Failed to index text guide [{}]: {}", filename, e.getMessage());
@@ -255,7 +305,9 @@ public class RagService {
                 }
             }
 
-            indexedFiles.add(filename);
+            if (chunkCount > 0) {
+                indexedFiles.add(filename);
+            }
             log.info("✅ [RAG] Indexed Excel [{}] successfully ({} chunks generated)", filename, chunkCount);
         } catch (Exception e) {
             log.error("❌ [RAG] Failed to index Excel [{}]: {}", filename, e.getMessage());
@@ -307,7 +359,9 @@ public class RagService {
                 }
             }
 
-            indexedFiles.add(filename);
+            if (chunkCount > 0) {
+                indexedFiles.add(filename);
+            }
             log.info("✅ [RAG] Indexed CSV [{}] successfully ({} chunks generated)", filename, chunkCount);
         } catch (Exception e) {
             log.error("❌ [RAG] Failed to index CSV [{}]: {}", filename, e.getMessage());
@@ -347,7 +401,9 @@ public class RagService {
                 }
             }
 
-            indexedFiles.add(filename);
+            if (chunkCount > 0) {
+                indexedFiles.add(filename);
+            }
             log.info("✅ [RAG] Indexed [{}] successfully ({} chunks generated)", filename, chunkCount);
         } catch (Exception e) {
             log.error("❌ [RAG] Failed to index PDF [{}]: {}", filename, e.getMessage());
@@ -396,6 +452,12 @@ public class RagService {
      * Performs semantic vector search and retrieves top K most relevant passages.
      */
     public List<SearchResult> search(String query, int topK, double minScoreThreshold) {
+        if (vectorStore.isEmpty()) {
+            if (!indexedFiles.isEmpty()) {
+                indexedFiles.clear();
+            }
+            ingestLocalDocuments();
+        }
         if (vectorStore.isEmpty() || query == null || query.isBlank()) {
             return Collections.emptyList();
         }
@@ -423,8 +485,8 @@ public class RagService {
     public String answerWithRag(String query) {
         if (query == null || query.isBlank()) return null;
 
-        // Retrieve top 4 matching chunks with strong relevance threshold (>= 0.45)
-        List<SearchResult> searchResults = search(query, 4, 0.45);
+        // Retrieve top 3 matching chunks with strong relevance threshold (>= 0.45)
+        List<SearchResult> searchResults = search(query, 3, 0.45);
         if (searchResults.isEmpty()) {
             return null; // No relevant curriculum/regulation context found -> let standard LLM answer naturally
         }
@@ -528,10 +590,15 @@ public class RagService {
             payload.put("prompt", prompt);
             payload.put("stream", false);
 
+            ObjectNode options = OBJECT_MAPPER.createObjectNode();
+            options.put("num_predict", 600);
+            options.put("temperature", 0.3);
+            payload.set("options", options);
+
             HttpRequest req = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:11434/api/generate"))
                     .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(25))
+                    .timeout(Duration.ofSeconds(180))
                     .POST(HttpRequest.BodyPublishers.ofString(OBJECT_MAPPER.writeValueAsString(payload)))
                     .build();
 

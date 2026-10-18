@@ -135,7 +135,7 @@ public class NotificationController {
         if (userId != null && token != null) {
             fcmPushService.unregisterDeviceToken(userId, token);
         }
-        return ResponseEntity.ok(AppDto.ApiResponse.ok("Device token deactivated"));
+        return ResponseEntity.ok(AppDto.ApiResponse.ok("Device token deactivated", "Device token deactivated"));
     }
 
     /**
@@ -179,10 +179,10 @@ public class NotificationController {
 
         if (userId != null) {
             notificationService.sendToUser(userId, dto);
-            return ResponseEntity.ok(AppDto.ApiResponse.ok("Push notification sent to user: " + userId));
+            return ResponseEntity.ok(AppDto.ApiResponse.ok("Push notification sent", "Push notification sent to user: " + userId));
         } else {
             notificationService.broadcast(dto);
-            return ResponseEntity.ok(AppDto.ApiResponse.ok("Push notification broadcast to all devices"));
+            return ResponseEntity.ok(AppDto.ApiResponse.ok("Push notification broadcast", "Push notification broadcast to all devices"));
         }
     }
 }

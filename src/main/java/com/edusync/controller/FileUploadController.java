@@ -46,18 +46,19 @@ public class FileUploadController {
             @RequestParam(value = "category", defaultValue = "GENERAL") String category,
             @AuthenticationPrincipal User user) {
 
-        if (file == null || file.isEmpty()) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("File is required and cannot be empty."));
-        }
-
         try {
+            boolean isCert = "DUTY_LEAVE".equalsIgnoreCase(category)
+                    || "LEAVE".equalsIgnoreCase(category)
+                    || "OD_CERTIFICATE".equalsIgnoreCase(category);
+            com.edusync.util.FileUploadValidator.ValidatedFile validated = com.edusync.util.FileUploadValidator.validateUpload(file, isCert);
+
             String subfolder = mapCategoryToSubfolder(category);
-            String originalFilename = file.getOriginalFilename() != null ? file.getOriginalFilename() : "file";
+            String originalFilename = validated.getSanitizedFilename();
             String prefix = user != null ? user.getId() + "_" : "";
             String gDriveFileName = prefix + System.currentTimeMillis() + "_" + originalFilename;
 
-            byte[] bytes = file.getBytes();
-            String mimeType = file.getContentType() != null ? file.getContentType() : "application/octet-stream";
+            byte[] bytes = validated.getBytes();
+            String mimeType = validated.getDerivedMimeType();
 
             DriveFileDto result = googleDriveService.uploadFile(subfolder, gDriveFileName, mimeType, bytes);
             result.setCategory(category);
@@ -70,6 +71,9 @@ public class FileUploadController {
                     originalFilename, bytes.length, subfolder);
 
             return ResponseEntity.ok(ApiResponse.ok("File uploaded successfully to Google Drive", result));
+        } catch (com.edusync.exception.BadRequestException e) {
+            log.warn("⚠️ [File Upload] Rejected bad file: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             log.error("❌ [Cloud Storage] Upload failed: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body(ApiResponse.error("Failed to upload file to Google Drive: " + e.getMessage()));
@@ -77,16 +81,44 @@ public class FileUploadController {
     }
 
     /**
-     * Direct file download stream from Google Drive.
+     * Direct file download stream from Google Drive or local storage fallback.
      */
     @GetMapping("/files/download/{fileId}")
     public ResponseEntity<byte[]> downloadFile(@PathVariable String fileId) {
+        if (fileId == null || fileId.contains("/") || fileId.contains("\\") || fileId.contains("..") || fileId.contains("\0")) {
+            return ResponseEntity.badRequest().build();
+        }
+
         try {
             byte[] fileBytes = googleDriveService.downloadFile(fileId);
+
+            String rawFilename = fileId;
+            if (rawFilename.startsWith("LOCAL_")) {
+                rawFilename = rawFilename.substring(6);
+            }
+            if (rawFilename.length() > 33 && rawFilename.charAt(32) == '_') {
+                rawFilename = rawFilename.substring(33);
+            }
+            String safeFilename = rawFilename.replaceAll("[\\r\\n\"'\\\\/;:<>*?|]", "_").trim();
+            if (safeFilename.isBlank()) {
+                safeFilename = "downloaded_file";
+            }
+            if (safeFilename.length() > 100) {
+                safeFilename = safeFilename.substring(0, 100);
+            }
+
+            org.springframework.http.ContentDisposition contentDisposition = org.springframework.http.ContentDisposition
+                    .attachment()
+                    .filename(safeFilename, java.nio.charset.StandardCharsets.UTF_8)
+                    .build();
+
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"edusync_file_" + fileId + "\"")
+                    .headers(headers -> headers.setContentDisposition(contentDisposition))
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .body(fileBytes);
+        } catch (IllegalArgumentException e) {
+            log.warn("⚠️ Invalid download request identifier [{}]: {}", fileId, e.getMessage());
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             log.error("❌ Failed to download file [{}] from Google Drive: {}", fileId, e.getMessage());
             return ResponseEntity.notFound().build();
@@ -106,24 +138,18 @@ public class FileUploadController {
             @RequestParam(value = "semester", required = false) String semester,
             @AuthenticationPrincipal User user) {
 
-        if (file == null || file.isEmpty()) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("File is required"));
-        }
-
         try {
-            String dept = user.getDepartment() != null ? user.getDepartment() : "General";
-            String originalFilename = file.getOriginalFilename() != null ? file.getOriginalFilename() : "material";
-            String gDriveFileName = "MAT_" + dept + "_" + (semester != null ? semester + "_" : "") + System.currentTimeMillis() + "_" + originalFilename;
+            com.edusync.util.FileUploadValidator.ValidatedFile validated = com.edusync.util.FileUploadValidator.validateUpload(file, false);
+            String originalFilename = validated.getSanitizedFilename();
+            byte[] bytes = validated.getBytes();
+            String mimeType = validated.getDerivedMimeType();
 
-            byte[] bytes = file.getBytes();
-            String mimeType = file.getContentType() != null ? file.getContentType() : "application/pdf";
+            String dept = user != null && user.getDepartment() != null ? user.getDepartment() : "General";
+            String gDriveFileName = "MAT_" + dept + "_" + (semester != null ? semester + "_" : "") + System.currentTimeMillis() + "_" + originalFilename;
 
             DriveFileDto uploadResult = googleDriveService.uploadFile("Study-Materials", gDriveFileName, mimeType, bytes);
 
-            String fileExt = "PDF";
-            if (originalFilename.contains(".")) {
-                fileExt = originalFilename.substring(originalFilename.lastIndexOf('.') + 1).toUpperCase();
-            }
+            String fileExt = validated.getExtension().toUpperCase();
 
             StudyMaterial material = StudyMaterial.builder()
                     .title(title)
@@ -142,6 +168,9 @@ public class FileUploadController {
 
             StudyMaterial saved = studyMaterialRepository.save(material);
             return ResponseEntity.ok(ApiResponse.ok("Study material uploaded to Google Drive successfully", saved));
+        } catch (com.edusync.exception.BadRequestException e) {
+            log.warn("⚠️ [Study Material Upload] Rejected bad file: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             log.error("Failed to upload study material: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body(ApiResponse.error("Study material upload failed: " + e.getMessage()));
@@ -169,7 +198,7 @@ public class FileUploadController {
             materials = studyMaterialRepository.findAllByOrderByCreatedAtDesc();
         }
 
-        return ResponseEntity.ok(ApiResponse.ok(materials));
+        return ResponseEntity.ok(ApiResponse.ok("Study materials retrieved", materials));
     }
 
     /**
@@ -188,16 +217,14 @@ public class FileUploadController {
             return ResponseEntity.notFound().build();
         }
 
-        if (file == null || file.isEmpty()) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Assignment submission requires a file (PDF/Doc/Zip)."));
-        }
-
         try {
-            String originalFilename = file.getOriginalFilename() != null ? file.getOriginalFilename() : "submission.pdf";
-            String gDriveFileName = "SUB_" + assignmentId + "_" + student.getRollNumber() + "_" + System.currentTimeMillis() + "_" + originalFilename;
+            com.edusync.util.FileUploadValidator.ValidatedFile validated = com.edusync.util.FileUploadValidator.validateUpload(file, false);
+            String originalFilename = validated.getSanitizedFilename();
+            byte[] bytes = validated.getBytes();
+            String mimeType = validated.getDerivedMimeType();
 
-            byte[] bytes = file.getBytes();
-            String mimeType = file.getContentType() != null ? file.getContentType() : "application/pdf";
+            String rollNumber = student != null && student.getRollNumber() != null ? student.getRollNumber() : "STUDENT";
+            String gDriveFileName = "SUB_" + assignmentId + "_" + rollNumber + "_" + System.currentTimeMillis() + "_" + originalFilename;
 
             DriveFileDto uploadResult = googleDriveService.uploadFile("Assignments", gDriveFileName, mimeType, bytes);
 
@@ -218,6 +245,9 @@ public class FileUploadController {
 
             AssignmentSubmission saved = assignmentSubmissionRepository.save(submission);
             return ResponseEntity.ok(ApiResponse.ok("Assignment successfully submitted to Google Drive!", saved));
+        } catch (com.edusync.exception.BadRequestException e) {
+            log.warn("⚠️ [Assignment Submit] Rejected bad file: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             log.error("Failed to submit assignment: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body(ApiResponse.error("Assignment upload failed: " + e.getMessage()));
@@ -232,23 +262,26 @@ public class FileUploadController {
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal User user) {
 
-        if (file == null || file.isEmpty()) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Image file is required"));
-        }
-
         try {
-            String ext = "jpg";
-            if (file.getOriginalFilename() != null && file.getOriginalFilename().contains(".")) {
-                ext = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.') + 1);
+            com.edusync.util.FileUploadValidator.ValidatedFile validated = com.edusync.util.FileUploadValidator.validateImageUpload(file);
+            byte[] bytes = validated.getBytes();
+            String mimeType = validated.getDerivedMimeType();
+            String ext = validated.getExtension();
+
+            Long userId = user != null ? user.getId() : 0L;
+            String gDriveFileName = "AVATAR_USER_" + userId + "_" + System.currentTimeMillis() + "." + ext;
+
+            DriveFileDto uploadResult = googleDriveService.uploadFile("Profile-Pictures", gDriveFileName, mimeType, bytes);
+
+            if (user != null) {
+                user.setProfilePic(uploadResult.getWebViewLink());
+                userRepository.save(user);
             }
-            String gDriveFileName = "AVATAR_USER_" + user.getId() + "_" + System.currentTimeMillis() + "." + ext;
-
-            DriveFileDto uploadResult = googleDriveService.uploadFile("Profile-Pictures", gDriveFileName, file.getContentType(), file.getBytes());
-
-            user.setProfilePic(uploadResult.getWebViewLink());
-            userRepository.save(user);
 
             return ResponseEntity.ok(ApiResponse.ok("Profile picture updated", uploadResult.getWebViewLink()));
+        } catch (com.edusync.exception.BadRequestException e) {
+            log.warn("⚠️ [Profile Photo Upload] Rejected bad file: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             log.error("Failed to upload profile photo: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body(ApiResponse.error("Photo upload failed: " + e.getMessage()));

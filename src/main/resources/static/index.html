@@ -3148,6 +3148,7 @@
               <option value="HOD">Head of Department (HOD)</option>
               <option value="PRINCIPAL">Principal</option>
               <option value="PLACEMENT_OFFICER">Placement Officer</option>
+              <option value="INDUSTRIAL_CONNECT_HEAD">Industrial Connect Head</option>
               <option value="ADMIN">System Administrator</option>
             </select>
           </div>
@@ -3542,6 +3543,8 @@
           <div class="sidebar-item" onclick="showSub('student','grievance',this)"><span class="icon">📢</span> Grievance
             & Feedback</div>
           <div class="sidebar-item" onclick="showSub('student','placement',this)"><span class="icon">💼</span> Placement
+          </div>
+          <div class="sidebar-item" onclick="showSub('student','internships',this)"><span class="icon">🏢</span> Internships
           </div>
         </div>
         <div class="sidebar-section">
@@ -4827,6 +4830,101 @@
           </div>
         </div>
 
+        <!-- STUDENT: INTERNSHIPS -->
+        <div class="sub-content" id="student-internships">
+          <div class="breadcrumb">EduSync <span>›</span> Student <span>›</span> Internships</div>
+          <div class="page-header">
+            <h2>💼 Corporate Internships & Opportunities</h2>
+            <p>Explore verified corporate internships, apply directly, and track your application lifecycle.</p>
+          </div>
+
+          <div class="cards-row cols-4">
+            <div class="metric-card">
+              <div class="metric-top"><div class="metric-icon blue">💼</div></div>
+              <div class="metric-val" id="studentOpenInternshipsCount">0</div>
+              <div class="metric-label">Open Internships</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-top"><div class="metric-icon green">📝</div></div>
+              <div class="metric-val" id="studentMyInternshipsCount">0</div>
+              <div class="metric-label">My Applications</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-top"><div class="metric-icon orange">⏳</div></div>
+              <div class="metric-val" id="studentShortlistedInternshipsCount">0</div>
+              <div class="metric-label">Shortlisted / Review</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-top"><div class="metric-icon cyan">🏆</div></div>
+              <div class="metric-val" id="studentSelectedInternshipsCount">0</div>
+              <div class="metric-label">Selected / Completed</div>
+            </div>
+          </div>
+
+          <!-- Section 1: Open Opportunities -->
+          <div class="table-card" style="margin-bottom:24px;">
+            <div class="table-head">
+              <h3>🏢 Available Corporate Opportunities</h3>
+              <div class="table-head-right" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <input type="text" id="studentInternshipSearch" class="form-input" placeholder="Search role, skills, or company..." style="width:220px;padding:6px 12px;font-size:0.78rem;" oninput="filterStudentInternships()">
+                <button class="btn btn-outline btn-sm" onclick="loadStudentInternships()">🔄 Refresh</button>
+              </div>
+            </div>
+            <div id="studentOpenInternshipsList" style="padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;">
+              <div style="text-align:center;color:var(--gray-400);padding:30px;grid-column:1/-1;">Loading internship opportunities...</div>
+            </div>
+          </div>
+
+          <!-- Section 2: Application Tracking -->
+          <div class="table-card">
+            <div class="table-head">
+              <h3>📋 My Application History & Tracking</h3>
+              <span style="font-size:0.75rem;color:var(--gray-400);">Real-time status updates from Industrial Connect Cell</span>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Role / Company</th>
+                  <th>Applied On</th>
+                  <th>Status</th>
+                  <th>Reviewer Feedback</th>
+                  <th>Certificate / Credential</th>
+                </tr>
+              </thead>
+              <tbody id="studentMyApplicationsBody">
+                <tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:24px;">No internship applications submitted yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Modal: Apply for Internship -->
+          <div id="studentApplyModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:99999;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(6px);">
+            <div style="background:var(--card-bg,#1e293b);border:1px solid var(--card-border,rgba(255,255,255,0.12));border-radius:18px;max-width:520px;width:100%;padding:24px;color:var(--text,#f8fafc);box-shadow:0 25px 60px rgba(0,0,0,0.6);">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <h3 style="margin:0;font-size:1.15rem;font-weight:700;">💼 Submit Internship Application</h3>
+                <button onclick="closeStudentApplyModal()" style="background:none;border:none;color:var(--gray-400);font-size:1.3rem;cursor:pointer;">✕</button>
+              </div>
+              <div id="studentApplyRoleSummary" style="background:rgba(37,99,235,0.08);border-left:3px solid #2563eb;padding:10px 14px;border-radius:6px;margin-bottom:16px;font-size:0.85rem;"></div>
+              <form id="studentApplyForm" onsubmit="return handleStudentApplySubmit(event)">
+                <input type="hidden" id="studentApplyInternshipId">
+                <div class="form-group" style="margin-bottom:14px;">
+                  <label class="form-label">Resume / Portfolio URL *</label>
+                  <input type="url" id="studentApplyResumeUrl" class="form-input" placeholder="https://drive.google.com/... or LinkedIn/GitHub" required>
+                  <small style="font-size:0.72rem;color:var(--gray-400);display:block;margin-top:4px;">Provide a publicly viewable link to your PDF resume or portfolio.</small>
+                </div>
+                <div class="form-group" style="margin-bottom:16px;">
+                  <label class="form-label">Statement of Interest / Relevant Skills</label>
+                  <textarea id="studentApplyFeedback" class="form-input" rows="3" placeholder="Briefly highlight relevant coursework, project experience, and why you are interested..."></textarea>
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:10px;">
+                  <button type="button" class="btn btn-outline" onclick="closeStudentApplyModal()">Cancel</button>
+                  <button type="submit" class="btn btn-blue" id="studentApplySubmitBtn">Submit Application 🚀</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
         <!-- STUDENT: AI COPILOT -->
         <div class="sub-content" id="student-ai-copilot">
           <div class="breadcrumb">EduSync <span>›</span> Student <span>›</span> AI Campus Copilot</div>
@@ -5105,6 +5203,7 @@
           <div class="sidebar-item" onclick="showSub('faculty','marks',this)"><span class="icon">📝</span> Internal
             Marks</div>
           <div class="sidebar-item" onclick="showSub('faculty','mentor-hub',this)" id="facultySidebarMentorHub"><span class="icon">👨‍🏫</span> Mentor Hub <span class="sidebar-badge" id="facultyMentorRiskBadge" style="display:none;background:#ef4444;color:#fff;">0</span></div>
+          <div class="sidebar-item" onclick="showSub('faculty','industrial-visits',this)"><span class="icon">🚌</span> Industrial Visits</div>
         </div>
       </div>
       <div class="main">
@@ -5918,6 +6017,114 @@
           </div>
         </div>
 
+        <!-- FACULTY: INDUSTRIAL VISITS -->
+        <div class="sub-content" id="faculty-industrial-visits">
+          <div class="breadcrumb">EduSync <span>›</span> Faculty <span>›</span> Industrial Visits</div>
+          <div class="page-header">
+            <h2>🚌 Industrial Visits & Field Training</h2>
+            <p>Propose experiential site visits for your classes and track multi-tier HOD, ICH, and Principal clearances.</p>
+          </div>
+
+          <div class="cards-row cols-4">
+            <div class="metric-card">
+              <div class="metric-top"><div class="metric-icon blue">🚌</div></div>
+              <div class="metric-val" id="facultyVisitsTotalCount">0</div>
+              <div class="metric-label">Proposed Visits</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-top"><div class="metric-icon green">✅</div></div>
+              <div class="metric-val" id="facultyVisitsApprovedCount">0</div>
+              <div class="metric-label">Sanctioned & Approved</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-top"><div class="metric-icon orange">⏳</div></div>
+              <div class="metric-val" id="facultyVisitsPendingCount">0</div>
+              <div class="metric-label">Under Multi-Tier Review</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-top"><div class="metric-icon cyan">👥</div></div>
+              <div class="metric-val" id="facultyVisitsStudentCount">0</div>
+              <div class="metric-label">Student Participants</div>
+            </div>
+          </div>
+
+          <!-- Propose Visit Form -->
+          <div class="table-card" style="margin-bottom:24px;">
+            <div class="table-head">
+              <h3>📝 Propose New Industrial Visit</h3>
+              <span style="font-size:0.75rem;color:var(--gray-400);">Requires HOD endorsement, ICH coordination, and Principal institutional sanction</span>
+            </div>
+            <form id="facultyProposeVisitForm" onsubmit="return handleFacultyProposeVisit(event)" style="padding:16px;">
+              <div class="two-col" style="gap:16px;margin-bottom:12px;">
+                <div class="form-group">
+                  <label class="form-label">Host Company / Industry Partner *</label>
+                  <select id="facultyVisitCompanyId" class="form-select" required>
+                    <option value="">Select industry partner...</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Department *</label>
+                  <input type="text" id="facultyVisitDepartment" class="form-input" readonly>
+                </div>
+              </div>
+              <div class="two-col" style="gap:16px;margin-bottom:12px;">
+                <div class="form-group">
+                  <label class="form-label">Proposed Date *</label>
+                  <input type="date" id="facultyVisitDate" class="form-input" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Expected Number of Students *</label>
+                  <input type="number" id="facultyVisitStudentCount" class="form-input" min="1" max="250" placeholder="e.g. 60" required>
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Destination & Location Address *</label>
+                <input type="text" id="facultyVisitLocation" class="form-input" placeholder="e.g. Technopark Campus, Trivandrum" required>
+              </div>
+              <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Academic Purpose & Learning Outcomes *</label>
+                <textarea id="facultyVisitPurpose" class="form-input" rows="2" placeholder="Describe the industrial processes, plant tours, or technologies students will observe..." required></textarea>
+              </div>
+              <div style="display:flex;gap:24px;margin-bottom:16px;flex-wrap:wrap;">
+                <label style="display:flex;align-items:center;gap:8px;font-size:0.85rem;cursor:pointer;">
+                  <input type="checkbox" id="facultyVisitOvernight"> Overnight Stay Required
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;font-size:0.85rem;cursor:pointer;">
+                  <input type="checkbox" id="facultyVisitOutsideKerala"> Destination Outside Kerala State
+                </label>
+              </div>
+              <div style="display:flex;justify-content:flex-end;">
+                <button type="submit" class="btn btn-blue" id="facultyProposeVisitSubmitBtn">Submit Visit Proposal 🚀</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Proposed Visits Table -->
+          <div class="table-card">
+            <div class="table-head">
+              <h3>📋 Proposed Industrial Visits & Clearance Pipeline</h3>
+              <button class="btn btn-outline btn-sm" onclick="loadFacultyVisits()">🔄 Refresh</button>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Host Company & Location</th>
+                  <th>Date</th>
+                  <th>Dept & Students</th>
+                  <th>Trip Type</th>
+                  <th>HOD Status</th>
+                  <th>ICH Status</th>
+                  <th>Principal Sanction</th>
+                  <th>Overall Stage</th>
+                </tr>
+              </thead>
+              <tbody id="facultyVisitsTableBody">
+                <tr><td colspan="8" style="text-align:center;color:var(--gray-400);padding:24px;">No industrial visits proposed yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div><!-- end faculty .main -->
     </div>
   </div>
@@ -5947,6 +6154,7 @@
           </div>
           <div class="sidebar-item" onclick="showSub('hod','announcements',this)"><span class="icon">📣</span>
             Announcements</div>
+          <div class="sidebar-item" onclick="showSub('hod','visits',this)"><span class="icon">🚌</span> Industrial Visits <span class="sidebar-badge" id="hodVisitBadge" style="display:none;background:#f59e0b;color:#fff;">0</span></div>
           <div class="sidebar-item" onclick="showSub('hod','profile',this)"><span class="icon">👤</span> Profile</div>
         </div>
       </div>
@@ -6004,6 +6212,35 @@
                 <span class="badge blue">This Semester</span>
               </div>
               <div id="hodLeaveDonutChart" style="min-height: 240px;"></div>
+            </div>
+          </div>
+
+          <!-- Read-only Industry Engagement Widget -->
+          <div class="table-card" style="margin-bottom:24px;" id="hodIndustryEngagementCard">
+            <div class="table-head">
+              <h3>🏢 Department Industry Engagement & Corporate Partnerships</h3>
+              <span class="badge blue">Live Overview</span>
+            </div>
+            <div class="cards-row cols-4" style="margin: 12px 16px 16px 16px; gap: 12px;">
+              <div class="metric-card" style="padding:14px;">
+                <div class="metric-val" id="hodWidgetActiveMoUs" style="font-size:1.4rem;">0</div>
+                <div class="metric-label">Active MoUs</div>
+              </div>
+              <div class="metric-card" style="padding:14px;">
+                <div class="metric-val" id="hodWidgetExpiringMoUs" style="font-size:1.4rem;color:#f59e0b;">0</div>
+                <div class="metric-label">Expiring in 60d</div>
+              </div>
+              <div class="metric-card" style="padding:14px;">
+                <div class="metric-val" id="hodWidgetOpenInternships" style="font-size:1.4rem;">0</div>
+                <div class="metric-label">Open Internships</div>
+              </div>
+              <div class="metric-card" style="padding:14px;">
+                <div class="metric-val" id="hodWidgetPendingVisits" style="font-size:1.4rem;color:#3b82f6;">0</div>
+                <div class="metric-label">Pending Visits</div>
+              </div>
+            </div>
+            <div id="hodWidgetActivePartnersList" style="padding: 0 16px 16px 16px; font-size:0.85rem; color:var(--gray-300);">
+              Loading engagement summary...
             </div>
           </div>
 
@@ -6507,6 +6744,46 @@
           </div>
         </div>
 
+        <!-- HOD: INDUSTRIAL VISITS APPROVAL -->
+        <div class="sub-content" id="hod-visits">
+          <div class="breadcrumb">EduSync <span>›</span> HOD <span>›</span> Industrial Visits Approval</div>
+          <div class="page-header">
+            <h2>🚌 Department Industrial Visit Approvals</h2>
+            <p>Review experiential visits proposed by department faculty and recommend to ICH and Principal.</p>
+          </div>
+
+          <div class="table-card">
+            <div class="table-head">
+              <h3>Visits Awaiting HOD Action & Past Clearances</h3>
+              <div class="table-head-right" style="display:flex;gap:8px;align-items:center;">
+                <select id="hodVisitFilter" class="form-select" style="width:auto;padding:6px 12px;font-size:0.78rem;" onchange="renderHodVisitsTable()">
+                  <option value="ALL">All Visits</option>
+                  <option value="PENDING" selected>Awaiting My Action</option>
+                  <option value="APPROVED">Approved by HOD</option>
+                  <option value="REJECTED">Rejected by HOD</option>
+                </select>
+                <button class="btn btn-outline btn-sm" onclick="loadHodVisits()">🔄 Refresh</button>
+              </div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Host Company & Location</th>
+                  <th>Proposed Date</th>
+                  <th>Students & Scope</th>
+                  <th>Purpose</th>
+                  <th>HOD Status</th>
+                  <th>Current Stage</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="hodVisitsTableBody">
+                <tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:24px;">No visits awaiting HOD review.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div><!-- end hod .main -->
     </div>
   </div>
@@ -6538,6 +6815,8 @@
             Announcements</div>
           <div class="sidebar-item" onclick="showSub('principal','achievements',this)"><span class="icon">🏆</span>
             Achievements</div>
+          <div class="sidebar-item" onclick="showSub('principal','visits',this)"><span class="icon">🚌</span>
+            Industrial Visits <span class="sidebar-badge" id="principalVisitBadge" style="display:none;background:#f59e0b;color:#fff;">0</span></div>
           <div class="sidebar-item" onclick="showSub('principal','profile',this)"><span class="icon">👤</span> Profile
           </div>
         </div>
@@ -6596,6 +6875,39 @@
                 <span class="badge green">2025–26 Batches</span>
               </div>
               <div id="principalPlacementTrendChart" style="min-height: 240px;"></div>
+            </div>
+          </div>
+
+          <!-- Read-only Industry Engagement Widget -->
+          <div class="table-card" style="margin-bottom:24px;" id="principalIndustryEngagementCard">
+            <div class="table-head">
+              <h3>🌐 College-Wide Corporate & Industry Engagement</h3>
+              <span class="badge cyan">Campus Overview</span>
+            </div>
+            <div class="cards-row cols-5" style="margin: 12px 16px 16px 16px; gap: 12px;">
+              <div class="metric-card" style="padding:14px;">
+                <div class="metric-val" id="principalWidgetActiveMoUs" style="font-size:1.4rem;">0</div>
+                <div class="metric-label">Active MoUs</div>
+              </div>
+              <div class="metric-card" style="padding:14px;">
+                <div class="metric-val" id="principalWidgetExpiringMoUs" style="font-size:1.4rem;color:#f59e0b;">0</div>
+                <div class="metric-label">Expiring in 60d</div>
+              </div>
+              <div class="metric-card" style="padding:14px;">
+                <div class="metric-val" id="principalWidgetTotalCompanies" style="font-size:1.4rem;">0</div>
+                <div class="metric-label">Partner Companies</div>
+              </div>
+              <div class="metric-card" style="padding:14px;">
+                <div class="metric-val" id="principalWidgetStudentsInterning" style="font-size:1.4rem;color:#10b981;">0</div>
+                <div class="metric-label">Students Interning</div>
+              </div>
+              <div class="metric-card" style="padding:14px;">
+                <div class="metric-val" id="principalWidgetPendingVisits" style="font-size:1.4rem;color:#3b82f6;">0</div>
+                <div class="metric-label">Pending Visits</div>
+              </div>
+            </div>
+            <div id="principalWidgetActivePartnersList" style="padding: 0 16px 16px 16px; font-size:0.85rem; color:var(--gray-300);">
+              Loading engagement summary...
             </div>
           </div>
 
@@ -7213,6 +7525,46 @@
           </div>
         </div>
 
+        <!-- PRINCIPAL: INDUSTRIAL VISITS SANCTION -->
+        <div class="sub-content" id="principal-visits">
+          <div class="breadcrumb">EduSync <span>›</span> Principal <span>›</span> Industrial Visits Sanction</div>
+          <div class="page-header">
+            <h2>🚌 Institutional Industrial Visit Sanctions</h2>
+            <p>Final institutional sanction, security verification, and administrative clearance for college industrial visits.</p>
+          </div>
+
+          <div class="table-card">
+            <div class="table-head">
+              <h3>Visits Requiring Principal Sanction</h3>
+              <div class="table-head-right" style="display:flex;gap:8px;align-items:center;">
+                <select id="principalVisitFilter" class="form-select" style="width:auto;padding:6px 12px;font-size:0.78rem;" onchange="renderPrincipalVisitsTable()">
+                  <option value="ALL">All Visits</option>
+                  <option value="PENDING" selected>Awaiting My Sanction</option>
+                  <option value="APPROVED">Sanctioned / Approved</option>
+                  <option value="REJECTED">Rejected</option>
+                </select>
+                <button class="btn btn-outline btn-sm" onclick="loadPrincipalVisits()">🔄 Refresh</button>
+              </div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Dept & Proposer</th>
+                  <th>Company & Destination</th>
+                  <th>Proposed Date</th>
+                  <th>Students & Logistics</th>
+                  <th>HOD & ICH Clearance</th>
+                  <th>Overall Stage</th>
+                  <th>Sanction Action</th>
+                </tr>
+              </thead>
+              <tbody id="principalVisitsTableBody">
+                <tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:24px;">No visits awaiting Principal sanction.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div><!-- end principal .main -->
     </div>
   </div>
@@ -7720,60 +8072,47 @@
         <!-- PLACEMENT: COMPANIES -->
         <div class="sub-content" id="placement-companies">
           <div class="breadcrumb">EduSync <span>›</span> Placement <span>›</span> Companies</div>
-          <div class="page-header">
-            <h2>🏢 Company Directory</h2>
-            <p>Registered companies for placement drives</p>
-          </div>
-          <div style="margin-bottom:16px;"><button class="btn btn-blue">+ Register Company</button></div>
-          <div class="company-card">
-            <div class="drive-logo" style="width:48px;height:48px;border-radius:12px;">INF</div>
-            <div style="flex:1">
-              <div style="font-weight:700;">Infosys</div>
-              <div style="font-size:0.75rem;color:var(--gray-400);">IT Services · Bangalore</div>
+          <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+            <div>
+              <h2>🏢 Corporate Partner Directory</h2>
+              <p>Corporate partners shared between Industrial Connect Cell and Placement Office</p>
             </div>
-            <div><span class="badge green">Active Drive</span></div>
-            <div style="text-align:right;font-size:0.78rem;color:var(--gray-400);">4.5 LPA · 48 eligible</div><button
-              class="btn btn-outline btn-sm">Manage</button>
+            <button class="btn btn-outline" onclick="loadPlacementCompanies()">🔄 Refresh Directory</button>
           </div>
-          <div class="company-card">
-            <div class="drive-logo" style="width:48px;height:48px;border-radius:12px;">TCS</div>
-            <div style="flex:1">
-              <div style="font-weight:700;">Tata Consultancy Services</div>
-              <div style="font-size:0.75rem;color:var(--gray-400);">IT Services · Mumbai</div>
+
+          <div class="cards-row cols-3" style="margin-bottom:20px;">
+            <div class="metric-card">
+              <div class="metric-top"><div class="metric-icon blue">🏢</div></div>
+              <div class="metric-val" id="placementTotalCompaniesCount">0</div>
+              <div class="metric-label">Total Companies</div>
             </div>
-            <div><span class="badge green">Active Drive</span></div>
-            <div style="text-align:right;font-size:0.78rem;color:var(--gray-400);">3.8 LPA · 72 eligible</div><button
-              class="btn btn-outline btn-sm">Manage</button>
+            <div class="metric-card">
+              <div class="metric-top"><div class="metric-icon green">✅</div></div>
+              <div class="metric-val" id="placementReadyCompaniesCount">0</div>
+              <div class="metric-label">Placement Ready</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-top"><div class="metric-icon orange">⏳</div></div>
+              <div class="metric-val" id="placementPipelineCompaniesCount">0</div>
+              <div class="metric-label">In Pipeline / Not Ready</div>
+            </div>
           </div>
-          <div class="company-card">
-            <div class="drive-logo" style="width:48px;height:48px;border-radius:12px;">WPR</div>
-            <div style="flex:1">
-              <div style="font-weight:700;">Wipro Technologies</div>
-              <div style="font-size:0.75rem;color:var(--gray-400);">IT Services · Hyderabad</div>
+
+          <div class="table-card">
+            <div class="table-head">
+              <h3>All Companies</h3>
+              <div class="table-head-right" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                <input type="text" id="placementCompanySearch" class="form-input" placeholder="Search company, sector, location..." style="width:240px;padding:6px 12px;font-size:0.78rem;" oninput="filterPlacementCompanies()">
+                <select id="placementReadyFilter" class="form-select" style="width:auto;padding:6px 12px;font-size:0.78rem;" onchange="filterPlacementCompanies()">
+                  <option value="ALL">All Companies</option>
+                  <option value="READY" selected>Placement Ready Only</option>
+                  <option value="PIPELINE">In Pipeline (Not Placement Ready)</option>
+                </select>
+              </div>
             </div>
-            <div><span class="badge yellow">Upcoming</span></div>
-            <div style="text-align:right;font-size:0.78rem;color:var(--gray-400);">4.0 LPA · 60 eligible</div><button
-              class="btn btn-outline btn-sm">Manage</button>
-          </div>
-          <div class="company-card">
-            <div class="drive-logo" style="width:48px;height:48px;border-radius:12px;">CTS</div>
-            <div style="flex:1">
-              <div style="font-weight:700;">Cognizant</div>
-              <div style="font-size:0.75rem;color:var(--gray-400);">IT Services · Chennai</div>
+            <div id="placementCompaniesList" style="padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px;">
+              <div style="text-align:center;color:var(--gray-400);padding:30px;grid-column:1/-1;">Loading corporate partner directory...</div>
             </div>
-            <div><span class="badge blue">Announced</span></div>
-            <div style="text-align:right;font-size:0.78rem;color:var(--gray-400);">4.0 LPA · TBD</div><button
-              class="btn btn-outline btn-sm">Manage</button>
-          </div>
-          <div class="company-card">
-            <div class="drive-logo" style="width:48px;height:48px;border-radius:12px;">HCL</div>
-            <div style="flex:1">
-              <div style="font-weight:700;">HCL Technologies</div>
-              <div style="font-size:0.75rem;color:var(--gray-400);">IT Services · Noida</div>
-            </div>
-            <div><span class="badge gray">Inactive</span></div>
-            <div style="text-align:right;font-size:0.78rem;color:var(--gray-400);">Last: 4.2 LPA</div><button
-              class="btn btn-outline btn-sm">Contact</button>
           </div>
         </div>
 
@@ -7908,6 +8247,326 @@
       </div><!-- end placement .main -->
     </div>
   </div>
+
+  <!-- ════════════════════════════════════════════
+     INDUSTRIAL CONNECT HEAD (ICH) DASHBOARD
+════════════════════════════════════════════ -->
+  <div id="page-industry" class="page">
+    <div class="layout">
+      <div class="sidebar">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar" id="ichSidebarAvatar">🤝</div>
+          <div class="sidebar-user-name" id="ichSidebarName">Industrial Connect Head</div>
+          <div class="sidebar-user-role">Industry Relations · TKMIT</div>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-label">Industry Connect</div>
+          <div class="sidebar-item active" onclick="ichSwitchTab('overview', this)"><span class="icon">📊</span> Overview</div>
+          <div class="sidebar-item" onclick="ichSwitchTab('partners', this)"><span class="icon">🏢</span> Industry Partners</div>
+          <div class="sidebar-item" onclick="ichSwitchTab('mous', this)"><span class="icon">📜</span> MoU Management</div>
+          <div class="sidebar-item" onclick="ichSwitchTab('internships', this)"><span class="icon">💼</span> Internships</div>
+          <div class="sidebar-item" onclick="ichSwitchTab('visits', this)"><span class="icon">🚌</span> Industrial Visits &amp; Training</div>
+          <div class="sidebar-item" onclick="ichSwitchTab('lectures', this)"><span class="icon">🎤</span> Guest Lectures</div>
+          <div class="sidebar-item" onclick="ichSwitchTab('projects', this)"><span class="icon">🚀</span> Industry Projects</div>
+          <div class="sidebar-item" onclick="ichSwitchTab('advisory', this)"><span class="icon">🎓</span> Advisory &amp; Alumni</div>
+          <div class="sidebar-item" onclick="ichSwitchTab('approvals', this)"><span class="icon">✅</span> Approvals</div>
+          <div class="sidebar-item" onclick="ichSwitchTab('reports', this)"><span class="icon">📈</span> Reports</div>
+          <div class="sidebar-item" onclick="ichSwitchTab('notices', this)"><span class="icon">📢</span> Notices</div>
+        </div>
+      </div>
+      <div class="main">
+
+        <!-- 1. OVERVIEW TAB -->
+        <div class="sub-content active" id="industry-overview">
+          <div class="breadcrumb">EduSync <span>›</span> Industry Connect <span>›</span> Overview</div>
+          <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;">
+            <div>
+              <h2>🤝 Industry Connect & Corporate Relations</h2>
+              <p>Corporate partnerships, active MoUs, student internships, and industrial engagement pipeline</p>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <span id="ichOverviewTimestamp" style="font-size:0.75rem;color:var(--gray-400);"></span>
+              <button class="btn btn-outline btn-sm" onclick="ichLoadOverview()"><span class="icon">🔄</span> Refresh</button>
+            </div>
+          </div>
+
+          <!-- KPI Cards -->
+          <div class="cards-row cols-4">
+            <div class="metric-card">
+              <div class="metric-top">
+                <div class="metric-icon blue">📜</div>
+                <span class="metric-change neutral" id="ichKpiExpiringChange">0 Expiring Soon</span>
+              </div>
+              <div class="metric-val" id="ichKpiActiveMoUs">0</div>
+              <div class="metric-label">Active Corporate MoUs</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-top">
+                <div class="metric-icon cyan">🏢</div>
+                <span class="metric-change up" id="ichKpiCompaniesChange">Active Partners</span>
+              </div>
+              <div class="metric-val" id="ichKpiTotalCompanies">0</div>
+              <div class="metric-label">Partner Companies</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-top">
+                <div class="metric-icon orange">💼</div>
+                <span class="metric-change neutral" id="ichKpiApplicationsChange">0 Applications</span>
+              </div>
+              <div class="metric-val" id="ichKpiOpenInternships">0</div>
+              <div class="metric-label">Open Internships</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-top">
+                <div class="metric-icon green">🎓</div>
+                <span class="metric-change up">Active in Industry</span>
+              </div>
+              <div class="metric-val" id="ichKpiStudentsInterning">0</div>
+              <div class="metric-label">Students Interning</div>
+            </div>
+          </div>
+
+          <!-- Pipeline Funnel & MoU Expiry Row -->
+          <div class="cards-row cols-2" style="margin-bottom:24px;">
+            <!-- Pipeline Funnel -->
+            <div class="table-card" style="margin-bottom:0;display:flex;flex-direction:column;justify-content:space-between;">
+              <div>
+                <div class="table-head">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-size:1.15rem;">📊</span>
+                    <h3 style="margin:0;">Corporate Partnership Pipeline</h3>
+                  </div>
+                  <span class="badge blue" id="ichFunnelTotalBadge">0 Companies</span>
+                </div>
+                <div style="padding:20px;" id="ichFunnelContainer">
+                  <div style="text-align:center;padding:24px;color:var(--gray-400);">Loading partnership funnel…</div>
+                </div>
+              </div>
+              <div style="padding:12px 20px;background:rgba(255,255,255,0.02);border-top:1px solid var(--card-border);display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:0.75rem;color:var(--gray-400);">Pipeline stages tracked in real-time</span>
+                <button class="btn btn-outline btn-sm" onclick="ichSwitchTab('partners')">View All Partners ›</button>
+              </div>
+            </div>
+
+            <!-- MoU Expiry List -->
+            <div class="table-card" style="margin-bottom:0;display:flex;flex-direction:column;justify-content:space-between;">
+              <div>
+                <div class="table-head">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-size:1.15rem;">⚠️</span>
+                    <h3 style="margin:0;">MoUs Expiring Within 60 Days</h3>
+                  </div>
+                  <span class="badge yellow" id="ichExpiringMousBadge">0 Expiring</span>
+                </div>
+                <div id="ichExpiringMousContainer" style="padding:0;">
+                  <div style="text-align:center;padding:24px;color:var(--gray-400);">Checking MoU renewal timelines…</div>
+                </div>
+              </div>
+              <div style="padding:12px 20px;background:rgba(255,255,255,0.02);border-top:1px solid var(--card-border);display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:0.75rem;color:var(--gray-400);">Proactive renewals protect accreditation status</span>
+                <button class="btn btn-outline btn-sm" onclick="ichSwitchTab('mous')">Manage MoUs ›</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pending Actions & Recent Activities Row -->
+          <div class="cards-row cols-2" style="margin-bottom:24px;">
+            <!-- Pending Actions & Review Queue -->
+            <div class="table-card" style="margin-bottom:0;display:flex;flex-direction:column;justify-content:space-between;">
+              <div>
+                <div class="table-head">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-size:1.15rem;">⚡</span>
+                    <h3 style="margin:0;">Pending Review Queue</h3>
+                  </div>
+                  <span class="badge orange" id="ichPendingActionsBadge">0 Pending</span>
+                </div>
+                <div id="ichPendingActionsContainer" style="padding:0;">
+                  <div style="text-align:center;padding:24px;color:var(--gray-400);">Checking pending review items…</div>
+                </div>
+              </div>
+              <div style="padding:12px 20px;background:rgba(255,255,255,0.02);border-top:1px solid var(--card-border);display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:0.75rem;color:var(--gray-400);">Multi-tier workflow: ICH → HOD → Principal</span>
+                <button class="btn btn-outline btn-sm" onclick="ichSwitchTab('approvals')">Approvals Hub ›</button>
+              </div>
+            </div>
+
+            <!-- Recent Industry Relations Activity -->
+            <div class="table-card" style="margin-bottom:0;display:flex;flex-direction:column;justify-content:space-between;">
+              <div>
+                <div class="table-head">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-size:1.15rem;">🕒</span>
+                    <h3 style="margin:0;">Recent Activity Log</h3>
+                  </div>
+                  <span class="badge blue">Live Audit</span>
+                </div>
+                <div id="ichRecentActivitiesContainer" style="padding:0;">
+                  <div style="text-align:center;padding:24px;color:var(--gray-400);">Fetching recent activity stream…</div>
+                </div>
+              </div>
+              <div style="padding:12px 20px;background:rgba(255,255,255,0.02);border-top:1px solid var(--card-border);display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:0.75rem;color:var(--gray-400);">Audited actions across ICH workspace</span>
+                <span style="font-size:0.75rem;color:var(--accent);">Auto-refreshed</span>
+              </div>
+            </div>
+          </div>
+        </div><!-- end industry-overview -->
+
+        <!-- 2. INDUSTRY PARTNERS TAB (PASS 2) -->
+        <div class="sub-content" id="industry-partners" style="display:none;">
+          <div class="breadcrumb">EduSync <span>›</span> Industry Connect <span>›</span> Industry Partners</div>
+          <div class="page-header">
+            <h2>🏢 Industry Partner Companies</h2>
+            <p>Database of corporate collaborators, recruiting organizations, and partnership stages</p>
+          </div>
+          <div class="table-card" style="padding:32px;text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:12px;">🏢</div>
+            <div style="font-weight:700;font-size:1.1rem;color:var(--white);">Industry Partners Module</div>
+            <p style="color:var(--gray-400);max-width:500px;margin:8px auto 20px;">Partner directory with search, filter, pagination, tier badges, and company registration modal will be attached in Pass 2.</p>
+            <span class="badge blue">Ready for Pass 2</span>
+          </div>
+        </div>
+
+        <!-- 3. MOU MANAGEMENT TAB (PASS 2) -->
+        <div class="sub-content" id="industry-mous" style="display:none;">
+          <div class="breadcrumb">EduSync <span>›</span> Industry Connect <span>›</span> MoU Management</div>
+          <div class="page-header">
+            <h2>📜 Memorandum of Understanding (MoU) Management</h2>
+            <p>Institutional legal agreements, validity periods, compliance scopes, and renewal workflows</p>
+          </div>
+          <div class="table-card" style="padding:32px;text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:12px;">📜</div>
+            <div style="font-weight:700;font-size:1.1rem;color:var(--white);">MoU Management Module</div>
+            <p style="color:var(--gray-400);max-width:500px;margin:8px auto 20px;">MoU tracking with document uploads, status filters, validity tracking, and draft creation modal will be attached in Pass 2.</p>
+            <span class="badge blue">Ready for Pass 2</span>
+          </div>
+        </div>
+
+        <!-- 4. INTERNSHIPS TAB (PASS 2) -->
+        <div class="sub-content" id="industry-internships" style="display:none;">
+          <div class="breadcrumb">EduSync <span>›</span> Industry Connect <span>›</span> Internships</div>
+          <div class="page-header">
+            <h2>💼 Corporate Internships & Applications</h2>
+            <p>Experiential learning opportunities, student applications, and industry placement tracking</p>
+          </div>
+          <div class="table-card" style="padding:32px;text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:12px;">💼</div>
+            <div style="font-weight:700;font-size:1.1rem;color:var(--white);">Internship Management Module</div>
+            <p style="color:var(--gray-400);max-width:500px;margin:8px auto 20px;">Post internship openings, view student applications, update review statuses, and record joining outcomes in Pass 2.</p>
+            <span class="badge blue">Ready for Pass 2</span>
+          </div>
+        </div>
+
+        <!-- 5. INDUSTRIAL VISITS & TRAINING TAB (PASS 2) -->
+        <div class="sub-content" id="industry-visits" style="display:none;">
+          <div class="breadcrumb">EduSync <span>›</span> Industry Connect <span>›</span> Industrial Visits &amp; Training</div>
+          <div class="page-header">
+            <h2>🚌 Industrial Visits &amp; Student Training</h2>
+            <p>Field exposure trips, site visits, and corporate industrial training sessions</p>
+          </div>
+          <div class="table-card" style="padding:32px;text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:12px;">🚌</div>
+            <div style="font-weight:700;font-size:1.1rem;color:var(--white);">Industrial Visits &amp; Training Module</div>
+            <p style="color:var(--gray-400);max-width:500px;margin:8px auto 20px;">Multi-tier visit approvals (ICH → HOD → Principal), transportation logistics, and attendance tracking in Pass 2.</p>
+            <span class="badge blue">Ready for Pass 2</span>
+          </div>
+        </div>
+
+        <!-- 6. GUEST LECTURES TAB (PASS 2) -->
+        <div class="sub-content" id="industry-lectures" style="display:none;">
+          <div class="breadcrumb">EduSync <span>›</span> Industry Connect <span>›</span> Guest Lectures</div>
+          <div class="page-header">
+            <h2>🎤 Industry Guest Lectures &amp; Expert Sessions</h2>
+            <p>Invited technical talks, keynote sessions, and corporate expert masterclasses</p>
+          </div>
+          <div class="table-card" style="padding:32px;text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:12px;">🎤</div>
+            <div style="font-weight:700;font-size:1.1rem;color:var(--white);">Guest Lectures Module</div>
+            <p style="color:var(--gray-400);max-width:500px;margin:8px auto 20px;">Schedule corporate expert lectures, department alignments, venue management, and session documentation in Pass 2.</p>
+            <span class="badge blue">Ready for Pass 2</span>
+          </div>
+        </div>
+
+        <!-- 7. INDUSTRY PROJECTS TAB (PASS 2) -->
+        <div class="sub-content" id="industry-projects" style="display:none;">
+          <div class="breadcrumb">EduSync <span>›</span> Industry Connect <span>›</span> Industry Projects</div>
+          <div class="page-header">
+            <h2>🚀 Industry-Sponsored Projects &amp; Consultancy</h2>
+            <p>Real-world problem statements, collaborative capstone projects, and industry consultancy</p>
+          </div>
+          <div class="table-card" style="padding:32px;text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:12px;">🚀</div>
+            <div style="font-weight:700;font-size:1.1rem;color:var(--white);">Industry Projects Module</div>
+            <p style="color:var(--gray-400);max-width:500px;margin:8px auto 20px;">Project tracking with student team allocations, faculty mentors, grant amounts, and milestone signoffs in Pass 2.</p>
+            <span class="badge blue">Ready for Pass 2</span>
+          </div>
+        </div>
+
+        <!-- 8. ADVISORY & ALUMNI TAB (PASS 2) -->
+        <div class="sub-content" id="industry-advisory" style="display:none;">
+          <div class="breadcrumb">EduSync <span>›</span> Industry Connect <span>›</span> Advisory &amp; Alumni</div>
+          <div class="page-header">
+            <h2>🎓 Industry Advisory Board &amp; Corporate Alumni</h2>
+            <p>Academic advisory members and corporate alumni mentors bridging college-industry gaps</p>
+          </div>
+          <div class="table-card" style="padding:32px;text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:12px;">🎓</div>
+            <div style="font-weight:700;font-size:1.1rem;color:var(--white);">Advisory Board &amp; Alumni Module</div>
+            <p style="color:var(--gray-400);max-width:500px;margin:8px auto 20px;">Advisory board directory, term management, and corporate alumni networking registry in Pass 2.</p>
+            <span class="badge blue">Ready for Pass 2</span>
+          </div>
+        </div>
+
+        <!-- 9. APPROVALS TAB (PASS 2) -->
+        <div class="sub-content" id="industry-approvals" style="display:none;">
+          <div class="breadcrumb">EduSync <span>›</span> Industry Connect <span>›</span> Approvals</div>
+          <div class="page-header">
+            <h2>✅ Approvals Hub &amp; Workflows</h2>
+            <p>Consolidated action center for MoUs, industrial visit requests, and project sponsorships</p>
+          </div>
+          <div class="table-card" style="padding:32px;text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:12px;">✅</div>
+            <div style="font-weight:700;font-size:1.1rem;color:var(--white);">Approvals Hub</div>
+            <p style="color:var(--gray-400);max-width:500px;margin:8px auto 20px;">One-click approve/reject actions with multi-tier stage progression and remark capturing in Pass 2.</p>
+            <span class="badge blue">Ready for Pass 2</span>
+          </div>
+        </div>
+
+        <!-- 10. REPORTS TAB (PASS 2) -->
+        <div class="sub-content" id="industry-reports" style="display:none;">
+          <div class="breadcrumb">EduSync <span>›</span> Industry Connect <span>›</span> Reports</div>
+          <div class="page-header">
+            <h2>📈 Industry Relations Analytics &amp; Reports</h2>
+            <p>Department-wise engagement metrics, MoU compliance reports, and NAAC/NBA accreditation data</p>
+          </div>
+          <div class="table-card" style="padding:32px;text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:12px;">📈</div>
+            <div style="font-weight:700;font-size:1.1rem;color:var(--white);">Reports &amp; Analytics</div>
+            <p style="color:var(--gray-400);max-width:500px;margin:8px auto 20px;">Annual industry partnership reports, department engagement breakdown, and exportable summaries in Pass 2.</p>
+            <span class="badge blue">Ready for Pass 2</span>
+          </div>
+        </div>
+
+        <!-- 11. NOTICES TAB (PASS 2) -->
+        <div class="sub-content" id="industry-notices" style="display:none;">
+          <div class="breadcrumb">EduSync <span>›</span> Industry Connect <span>›</span> Notices</div>
+          <div class="page-header">
+            <h2>📢 Industry Announcements &amp; Notices</h2>
+            <p>Publish industrial visit circulars, internship opportunities, and guest lecture invitations</p>
+          </div>
+          <div class="table-card" style="padding:32px;text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:12px;">📢</div>
+            <div style="font-weight:700;font-size:1.1rem;color:var(--white);">Industry Notices Module</div>
+            <p style="color:var(--gray-400);max-width:500px;margin:8px auto 20px;">Notice publishing, target audience filtering, and circular dispatch in Pass 2.</p>
+            <span class="badge blue">Ready for Pass 2</span>
+          </div>
+        </div>
+
+      </div><!-- end main -->
+    </div><!-- end layout -->
+  </div><!-- end page-industry -->
+
 
   <!-- ════════════════════════════════════════════
      ADMIN DASHBOARD
@@ -8150,6 +8809,7 @@
                   <option value="HOD">HOD</option>
                   <option value="PRINCIPAL">Principal</option>
                   <option value="PLACEMENT_OFFICER">Placement Officer</option>
+                  <option value="INDUSTRIAL_CONNECT_HEAD">Industrial Connect Head</option>
                   <option value="ADMIN">Admin</option>
                 </select><button class="btn btn-blue btn-sm" onclick="openAddAdminUserModal()">+ Add User</button></div>
             </div>
@@ -9057,7 +9717,8 @@
     function roleToPage(role) {
       return {
         STUDENT: 'student', FACULTY: 'faculty', HOD: 'hod',
-        PRINCIPAL: 'principal', PLACEMENT_OFFICER: 'placement', ADMIN: 'admin'
+        PRINCIPAL: 'principal', PLACEMENT_OFFICER: 'placement',
+        INDUSTRIAL_CONNECT_HEAD: 'industry', ADMIN: 'admin'
       }[role] || 'landing';
     }
 
@@ -9197,12 +9858,15 @@
         }
       }
 
-      // Ensure floating Edu AI FAB is only visible on student dashboard for student role
+      // Ensure floating Edu AI FAB is visible on student and industry dashboards
       const aiFab = document.getElementById('aiFabBtn');
       const aiModal = document.getElementById('aiChatModal');
-      const isStudentPage = !!(authToken && currentUser && currentUser.role === 'STUDENT' && id === 'student');
-      if (aiFab) aiFab.style.display = isStudentPage ? 'flex' : 'none';
-      if (!isStudentPage && aiModal) {
+      const isAiPage = !!(authToken && currentUser && (
+        (currentUser.role === 'STUDENT' && id === 'student') ||
+        (currentUser.role === 'INDUSTRIAL_CONNECT_HEAD' && id === 'industry')
+      ));
+      if (aiFab) aiFab.style.display = isAiPage ? 'flex' : 'none';
+      if (!isAiPage && aiModal) {
         aiModal.style.display = 'none';
       }
 
@@ -9236,6 +9900,13 @@
       if (window.innerWidth <= 768) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
+
+      // Contextual refresh on cross-role tabs
+      if (page === 'student' && sub === 'internships' && typeof loadStudentInternships === 'function') loadStudentInternships();
+      if (page === 'faculty' && sub === 'industrial-visits' && typeof loadFacultyVisits === 'function') loadFacultyVisits();
+      if (page === 'hod' && sub === 'visits' && typeof loadHodVisits === 'function') loadHodVisits();
+      if (page === 'principal' && sub === 'visits' && typeof loadPrincipalVisits === 'function') loadPrincipalVisits();
+      if (page === 'placement' && sub === 'companies' && typeof loadPlacementCompanies === 'function') loadPlacementCompanies();
     }
 
     function onPageShown(id) {
@@ -9246,6 +9917,7 @@
         else if (id === 'hod' && currentUser.role === 'HOD') loadHodAll();
         else if (id === 'principal' && currentUser.role === 'PRINCIPAL') loadPrincipalAll();
         else if (id === 'placement' && currentUser.role === 'PLACEMENT_OFFICER') loadPlacementAll();
+        else if (id === 'industry') ichLoadAll();
         else if (id === 'admin' && currentUser.role === 'ADMIN') loadAdminAll();
       } catch (e) {
         console.error('Error loading role dashboard for ' + id + ':', e);
@@ -9486,6 +10158,19 @@
               if (typeof loadAllPublicNotices === 'function') loadAllPublicNotices();
             } else if (notif.type === 'ASSIGNMENT_NEW') {
               if (currentUser.role === 'STUDENT' && typeof loadStudentAssignments === 'function') loadStudentAssignments();
+            } else if (notif.type === 'INDUSTRY_UPDATE') {
+              if (currentUser.role === 'INDUSTRIAL_CONNECT_HEAD' && typeof ichLoadAll === 'function') ichLoadAll();
+              if (currentUser.role === 'PLACEMENT_OFFICER' && typeof loadPlacementCompanies === 'function') loadPlacementCompanies();
+              if (currentUser.role === 'HOD' && typeof loadHodIndustryWidget === 'function') loadHodIndustryWidget();
+              if (currentUser.role === 'PRINCIPAL' && typeof loadPrincipalIndustryWidget === 'function') loadPrincipalIndustryWidget();
+            } else if (notif.type === 'VISIT_UPDATE') {
+              if (currentUser.role === 'FACULTY' && typeof loadFacultyVisits === 'function') loadFacultyVisits();
+              if (currentUser.role === 'HOD' && typeof loadHodVisits === 'function') loadHodVisits();
+              if (currentUser.role === 'PRINCIPAL' && typeof loadPrincipalVisits === 'function') loadPrincipalVisits();
+              if (currentUser.role === 'INDUSTRIAL_CONNECT_HEAD' && typeof ichLoadVisits === 'function') ichLoadVisits();
+            } else if (notif.type === 'INTERNSHIP_UPDATE') {
+              if (currentUser.role === 'STUDENT' && typeof loadStudentInternships === 'function') loadStudentInternships();
+              if (currentUser.role === 'INDUSTRIAL_CONNECT_HEAD' && typeof ichLoadInternships === 'function') ichLoadInternships();
             }
           } catch(e) {
             console.warn('Error handling SSE notification event:', e);
@@ -9499,6 +10184,9 @@
         sseEventSource.addEventListener('ADVISOR_REJECTED', handleIncomingEvent);
         sseEventSource.addEventListener('NOTICE_PUBLISHED', handleIncomingEvent);
         sseEventSource.addEventListener('ASSIGNMENT_NEW', handleIncomingEvent);
+        sseEventSource.addEventListener('INDUSTRY_UPDATE', handleIncomingEvent);
+        sseEventSource.addEventListener('VISIT_UPDATE', handleIncomingEvent);
+        sseEventSource.addEventListener('INTERNSHIP_UPDATE', handleIncomingEvent);
         sseEventSource.addEventListener('TEST_ALERT', handleIncomingEvent);
         sseEventSource.addEventListener('NOTIFICATION', handleIncomingEvent);
         sseEventSource.onmessage = handleIncomingEvent;
@@ -10478,6 +11166,7 @@
         studentState.myApplications = myApps;
         renderStudentPlacement(drives, myApps);
       } catch (e) { /* leave static */ }
+      try { await loadStudentInternships(); } catch (e) { }
     }
 
     function renderStudentProfile(p) {
@@ -11025,6 +11714,7 @@
       await loadFacultyAssignments();
       await loadFacultyAdvisorRequests();
       await loadAdvisorDashboard();
+      try { await loadFacultyVisits(); } catch (e) { }
       ApexChartsManager.renderFacultyCharts();
     }
 
@@ -12095,6 +12785,7 @@
       } catch (e) { /* leave static */ }
 
       await loadHodGrievances();
+      try { await loadHodVisits(); await loadHodIndustryWidget(); } catch (e) { }
       ApexChartsManager.renderHodCharts();
     }
 
@@ -12293,6 +12984,7 @@
       try {
         await loadPrincipalGrievances();
       } catch (e) { /* leave static */ }
+      try { await loadPrincipalVisits(); await loadPrincipalIndustryWidget(); } catch (e) { }
       ApexChartsManager.renderPrincipalCharts();
     }
 
@@ -12333,6 +13025,7 @@
         placementState.drives = drives;
         renderPlacementDrives(drives);
       } catch (e) { toast(e.message, 'error'); }
+      try { await loadPlacementCompanies(); } catch (e) { }
       ApexChartsManager.renderPlacementCharts();
     }
 
@@ -12443,6 +13136,895 @@
       } catch (e) { toast(e.message, 'error'); }
     }
 
+    /* ══════════════════════ INDUSTRIAL CONNECT HEAD (ICH) ══════════════════════ */
+    let ichState = {
+      overview: null,
+      currentTab: 'overview',
+      isLoading: false
+    };
+
+    function ichSwitchTab(tabName, el) {
+      ichState.currentTab = tabName;
+      showSub('industry', tabName, el);
+      if (tabName === 'overview') {
+        ichLoadOverview();
+      }
+    }
+
+    async function ichLoadAll() {
+      if (currentUser) {
+        const avatarEl = document.getElementById('ichSidebarAvatar');
+        if (avatarEl) avatarEl.textContent = currentUser.profilePic || initials(currentUser.name || 'ICH');
+        setText('ichSidebarName', currentUser.name || 'Industrial Connect Head');
+      }
+      const firstItem = document.querySelector('#page-industry .sidebar-item');
+      ichSwitchTab('overview', firstItem);
+      await ichLoadOverview();
+    }
+
+    async function ichLoadOverview() {
+      if (ichState.isLoading) return;
+      ichState.isLoading = true;
+
+      const funnelEl = document.getElementById('ichFunnelContainer');
+      const mousEl = document.getElementById('ichExpiringMousContainer');
+      const actionsEl = document.getElementById('ichPendingActionsContainer');
+      const activitiesEl = document.getElementById('ichRecentActivitiesContainer');
+
+      try {
+        const data = await api('/industry/overview');
+        ichState.overview = data || {};
+        ichRenderOverview(ichState.overview);
+
+        const tsEl = document.getElementById('ichOverviewTimestamp');
+        if (tsEl) {
+          const now = new Date();
+          tsEl.textContent = 'Updated ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+      } catch (err) {
+        console.error('ichLoadOverview error:', err);
+        toast(err.message || 'Failed to load Industry Overview', 'error');
+        if (funnelEl) funnelEl.innerHTML = '<div style="color:var(--danger);padding:24px;text-align:center;">Failed to load funnel data.</div>';
+        if (mousEl) mousEl.innerHTML = '<div style="color:var(--danger);padding:24px;text-align:center;">Failed to load expiring MoUs.</div>';
+        if (actionsEl) actionsEl.innerHTML = '<div style="color:var(--danger);padding:24px;text-align:center;">Failed to load pending reviews.</div>';
+        if (activitiesEl) activitiesEl.innerHTML = '<div style="color:var(--danger);padding:24px;text-align:center;">Failed to load activities.</div>';
+      } finally {
+        ichState.isLoading = false;
+      }
+    }
+
+    function ichRenderOverview(data) {
+      ichRenderKpis(data);
+      ichRenderFunnel(data.companiesByPartnershipStage || {}, data.totalCompanies || 0);
+      ichRenderExpiringMous(data.expiringMous || []);
+      ichRenderPendingActions(data);
+      ichRenderRecentActivities(data.recentActivities || []);
+    }
+
+    function ichRenderKpis(data) {
+      setText('ichKpiActiveMoUs', data.activeMoUs != null ? data.activeMoUs : 0);
+      setText('ichKpiTotalCompanies', data.totalCompanies != null ? data.totalCompanies : 0);
+      setText('ichKpiOpenInternships', data.openInternships != null ? data.openInternships : 0);
+      setText('ichKpiStudentsInterning', data.studentsCurrentlyInterning != null ? data.studentsCurrentlyInterning : 0);
+
+      const expChange = document.getElementById('ichKpiExpiringChange');
+      if (expChange) {
+        const count = data.mousExpiringWithin60Days || 0;
+        expChange.textContent = count + ' Expiring Soon';
+        expChange.className = 'metric-change ' + (count > 0 ? 'down' : 'neutral');
+      }
+
+      const compChange = document.getElementById('ichKpiCompaniesChange');
+      if (compChange) {
+        compChange.textContent = (data.totalCompanies || 0) + ' Registered';
+      }
+
+      const appChange = document.getElementById('ichKpiApplicationsChange');
+      if (appChange) {
+        appChange.textContent = (data.applications || 0) + ' Applications';
+      }
+    }
+
+    function ichRenderFunnel(stageCounts, total) {
+      const container = document.getElementById('ichFunnelContainer');
+      if (!container) return;
+
+      setText('ichFunnelTotalBadge', (total || 0) + ' ' + (total === 1 ? 'Company' : 'Companies'));
+
+      const stagesConfig = [
+        { key: 'LEAD', label: 'Lead / Identified', desc: 'Prospective company partners', color: '#94a3b8', gradient: 'linear-gradient(90deg, #64748b, #94a3b8)' },
+        { key: 'CONTACTED', label: 'Contacted', desc: 'Initial institutional outreach', color: '#38bdf8', gradient: 'linear-gradient(90deg, #0284c7, #38bdf8)' },
+        { key: 'NEGOTIATING', label: 'Negotiating', desc: 'Scope & terms dialogue', color: '#fbbf24', gradient: 'linear-gradient(90deg, #d97706, #fbbf24)' },
+        { key: 'MOU_SIGNED', label: 'MoU Signed', desc: 'Formal agreement executed', color: '#a855f7', gradient: 'linear-gradient(90deg, #7e22ce, #a855f7)' },
+        { key: 'ACTIVE', label: 'Active Partner', desc: 'Ongoing projects, hiring & visits', color: '#34d399', gradient: 'linear-gradient(90deg, #059669, #34d399)' }
+      ];
+
+      const html = stagesConfig.map(function (s) {
+        const count = stageCounts[s.key] || 0;
+        const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+        const barWidth = count > 0 ? Math.max(pct, 5) : 0;
+
+        return '<div style="margin-bottom:14px;">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">' +
+            '<div>' +
+              '<span style="font-weight:700;font-size:0.85rem;color:var(--white);">' + escapeHtml(s.label) + '</span>' +
+              '<span style="font-size:0.75rem;color:var(--gray-400);margin-left:6px;">· ' + escapeHtml(s.desc) + '</span>' +
+            '</div>' +
+            '<div style="font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.85rem;color:' + s.color + ';">' +
+              count + ' <span style="font-size:0.75rem;color:var(--gray-400);font-weight:normal;">(' + pct + '%)</span>' +
+            '</div>' +
+          '</div>' +
+          '<div style="height:9px;background:rgba(255,255,255,0.06);border-radius:6px;overflow:hidden;position:relative;">' +
+            '<div style="height:100%;width:' + barWidth + '%;background:' + s.gradient + ';border-radius:6px;transition:width 0.6s ease;"></div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+      container.innerHTML = html;
+    }
+
+    function ichRenderExpiringMous(mous) {
+      const container = document.getElementById('ichExpiringMousContainer');
+      const badge = document.getElementById('ichExpiringMousBadge');
+      if (!container) return;
+
+      const list = Array.isArray(mous) ? mous : [];
+      if (badge) {
+        badge.textContent = list.length + ' Expiring';
+        badge.className = 'badge ' + (list.length > 0 ? 'yellow' : 'gray');
+      }
+
+      if (list.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:36px 20px;color:var(--gray-400);">' +
+          '<div style="font-size:2.2rem;margin-bottom:8px;">✅</div>' +
+          '<div style="font-weight:700;color:var(--white);font-size:0.95rem;">All Corporate MoUs are Active</div>' +
+          '<div style="font-size:0.8rem;margin-top:4px;">No institutional agreements are due to expire within the next 60 days.</div>' +
+        '</div>';
+        return;
+      }
+
+      const rows = list.map(function (m) {
+        let daysLeft = '–';
+        let badgeClass = 'yellow';
+        if (m.validTo) {
+          const diffMs = new Date(m.validTo).getTime() - Date.now();
+          daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+          if (daysLeft < 0) {
+            badgeClass = 'red';
+            daysLeft = 'Expired';
+          } else if (daysLeft <= 15) {
+            badgeClass = 'red';
+            daysLeft = daysLeft + 'd left';
+          } else if (daysLeft <= 30) {
+            badgeClass = 'orange';
+            daysLeft = daysLeft + 'd left';
+          } else {
+            daysLeft = daysLeft + 'd left';
+          }
+        }
+
+        return '<tr>' +
+          '<td style="font-weight:600;color:var(--white);">' + escapeHtml(m.companyName || '–') + '</td>' +
+          '<td>' + escapeHtml(m.title || 'Institutional MoU') + '</td>' +
+          '<td>' + fmtDate(m.validTo) + '</td>' +
+          '<td><span class="badge ' + badgeClass + '">' + escapeHtml(String(daysLeft)) + '</span></td>' +
+          '<td style="text-align:right;"><button class="btn btn-outline btn-sm" onclick="ichSwitchTab(\'mous\')">Manage</button></td>' +
+        '</tr>';
+      }).join('');
+
+      container.innerHTML = '<div style="overflow-x:auto;">' +
+        '<table style="width:100%;border-collapse:collapse;">' +
+          '<thead>' +
+            '<tr>' +
+              '<th style="padding:10px 16px;text-align:left;font-size:0.75rem;">Company</th>' +
+              '<th style="padding:10px 16px;text-align:left;font-size:0.75rem;">MoU Title</th>' +
+              '<th style="padding:10px 16px;text-align:left;font-size:0.75rem;">Expires On</th>' +
+              '<th style="padding:10px 16px;text-align:left;font-size:0.75rem;">Timeline</th>' +
+              '<th style="padding:10px 16px;text-align:right;font-size:0.75rem;">Action</th>' +
+            '</tr>' +
+          '</thead>' +
+          '<tbody>' + rows + '</tbody>' +
+        '</table>' +
+      '</div>';
+    }
+
+    function ichRenderPendingActions(overview) {
+      const container = document.getElementById('ichPendingActionsContainer');
+      const badge = document.getElementById('ichPendingActionsBadge');
+      if (!container) return;
+
+      const visits = Array.isArray(overview.pendingVisits) ? overview.pendingVisits : [];
+      const expiring = Array.isArray(overview.expiringMous) ? overview.expiringMous : [];
+      const totalPending = visits.length + expiring.length;
+
+      if (badge) {
+        badge.textContent = totalPending + ' Pending';
+        badge.className = 'badge ' + (totalPending > 0 ? 'orange' : 'gray');
+      }
+
+      if (totalPending === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:36px 20px;color:var(--gray-400);">' +
+          '<div style="font-size:2.2rem;margin-bottom:8px;">🎉</div>' +
+          '<div style="font-weight:700;color:var(--white);font-size:0.95rem;">Review Queue is Clear</div>' +
+          '<div style="font-size:0.8rem;margin-top:4px;">No industrial visits or renewal items currently require your review.</div>' +
+        '</div>';
+        return;
+      }
+
+      let itemsHtml = '';
+
+      visits.forEach(function (v) {
+        itemsHtml += '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--card-border);gap:12px;">' +
+          '<div style="display:flex;align-items:center;gap:12px;">' +
+            '<div style="width:34px;height:34px;border-radius:8px;background:rgba(245,158,11,0.15);display:flex;align-items:center;justify-content:center;font-size:1rem;">🚌</div>' +
+            '<div>' +
+              '<div style="font-weight:600;font-size:0.88rem;color:var(--white);">' + escapeHtml(v.companyName || 'Industrial Visit') + '</div>' +
+              '<div style="font-size:0.75rem;color:var(--gray-400);">' + escapeHtml(v.department || 'All Depts') + ' · ' + (v.tentativeDate ? fmtDate(v.tentativeDate) : 'Date TBD') + ' (' + (v.studentCount || 0) + ' students)</div>' +
+            '</div>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:8px;">' +
+            '<span class="badge yellow">ICH Review</span>' +
+            '<button class="btn btn-blue btn-sm" onclick="ichSwitchTab(\'approvals\')">Review</button>' +
+          '</div>' +
+        '</div>';
+      });
+
+      expiring.forEach(function (m) {
+        itemsHtml += '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--card-border);gap:12px;">' +
+          '<div style="display:flex;align-items:center;gap:12px;">' +
+            '<div style="width:34px;height:34px;border-radius:8px;background:rgba(239,68,68,0.15);display:flex;align-items:center;justify-content:center;font-size:1rem;">📜</div>' +
+            '<div>' +
+              '<div style="font-weight:600;font-size:0.88rem;color:var(--white);">' + escapeHtml(m.companyName || 'MoU Agreement') + '</div>' +
+              '<div style="font-size:0.75rem;color:var(--gray-400);">MoU Renewal required · Expires ' + fmtDate(m.validTo) + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:8px;">' +
+            '<span class="badge red">Renewal</span>' +
+            '<button class="btn btn-outline btn-sm" onclick="ichSwitchTab(\'mous\')">Manage</button>' +
+          '</div>' +
+        '</div>';
+      });
+
+      container.innerHTML = itemsHtml;
+    }
+
+    function ichRenderRecentActivities(activities) {
+      const container = document.getElementById('ichRecentActivitiesContainer');
+      if (!container) return;
+
+      const list = Array.isArray(activities) ? activities.slice(0, 5) : [];
+
+      if (list.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:36px 20px;color:var(--gray-400);">' +
+          '<div style="font-size:1.8rem;margin-bottom:6px;">📝</div>' +
+          '<div style="font-size:0.85rem;">No recent activities recorded yet.</div>' +
+        '</div>';
+        return;
+      }
+
+      const entityIcons = {
+        COMPANY: '🏢',
+        MOU: '📜',
+        INTERNSHIP: '💼',
+        APPLICATION: '📄',
+        VISIT: '🚌',
+        LECTURE: '🎤',
+        PROJECT: '🚀',
+        ADVISORY: '🎓',
+        ALUMNI: '🤝'
+      };
+
+      const html = list.map(function (a) {
+        const icon = entityIcons[a.entityType] || '⚡';
+        return '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--card-border);gap:12px;">' +
+          '<div style="display:flex;align-items:center;gap:12px;min-width:0;">' +
+            '<div style="width:32px;height:32px;border-radius:8px;background:rgba(0,212,255,0.1);display:flex;align-items:center;justify-content:center;font-size:0.95rem;flex-shrink:0;">' + icon + '</div>' +
+            '<div style="min-width:0;">' +
+              '<div style="font-size:0.82rem;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml(a.details || a.action || 'Activity') + '</div>' +
+              '<div style="font-size:0.72rem;color:var(--gray-400);">' + escapeHtml(a.actor || 'System') + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div style="font-size:0.72rem;color:var(--gray-400);white-space:nowrap;flex-shrink:0;">' + ichFormatTimeAgo(a.timestamp) + '</div>' +
+        '</div>';
+      }).join('');
+
+      container.innerHTML = html;
+    }
+
+    function ichFormatTimeAgo(dateStr) {
+      if (!dateStr) return '–';
+      try {
+        const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+        if (diff < 60) return 'Just now';
+        if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+        if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+        if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
+        return fmtDate(dateStr);
+      } catch (e) {
+        return dateStr;
+      }
+    }
+
+    /* ══════════════════════ CROSS-ROLE INDUSTRY INTEGRATIONS ══════════════════════ */
+    let studentInternshipsCache = [];
+    let studentApplicationsCache = [];
+    let facultyVisitsCache = [];
+    let hodVisitsCache = [];
+    let principalVisitsCache = [];
+    let placementCompaniesCache = [];
+
+    /* 1. STUDENT: INTERNSHIPS */
+    async function loadStudentInternships() {
+      try {
+        const [openOpp, myApps] = await Promise.all([
+          api('/industry/internships/open'),
+          api('/industry/internships/my-applications')
+        ]);
+        studentInternshipsCache = openOpp || [];
+        studentApplicationsCache = myApps || [];
+
+        const openCount = studentInternshipsCache.length;
+        const myCount = studentApplicationsCache.length;
+        const shortlistedCount = studentApplicationsCache.filter(function(a) { return a.status === 'SHORTLISTED'; }).length;
+        const selectedCount = studentApplicationsCache.filter(function(a) { return a.status === 'SELECTED' || a.status === 'COMPLETED'; }).length;
+
+        setText('studentOpenInternshipsCount', openCount);
+        setText('studentMyInternshipsCount', myCount);
+        setText('studentShortlistedInternshipsCount', shortlistedCount);
+        setText('studentSelectedInternshipsCount', selectedCount);
+
+        const badge = document.getElementById('studentInternshipBadge');
+        if (badge) {
+          badge.textContent = openCount;
+          badge.style.display = openCount ? 'inline-block' : 'none';
+        }
+
+        renderStudentInternships(studentInternshipsCache, studentApplicationsCache);
+        renderStudentApplications(studentApplicationsCache);
+      } catch (e) {
+        console.warn('Could not load student internships:', e);
+      }
+    }
+
+    function filterStudentInternships() {
+      const q = (document.getElementById('studentInternshipSearch') ? document.getElementById('studentInternshipSearch').value : '').toLowerCase().trim();
+      let filtered = studentInternshipsCache;
+      if (q) {
+        filtered = filtered.filter(function(i) {
+          return (i.title && i.title.toLowerCase().includes(q)) ||
+                 (i.companyName && i.companyName.toLowerCase().includes(q)) ||
+                 (i.description && i.description.toLowerCase().includes(q)) ||
+                 (i.skillsRequired && i.skillsRequired.toLowerCase().includes(q));
+        });
+      }
+      renderStudentInternships(filtered, studentApplicationsCache);
+    }
+
+    function renderStudentInternships(internships, myApps) {
+      const container = document.getElementById('studentOpenInternshipsList');
+      if (!container) return;
+      if (!internships.length) {
+        container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:36px;color:var(--gray-400);background:var(--card-bg, #1e293b);border-radius:12px;border:1px dashed var(--card-border, rgba(255,255,255,0.1));">No open corporate internships matching your criteria at this moment.</div>';
+        return;
+      }
+
+      const appliedIds = new Set((myApps || []).map(function(a) { return a.internshipId || a.opportunityId; }));
+
+      container.innerHTML = internships.map(function(item) {
+        const hasApplied = appliedIds.has(item.id);
+        const actionBtn = hasApplied
+          ? '<button class="btn btn-sm" disabled style="background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3);cursor:default;">✓ Applied</button>'
+          : '<button class="btn btn-blue btn-sm" onclick="openStudentApplyModal(' + item.id + ', \'' + escapeHtml(item.title).replace(/'/g, "\\'") + '\', \'' + escapeHtml(item.companyName).replace(/'/g, "\\'") + '\', \'' + escapeHtml(item.location || 'Flexible').replace(/'/g, "\\'") + '\', \'' + (item.stipend ? '₹' + item.stipend + '/mo' : 'Unpaid') + '\')">Apply Now →</button>';
+
+        return '<div class="metric-card" style="display:flex;flex-direction:column;justify-content:space-between;border:1px solid var(--card-border, rgba(255,255,255,0.1));padding:18px;border-radius:14px;background:var(--card-bg, #1e293b);">' +
+          '<div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px;">' +
+              '<div>' +
+                '<h4 style="margin:0 0 4px 0;font-size:1.02rem;color:var(--white);">' + escapeHtml(item.title) + '</h4>' +
+                '<div style="font-size:0.8rem;color:#00d4ff;font-weight:600;">' + escapeHtml(item.companyName) + '</div>' +
+              '</div>' +
+              '<span class="badge blue">' + escapeHtml(item.mode || 'ONSITE') + '</span>' +
+            '</div>' +
+            '<div style="font-size:0.78rem;color:var(--gray-300);margin-bottom:12px;line-height:1.45;max-height:54px;overflow:hidden;text-overflow:ellipsis;">' +
+              escapeHtml(item.description || 'Gain experiential industry training.') +
+            '</div>' +
+            '<div style="display:flex;flex-wrap:wrap;gap:12px;font-size:0.75rem;color:var(--gray-400);margin-bottom:14px;">' +
+              '<div>📍 ' + escapeHtml(item.location || 'Flexible') + '</div>' +
+              '<div>💰 ' + (item.stipend ? '₹' + item.stipend + '/mo' : 'Certificate') + '</div>' +
+              '<div>👥 ' + (item.seats || item.openPositions || 1) + ' open</div>' +
+            '</div>' +
+          '</div>' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);">' +
+            '<span style="font-size:0.72rem;color:var(--gray-400);">Deadline: ' + fmtDate(item.deadline || item.lastDateToApply) + '</span>' +
+            actionBtn +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function renderStudentApplications(apps) {
+      const tbody = document.getElementById('studentMyApplicationsBody') || document.getElementById('studentInternshipAppsTableBody');
+      if (!tbody) return;
+      if (!apps.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:24px;">No internship applications submitted yet.</td></tr>';
+        return;
+      }
+
+      function appStatusBadge(status) {
+        const s = (status || '').toUpperCase();
+        if (s === 'SELECTED' || s === 'COMPLETED') return '<span class="badge green">' + escapeHtml(s) + '</span>';
+        if (s === 'SHORTLISTED') return '<span class="badge blue">SHORTLISTED</span>';
+        if (s === 'REJECTED') return '<span class="badge red">REJECTED</span>';
+        return '<span class="badge yellow">UNDER REVIEW</span>';
+      }
+
+      tbody.innerHTML = apps.map(function(a) {
+        const certLink = a.certificateUrl
+          ? '<a href="' + escapeHtml(a.certificateUrl) + '" target="_blank" class="btn btn-outline btn-sm" style="font-size:0.72rem;padding:2px 8px;">🎓 Certificate</a>'
+          : '<span style="color:var(--gray-500);font-size:0.75rem;">–</span>';
+
+        return '<tr>' +
+          '<td><strong>' + escapeHtml(a.internshipTitle || 'Internship') + '</strong><br><span style="font-size:0.75rem;color:#00d4ff;">' + escapeHtml(a.companyName || '–') + '</span></td>' +
+          '<td>' + fmtDate(a.appliedAt) + '</td>' +
+          '<td>' + appStatusBadge(a.status) + '</td>' +
+          '<td style="font-size:0.78rem;color:var(--gray-300);">' + escapeHtml(a.feedback || 'Application in review.') + '</td>' +
+          '<td>' + certLink + '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    function openStudentApplyModal(id, title, comp, loc, stp) {
+      const summaryEl = document.getElementById('studentApplyRoleSummary');
+      if (summaryEl) {
+        summaryEl.innerHTML = '<strong>' + escapeHtml(title) + '</strong> at <span style="color:#00d4ff;">' + escapeHtml(comp) + '</span><br>' +
+          '<span style="font-size:0.75rem;color:var(--gray-400);">Location: ' + escapeHtml(loc || 'Flexible') + ' · Stipend: ' + escapeHtml(stp || '–') + '</span>';
+      }
+      setValue('studentApplyInternshipId', id);
+      setValue('studentApplyResumeUrl', '');
+      setValue('studentApplyFeedback', '');
+      const modal = document.getElementById('studentApplyModal');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function closeStudentApplyModal() {
+      const modal = document.getElementById('studentApplyModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    async function handleStudentApplySubmit(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      const oppId = document.getElementById('studentApplyInternshipId').value;
+      const resumeUrl = (document.getElementById('studentApplyResumeUrl').value || '').trim();
+      const feedback = (document.getElementById('studentApplyFeedback').value || '').trim();
+
+      if (!resumeUrl) {
+        toast('Please provide your portfolio or resume link.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('studentApplySubmitBtn');
+      if (btn) btn.disabled = true;
+
+      try {
+        await api('/industry/internships/' + oppId + '/apply', {
+          method: 'POST',
+          body: { resumeUrl: resumeUrl, feedback: feedback }
+        });
+        toast('Application submitted successfully! 🚀', 'success');
+        closeStudentApplyModal();
+        await loadStudentInternships();
+      } catch (err) {
+        toast(err.message, 'error');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    /* 2. FACULTY: INDUSTRIAL VISITS */
+    async function loadFacultyVisits() {
+      try {
+        const [visits, companies] = await Promise.all([
+          api('/industry/visits'),
+          api('/industry/companies')
+        ]);
+        facultyVisitsCache = visits || [];
+        const myDept = currentUser.department;
+        const deptVisits = myDept
+          ? facultyVisitsCache.filter(function(v) { return !v.department || v.department === myDept; })
+          : facultyVisitsCache;
+
+        // Populate company select dropdown
+        const compSelect = document.getElementById('facultyVisitCompanyId');
+        if (compSelect && companies) {
+          const prevVal = compSelect.value;
+          compSelect.innerHTML = '<option value="">Select industry partner...</option>' +
+            companies.map(function(c) {
+              return '<option value="' + c.id + '">' + escapeHtml(c.name) + (c.city ? ' (' + escapeHtml(c.city) + ')' : '') + '</option>';
+            }).join('');
+          if (prevVal) compSelect.value = prevVal;
+        }
+
+        const deptInput = document.getElementById('facultyVisitDepartment');
+        if (deptInput) {
+          deptInput.value = myDept || 'General';
+        }
+
+        // Metrics
+        const total = deptVisits.length;
+        const approved = deptVisits.filter(function(v) { return v.stage === 'APPROVED' || v.status === 'COMPLETED'; }).length;
+        const pending = deptVisits.filter(function(v) { return v.stage !== 'APPROVED' && v.stage !== 'REJECTED'; }).length;
+        const students = deptVisits.reduce(function(sum, v) { return sum + (v.studentCount || 0); }, 0);
+
+        setText('facultyVisitsTotalCount', total);
+        setText('facultyVisitsApprovedCount', approved);
+        setText('facultyVisitsPendingCount', pending);
+        setText('facultyVisitsStudentCount', students);
+
+        renderFacultyVisitsTable(deptVisits);
+      } catch (e) {
+        console.warn('Could not load faculty industrial visits:', e);
+      }
+    }
+
+    function renderFacultyVisitsTable(visits) {
+      const tbody = document.getElementById('facultyVisitsTableBody');
+      if (!tbody) return;
+      if (!visits.length) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--gray-400);padding:24px;">No industrial visits recorded for your department yet. Propose one using the form above!</td></tr>';
+        return;
+      }
+
+      function visitBadge(val, type) {
+        if (!val || val === 'PENDING') return '<span class="badge yellow">Pending</span>';
+        if (val === 'APPROVED') return '<span class="badge green">Approved</span>';
+        if (val === 'REJECTED') return '<span class="badge red">Rejected</span>';
+        return '<span class="badge blue">' + escapeHtml(val) + '</span>';
+      }
+
+      tbody.innerHTML = visits.map(function(v) {
+        const tripType = (v.overnight ? '🌙 Overnight' : '☀️ Day Visit') + (v.outsideKerala ? ' · Interstate' : '');
+        return '<tr>' +
+          '<td><strong>' + escapeHtml(v.companyName) + '</strong><br><span style="font-size:0.72rem;color:var(--gray-400);">' + escapeHtml(v.location || '–') + '</span></td>' +
+          '<td>' + fmtDate(v.date) + '</td>' +
+          '<td>' + escapeHtml(v.department || '–') + ' · <strong>' + (v.studentCount || 0) + '</strong> students</td>' +
+          '<td style="font-size:0.75rem;color:var(--gray-300);">' + tripType + '</td>' +
+          '<td>' + visitBadge(v.hodStatus) + '</td>' +
+          '<td>' + visitBadge(v.ichStatus) + '</td>' +
+          '<td>' + visitBadge(v.principalStatus) + '</td>' +
+          '<td><span class="badge ' + (v.stage === 'APPROVED' ? 'green' : (v.stage === 'REJECTED' ? 'red' : 'blue')) + '">' + escapeHtml(v.stage || 'ICH_REVIEW') + '</span></td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    async function handleFacultyProposeVisit(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      const compId = document.getElementById('facultyVisitCompanyId').value;
+      const dept = (document.getElementById('facultyVisitDepartment').value || currentUser.department || 'General').trim();
+      const date = document.getElementById('facultyVisitDate').value;
+      const count = parseInt(document.getElementById('facultyVisitStudentCount').value, 10);
+      const loc = (document.getElementById('facultyVisitLocation').value || '').trim();
+      const purpose = (document.getElementById('facultyVisitPurpose').value || '').trim();
+      const overnight = !!(document.getElementById('facultyVisitOvernight') && document.getElementById('facultyVisitOvernight').checked);
+      const outsideKerala = !!(document.getElementById('facultyVisitOutsideKerala') && document.getElementById('facultyVisitOutsideKerala').checked);
+
+      if (!compId || !date || !count || !loc || !purpose) {
+        toast('Please fill out all required visit fields.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('facultyProposeVisitSubmitBtn');
+      if (btn) btn.disabled = true;
+
+      try {
+        await api('/industry/visits/propose', {
+          method: 'POST',
+          body: {
+            companyId: parseInt(compId, 10),
+            department: dept,
+            date: date,
+            studentCount: count,
+            location: loc,
+            purpose: purpose,
+            overnight: overnight,
+            outsideKerala: outsideKerala
+          }
+        });
+        toast('Industrial Visit proposal submitted for HOD & ICH endorsement! 🚌', 'success');
+        document.getElementById('facultyProposeVisitForm').reset();
+        await loadFacultyVisits();
+      } catch (err) {
+        toast(err.message, 'error');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    /* 3. HOD: VISITS APPROVAL & INDUSTRY ENGAGEMENT WIDGET */
+    async function loadHodVisits() {
+      try {
+        const visits = await api('/industry/visits');
+        hodVisitsCache = visits || [];
+        const myDept = currentUser.department;
+        if (myDept) {
+          hodVisitsCache = hodVisitsCache.filter(function(v) { return !v.department || v.department === myDept; });
+        }
+
+        const pending = hodVisitsCache.filter(function(v) { return v.stage === 'HOD_REVIEW'; });
+        const badge = document.getElementById('hodVisitBadge');
+        if (badge) {
+          badge.textContent = pending.length;
+          badge.style.display = pending.length ? 'inline-block' : 'none';
+        }
+
+        renderHodVisitsTable();
+      } catch (e) {
+        console.warn('Could not load HOD visits:', e);
+      }
+    }
+
+    function renderHodVisitsTable() {
+      const tbody = document.getElementById('hodVisitsTableBody');
+      if (!tbody) return;
+      const filter = (document.getElementById('hodVisitFilter') ? document.getElementById('hodVisitFilter').value : 'PENDING');
+
+      let list = hodVisitsCache;
+      if (filter === 'PENDING') {
+        list = list.filter(function(v) { return v.stage === 'HOD_REVIEW'; });
+      } else if (filter === 'APPROVED') {
+        list = list.filter(function(v) { return v.hodStatus === 'APPROVED' || v.stage === 'PRINCIPAL_REVIEW' || v.stage === 'APPROVED'; });
+      } else if (filter === 'REJECTED') {
+        list = list.filter(function(v) { return v.hodStatus === 'REJECTED' || v.stage === 'REJECTED'; });
+      }
+
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:24px;">No visits match the selected filter.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = list.map(function(v) {
+        let actionCell = '';
+        if (v.stage === 'HOD_REVIEW') {
+          actionCell = '<div style="display:flex;gap:6px;">' +
+            '<button class="btn btn-green btn-sm" onclick="actionHodVisit(' + v.id + ', \'APPROVED\')">Endorse</button>' +
+            '<button class="btn btn-red btn-sm" onclick="actionHodVisit(' + v.id + ', \'REJECTED\')">Reject</button>' +
+          '</div>';
+        } else {
+          actionCell = '<span style="font-size:0.75rem;color:var(--gray-400);">' + (v.hodStatus || 'Completed') + '</span>';
+        }
+
+        const hodStatusClass = v.hodStatus === 'APPROVED' ? 'green' : (v.hodStatus === 'REJECTED' ? 'red' : 'yellow');
+
+        return '<tr>' +
+          '<td><strong>' + escapeHtml(v.companyName) + '</strong><br><span style="font-size:0.72rem;color:var(--gray-400);">' + escapeHtml(v.location || '') + '</span></td>' +
+          '<td>' + fmtDate(v.date) + '</td>' +
+          '<td>' + (v.studentCount || 0) + ' students' + (v.overnight ? ' (Overnight)' : '') + '</td>' +
+          '<td style="font-size:0.78rem;color:var(--gray-300);">' + escapeHtml(v.purpose || '–') + '</td>' +
+          '<td><span class="badge ' + hodStatusClass + '">' + escapeHtml(v.hodStatus || 'PENDING') + '</span></td>' +
+          '<td><span class="badge blue">' + escapeHtml(v.stage || 'REVIEW') + '</span></td>' +
+          '<td>' + actionCell + '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    async function actionHodVisit(id, decision) {
+      const promptText = decision === 'APPROVED' ? 'Endorsement remarks (optional):' : 'Rejection reason:';
+      const remarks = window.prompt(promptText, decision === 'APPROVED' ? 'Endorsed and recommended for institutional clearance.' : '');
+      if (decision === 'REJECTED' && remarks === null) return;
+
+      try {
+        await api('/industry/visits/' + id + '/hod-action', {
+          method: 'PUT',
+          body: { status: decision, remark: remarks || '' }
+        });
+        toast('HOD action recorded successfully.', 'success');
+        await loadHodVisits();
+      } catch (err) {
+        toast(err.message, 'error');
+      }
+    }
+
+    async function loadHodIndustryWidget() {
+      try {
+        const overview = await api('/industry/overview');
+        if (!overview) return;
+        setText('hodWidgetActiveMoUs', overview.activeMoUs || 0);
+        setText('hodWidgetExpiringMoUs', overview.expiringMoUsCount || 0);
+        setText('hodWidgetOpenInternships', overview.openInternshipsCount || 0);
+        setText('hodWidgetPendingVisits', overview.pendingVisitsCount || 0);
+
+        const listEl = document.getElementById('hodWidgetActivePartnersList');
+        if (listEl) {
+          listEl.innerHTML = 'Institutional MoUs: <strong>' + (overview.activeMoUs || 0) + '</strong> active across <strong>' + (overview.totalCompanies || 0) + '</strong> industry partners. ' +
+            '<strong>' + (overview.studentsInterningCount || 0) + '</strong> students currently on corporate internships.';
+        }
+      } catch (e) {
+        console.warn('Could not load HOD industry widget:', e);
+      }
+    }
+
+    /* 4. PRINCIPAL: VISITS SANCTION & INDUSTRY ENGAGEMENT WIDGET */
+    async function loadPrincipalVisits() {
+      try {
+        const visits = await api('/industry/visits');
+        principalVisitsCache = visits || [];
+
+        const pending = principalVisitsCache.filter(function(v) { return v.stage === 'PRINCIPAL_REVIEW'; });
+        const badge = document.getElementById('principalVisitBadge');
+        if (badge) {
+          badge.textContent = pending.length;
+          badge.style.display = pending.length ? 'inline-block' : 'none';
+        }
+
+        renderPrincipalVisitsTable();
+      } catch (e) {
+        console.warn('Could not load Principal visits:', e);
+      }
+    }
+
+    function renderPrincipalVisitsTable() {
+      const tbody = document.getElementById('principalVisitsTableBody');
+      if (!tbody) return;
+      const filter = (document.getElementById('principalVisitFilter') ? document.getElementById('principalVisitFilter').value : 'PENDING');
+
+      let list = principalVisitsCache;
+      if (filter === 'PENDING') {
+        list = list.filter(function(v) { return v.stage === 'PRINCIPAL_REVIEW'; });
+      } else if (filter === 'APPROVED') {
+        list = list.filter(function(v) { return v.principalStatus === 'APPROVED' || v.stage === 'APPROVED'; });
+      } else if (filter === 'REJECTED') {
+        list = list.filter(function(v) { return v.principalStatus === 'REJECTED' || v.stage === 'REJECTED'; });
+      }
+
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:24px;">No visits match the selected filter.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = list.map(function(v) {
+        let actionCell = '';
+        if (v.stage === 'PRINCIPAL_REVIEW') {
+          actionCell = '<div style="display:flex;gap:6px;">' +
+            '<button class="btn btn-green btn-sm" onclick="actionPrincipalVisit(' + v.id + ', \'APPROVED\')">Sanction</button>' +
+            '<button class="btn btn-red btn-sm" onclick="actionPrincipalVisit(' + v.id + ', \'REJECTED\')">Reject</button>' +
+          '</div>';
+        } else {
+          actionCell = '<span style="font-size:0.75rem;color:var(--gray-400);">' + (v.principalStatus || 'Completed') + '</span>';
+        }
+
+        return '<tr>' +
+          '<td><strong>' + escapeHtml(v.department || 'All') + '</strong><br><span style="font-size:0.72rem;color:var(--gray-400);">' + escapeHtml(v.proposedByName || 'Faculty') + '</span></td>' +
+          '<td><strong>' + escapeHtml(v.companyName) + '</strong><br><span style="font-size:0.72rem;color:var(--gray-400);">' + escapeHtml(v.location || '') + '</span></td>' +
+          '<td>' + fmtDate(v.date) + '</td>' +
+          '<td>' + (v.studentCount || 0) + ' students' + (v.overnight ? ' (Overnight)' : '') + '</td>' +
+          '<td><span class="badge green">HOD Endorsed</span></td>' +
+          '<td><span class="badge blue">' + escapeHtml(v.stage || 'PRINCIPAL_REVIEW') + '</span></td>' +
+          '<td>' + actionCell + '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    async function actionPrincipalVisit(id, decision) {
+      const promptText = decision === 'APPROVED' ? 'Institutional Sanction Order / Remarks:' : 'Rejection Reason:';
+      const remarks = window.prompt(promptText, decision === 'APPROVED' ? 'Sanctioned and approved for academic travel.' : '');
+      if (decision === 'REJECTED' && remarks === null) return;
+
+      try {
+        await api('/industry/visits/' + id + '/principal-action', {
+          method: 'PUT',
+          body: { status: decision, remark: remarks || '' }
+        });
+        toast('Principal sanction submitted successfully.', 'success');
+        await loadPrincipalVisits();
+      } catch (err) {
+        toast(err.message, 'error');
+      }
+    }
+
+    async function loadPrincipalIndustryWidget() {
+      try {
+        const overview = await api('/industry/overview');
+        if (!overview) return;
+        setText('principalWidgetActiveMoUs', overview.activeMoUs || 0);
+        setText('principalWidgetExpiringMoUs', overview.expiringMoUsCount || 0);
+        setText('principalWidgetTotalCompanies', overview.totalCompanies || 0);
+        setText('principalWidgetStudentsInterning', overview.studentsInterningCount || 0);
+        setText('principalWidgetPendingVisits', overview.pendingVisitsCount || 0);
+
+        const listEl = document.getElementById('principalWidgetActivePartnersList');
+        if (listEl) {
+          listEl.innerHTML = 'Campus-wide Corporate Reach: <strong>' + (overview.activeMoUs || 0) + '</strong> active industry MoUs, ' +
+            '<strong>' + (overview.openInternshipsCount || 0) + '</strong> open student internship listings, and ' +
+            '<strong>' + (overview.pendingApprovalsCount || 0) + '</strong> institutional agreements in clearance pipeline.';
+        }
+      } catch (e) {
+        console.warn('Could not load Principal industry widget:', e);
+      }
+    }
+
+    /* 5. PLACEMENT OFFICER: SHARED COMPANIES DIRECTORY WITH placementReady FILTER */
+    async function loadPlacementCompanies() {
+      try {
+        const companies = await api('/industry/companies');
+        placementCompaniesCache = companies || [];
+
+        const readyCount = placementCompaniesCache.filter(function(c) { return !!c.placementReady; }).length;
+        const pipelineCount = placementCompaniesCache.length - readyCount;
+
+        setText('placementTotalCompaniesCount', placementCompaniesCache.length);
+        setText('placementReadyCompaniesCount', readyCount);
+        setText('placementPipelineCompaniesCount', pipelineCount);
+
+        filterPlacementCompanies();
+      } catch (e) {
+        console.warn('Could not load placement companies:', e);
+      }
+    }
+
+    function filterPlacementCompanies() {
+      const searchInp = document.getElementById('placementCompanySearch');
+      const q = searchInp ? searchInp.value.trim().toLowerCase() : '';
+      const filterSel = document.getElementById('placementReadyFilter');
+      const readyFilter = filterSel ? filterSel.value : 'READY';
+
+      let filtered = placementCompaniesCache;
+
+      if (readyFilter === 'READY') {
+        filtered = filtered.filter(function(c) { return !!c.placementReady; });
+      } else if (readyFilter === 'PIPELINE') {
+        filtered = filtered.filter(function(c) { return !c.placementReady; });
+      }
+
+      if (q) {
+        filtered = filtered.filter(function(c) {
+          return (c.name && c.name.toLowerCase().includes(q)) ||
+                 (c.sector && c.sector.toLowerCase().includes(q)) ||
+                 (c.city && c.city.toLowerCase().includes(q));
+        });
+      }
+
+      renderPlacementCompanies(filtered);
+    }
+
+    function renderPlacementCompanies(companies) {
+      const container = document.getElementById('placementCompaniesList');
+      if (!container) return;
+      if (!companies.length) {
+        container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:36px;color:var(--gray-400);">No companies match the selected criteria.</div>';
+        return;
+      }
+
+      container.innerHTML = companies.map(function(c) {
+        const isReady = !!c.placementReady;
+        const readyBadge = isReady
+          ? '<span class="badge green">Placement Ready</span>'
+          : '<span class="badge orange">Pipeline / In Progress</span>';
+
+        const logoInitials = escapeHtml((c.name || 'CP').slice(0, 3).toUpperCase());
+
+        return '<div class="company-card" style="display:flex;align-items:flex-start;gap:14px;background:var(--card-bg, #1e293b);padding:16px;border-radius:12px;border:1px solid var(--card-border, rgba(255,255,255,0.08));">' +
+          '<div class="drive-logo" style="width:48px;height:48px;border-radius:12px;flex-shrink:0;background:rgba(37,99,235,0.15);color:#3b82f6;display:flex;align-items:center;justify-content:center;font-weight:700;">' + logoInitials + '</div>' +
+          '<div style="flex:1;min-width:0;">' +
+            '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:4px;">' +
+              '<div style="font-weight:700;color:var(--white);font-size:0.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml(c.name) + '</div>' +
+              readyBadge +
+            '</div>' +
+            '<div style="font-size:0.75rem;color:var(--gray-400);margin-bottom:8px;">' +
+              escapeHtml(c.sector || 'Industry') + ' · ' + escapeHtml(c.city || 'Location N/A') +
+              (c.tier ? ' · ' + escapeHtml(c.tier) : '') +
+            '</div>' +
+            '<div style="font-size:0.73rem;color:var(--gray-300);line-height:1.4;">' +
+              (c.contactPerson ? '👤 ' + escapeHtml(c.contactPerson) + '<br>' : '') +
+              (c.contactEmail ? '✉️ ' + escapeHtml(c.contactEmail) : '') +
+            '</div>' +
+            '<div style="margin-top:10px;display:flex;gap:8px;font-size:0.72rem;color:var(--gray-400);">' +
+              '<span>' + (c.mouActive ? '📜 Active MoU' : '⚪ No MoU') + '</span>' +
+              '<span>· ' + (c.openInternshipsCount || 0) + ' Internships</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
     /* ══════════════════════ ADMIN ══════════════════════ */
     let adminState = { users: [] };
 
@@ -12485,6 +14067,9 @@
     }
 
     function roleBadge(role) {
+      if (role === 'INDUSTRIAL_CONNECT_HEAD') {
+        return '<span class="badge cyan" style="background:rgba(6,182,212,0.15);color:#06b6d4;border:1px solid rgba(6,182,212,0.3);">Industrial Connect Head</span>';
+      }
       const label = role ? (role.charAt(0) + role.slice(1).toLowerCase().replace(/_/g, ' ')) : '–';
       return '<span class="badge blue">' + escapeHtml(label) + '</span>';
     }
@@ -13627,10 +15212,10 @@
 
     // 1. Floating AI Assistant Widget
     function toggleAiChatModal() {
-      const isStudent = !!(authToken && currentUser && currentUser.role === 'STUDENT');
+      const isAllowed = !!(authToken && currentUser && (currentUser.role === 'STUDENT' || currentUser.role === 'INDUSTRIAL_CONNECT_HEAD'));
       const fab = document.getElementById('aiFabBtn');
       const modal = document.getElementById('aiChatModal');
-      if (!isStudent) {
+      if (!isAllowed) {
         if (fab) fab.style.display = 'none';
         if (modal) modal.style.display = 'none';
         return;
@@ -13639,10 +15224,32 @@
       const isOpen = modal.style.display === 'flex';
       modal.style.display = isOpen ? 'none' : 'flex';
       if (!isOpen) {
+        renderFloatingAiChips();
         setTimeout(function () {
           const inp = document.getElementById('floatingAiInput');
           if (inp) inp.focus();
         }, 100);
+      }
+    }
+
+    function renderFloatingAiChips() {
+      const chipsBar = document.getElementById('floatingAiChipsBar');
+      if (!chipsBar || !currentUser) return;
+      if (currentUser.role === 'INDUSTRIAL_CONNECT_HEAD') {
+        chipsBar.innerHTML =
+          '<button class="ai-chip-btn" onclick="quickAskFloatingAi(\'Which active MoUs are expiring soon?\')">📜 Expiring MoUs</button>' +
+          '<button class="ai-chip-btn" onclick="quickAskFloatingAi(\'What is the status of our partner companies?\')">🏢 Partner Companies</button>' +
+          '<button class="ai-chip-btn" onclick="quickAskFloatingAi(\'List open industry internships and applications\')">💼 Internships</button>' +
+          '<button class="ai-chip-btn" onclick="quickAskFloatingAi(\'Which industrial visits need clearance?\')">🚌 Pending Visits</button>' +
+          '<button class="ai-chip-btn" onclick="quickAskFloatingAi(\'Give me a corporate executive summary\')">📈 Executive Briefing</button>';
+      } else {
+        chipsBar.innerHTML =
+          '<button class="ai-chip-btn" onclick="quickAskFloatingAi(\'What is my current attendance?\')">📊 My Attendance</button>' +
+          '<button class="ai-chip-btn" onclick="quickAskFloatingAi(\'What is the status of my leave request?\')">📋 Leave Status</button>' +
+          '<button class="ai-chip-btn" onclick="quickAskFloatingAi(\'What open internships can I apply for?\')">💼 Internships</button>' +
+          '<button class="ai-chip-btn" onclick="quickAskFloatingAi(\'What is KTU 75% attendance rule?\')">🏛 KTU Rules</button>' +
+          '<button class="ai-chip-btn" onclick="quickAskFloatingAi(\'How are internal marks calculated out of 50?\')">📈 Internal Marks</button>' +
+          '<button class="ai-chip-btn" onclick="quickAskFloatingAi(\'How do I apply for Duty Leave?\')">📝 Duty Leave</button>';
       }
     }
 
@@ -14036,7 +15643,7 @@
       <span><strong>Disclaimer:</strong> Messages are recorded to monitor quality, train, and improve the AI agent.</span>
     </div>
 
-    <div class="ai-chips-bar">
+    <div class="ai-chips-bar" id="floatingAiChipsBar">
       <button class="ai-chip-btn" onclick="quickAskFloatingAi('What is my current attendance?')">📊 My Attendance</button>
       <button class="ai-chip-btn" onclick="quickAskFloatingAi('What is the status of my leave request?')">📋 Leave Status</button>
       <button class="ai-chip-btn" onclick="quickAskFloatingAi('What is KTU 75% attendance rule?')">🏛 KTU Rules</button>

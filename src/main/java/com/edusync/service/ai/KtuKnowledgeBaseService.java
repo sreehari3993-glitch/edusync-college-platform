@@ -94,7 +94,7 @@ public class KtuKnowledgeBaseService {
         }
 
         // 1. MOOC COURSES & CREDIT TRANSFER RULES
-        if (lower.contains("mooc") || lower.contains("nptel") || lower.contains("swayam") || lower.contains("online course")) {
+        if (lower.contains("mooc") || lower.contains("nptel") || lower.contains("swayam") || lower.contains("online course") || lower.contains("credit transfer") || lower.contains("moocs")) {
             String reply =
                     "### 🎓 KTU Regulations for MOOC Courses (NPTEL / SWAYAM)\n\n" +
                     "- **Duration Requirement:** MOOC courses must have a minimum duration of **12 to 14 weeks**.\n" +
@@ -113,7 +113,7 @@ public class KtuKnowledgeBaseService {
         }
 
         // 2. KTU 2024 CURRICULUM, CREDITS, PBL & CHALLENGE COURSES
-        if (lower.contains("2024 curriculum") || lower.contains("2024 scheme") || lower.contains("challenge course") || lower.contains("pbl") || lower.contains("ects") || lower.contains("course code")) {
+        if (lower.contains("2024 curriculum") || lower.contains("2024 scheme") || lower.contains("curriculum") || lower.contains("scheme") || lower.contains("challenge course") || lower.contains("pbl") || lower.contains("ects") || lower.contains("course code") || lower.contains("credit structure") || lower.contains("credits") || lower.contains("credit")) {
             String reply =
                     "### 📘 KTU B.Tech 2024 Curriculum Structure & Innovations\n\n" +
                     "**1. Total Credit Structure:**\n" +
@@ -140,7 +140,7 @@ public class KtuKnowledgeBaseService {
         }
 
         // 3. INTER-COLLEGE TRANSFER NORMS
-        if (lower.contains("college transfer") || lower.contains("inter college") || lower.contains("transfer to another college")) {
+        if (lower.contains("college transfer") || lower.contains("inter college") || lower.contains("inter-college") || lower.contains("transfer to another college") || lower.contains("college change") || lower.contains("transfer")) {
             String reply =
                     "### 🏫 KTU Inter-College Transfer Regulations (B.Tech 2019 Scheme)\n\n" +
                     "- **Eligibility Window:** Permitted only **just before the commencement of the 3rd Semester (S3)**.\n" +
@@ -183,7 +183,7 @@ public class KtuKnowledgeBaseService {
         }
 
         // 5. CGPA TO PERCENTAGE CONVERSION & GRADING
-        if (lower.contains("cgpa to percentage") || lower.contains("convert cgpa") || lower.contains("percentage formula") || lower.contains("grade point") || lower.contains("sgpa to percentage")) {
+        if (lower.contains("cgpa") || lower.contains("sgpa") || lower.contains("gpa") || lower.contains("percentage formula") || lower.contains("percentage") || lower.contains("grade point") || lower.contains("convert cgpa") || lower.contains("grading") || lower.contains("grade calculation") || lower.contains("cgpa to percentage") || lower.contains("sgpa to percentage")) {
             String reply =
                     "### 🎯 KTU Official CGPA / SGPA to Percentage Conversion Formulas\n\n" +
                     "| Regulation / Scheme | Official Percentage Formula |\n" +
@@ -257,7 +257,7 @@ public class KtuKnowledgeBaseService {
         }
 
         // 8. DUTY LEAVE & OD LETTER RULES
-        if (lower.contains("duty leave") || lower.contains("od letter") || lower.contains("on duty") || lower.contains("apply leave") || lower.contains("how to apply")) {
+        if (lower.contains("duty leave") || lower.contains("od letter") || lower.contains("on duty") || lower.contains("od") || lower.contains("apply leave") || lower.contains("how to apply") || lower.contains("leave application")) {
             String reply =
                     "### 📝 TKMIT Duty Leave & On-Duty (OD) Workflow\n\n" +
                     "Students representing the college in technical symposiums, hackathons, sports, or cultural fests can claim Duty Leave (OD).\n\n" +
@@ -278,7 +278,11 @@ public class KtuKnowledgeBaseService {
         }
 
         // 9. KTU ATTENDANCE & CONDONATION RULES
-        if (lower.contains("attendance rule") || lower.contains("condonation") || lower.contains("75%") || lower.contains("shortage") || lower.contains("medical leave") || lower.contains("menstrual")) {
+        if (lower.contains("attendance") || lower.contains("attendence") || lower.contains("attend") ||
+            lower.contains("condonation") || lower.contains("condone") || lower.contains("75%") ||
+            lower.contains("shortage") || lower.contains("medical leave") || lower.contains("menstrual") ||
+            lower.contains("bunk") || lower.contains("fe grade") || lower.contains("eligibility") ||
+            lower.matches(".*\\b(attendance|attendence|absent|present|shortage|bunking)\\b.*")) {
             String reply =
                     "### 🏛 APJ Abdul Kalam Technological University (KTU) Attendance Rules\n\n" +
                     "- **Minimum Regular Requirement:** **75%** attendance is compulsory in each registered course to write the End Semester Examination (ESE).\n" +
@@ -666,7 +670,7 @@ public class KtuKnowledgeBaseService {
         }
 
         // 25. KTU 75% ATTENDANCE REGULATION (GENERAL)
-        if (lower.contains("75% attendance") || lower.contains("attendance rule") || lower.contains("minimum attendance")) {
+        if (lower.contains("75% attendance") || lower.contains("attendance rule") || lower.contains("minimum attendance") || lower.contains("attendance") || lower.contains("attendence") || lower.contains("attend")) {
             String reply =
                     "### 📊 KTU 75% Mandatory Attendance Regulation\n\n" +
                     "Under APJ Abdul Kalam Technological University (KTU) regulations:\n\n" +

@@ -2,6 +2,7 @@ package com.edusync.controller;
 
 import com.edusync.dto.DriveFileDto;
 import com.edusync.model.Assignment;
+import com.edusync.model.StudyMaterial;
 import com.edusync.model.User;
 import com.edusync.repository.AssignmentRepository;
 import com.edusync.repository.AssignmentSubmissionRepository;
@@ -9,18 +10,27 @@ import com.edusync.repository.StudyMaterialRepository;
 import com.edusync.repository.UserRepository;
 import com.edusync.service.GoogleDriveService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.io.FileNotFoundException;
 import java.util.Optional;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 class FileUploadControllerTest {
@@ -43,11 +53,14 @@ class FileUploadControllerTest {
     @InjectMocks
     private FileUploadController fileUploadController;
 
+    private MockMvc mockMvc;
     private User student;
     private User faculty;
 
     @BeforeEach
     void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(fileUploadController).build();
+
         student = User.builder()
                 .id(1L)
                 .name("Arun Kumar")
@@ -72,7 +85,7 @@ class FileUploadControllerTest {
                 "file",
                 "sample_document.pdf",
                 "application/pdf",
-                "PDF content test bytes".getBytes()
+                "%PDF-1.4\nSample PDF document bytes".getBytes()
         );
 
         DriveFileDto mockResult = DriveFileDto.builder()
@@ -102,7 +115,7 @@ class FileUploadControllerTest {
                 "file",
                 "solution_code.pdf",
                 "application/pdf",
-                "Assignment solution pdf".getBytes()
+                "%PDF-1.4\nAssignment solution PDF".getBytes()
         );
 
         Assignment assignment = Assignment.builder()
@@ -139,7 +152,7 @@ class FileUploadControllerTest {
                 "file",
                 "Module3_Notes.pdf",
                 "application/pdf",
-                "Module 3 differential equations lecture notes".getBytes()
+                "%PDF-1.4\nModule 3 differential equations lecture notes".getBytes()
         );
 
         DriveFileDto mockResult = DriveFileDto.builder()
@@ -166,5 +179,95 @@ class FileUploadControllerTest {
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isSuccess());
         assertEquals("Module 3 Differential Equations", response.getBody().getData().getTitle());
+    }
+
+    @Test
+    @DisplayName("Fake PDF with HTML content must be rejected with 400 Bad Request")
+    void testUploadFakePdfWithHtmlContent_RejectedWith400() {
+        MockMultipartFile fakePdf = new MockMultipartFile(
+                "file",
+                "fake_invoice.pdf",
+                "application/pdf",
+                "<html><body><h1>This is an HTML page pretending to be a PDF</h1></body></html>".getBytes()
+        );
+
+        var response = fileUploadController.uploadFile(fakePdf, "ASSIGNMENT", student);
+
+        assertNotNull(response);
+        assertEquals(400, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertFalse(response.getBody().isSuccess());
+        assertTrue(response.getBody().getMessage().contains("magic bytes"));
+    }
+
+    @Test
+    @DisplayName("Disallowed file extension must be rejected with 400 Bad Request")
+    void testUploadDisallowedExtension_RejectedWith400() {
+        MockMultipartFile exeFile = new MockMultipartFile(
+                "file",
+                "malicious_tool.exe",
+                "application/octet-stream",
+                "MZ\0\0dummy executable content".getBytes()
+        );
+
+        var response = fileUploadController.uploadFile(exeFile, "ASSIGNMENT", student);
+
+        assertNotNull(response);
+        assertEquals(400, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertFalse(response.getBody().isSuccess());
+        assertTrue(response.getBody().getMessage().contains("allowed extension"));
+    }
+
+    @Test
+    @DisplayName("Duty leave certificate with non-strict extension must be rejected with 400")
+    void testUploadCertificateWithNonStrictExtension_RejectedWith400() {
+        MockMultipartFile docFile = new MockMultipartFile(
+                "file",
+                "certificate.docx",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "PK\0\0dummy docx content".getBytes()
+        );
+
+        var response = fileUploadController.uploadFile(docFile, "DUTY_LEAVE", student);
+
+        assertNotNull(response);
+        assertEquals(400, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertFalse(response.getBody().isSuccess());
+        assertTrue(response.getBody().getMessage().contains("MoU and certificate"));
+    }
+
+    @Test
+    @DisplayName("MockMvc: Download endpoint returns 200, Content-Type, Content-Disposition and file content")
+    void testDownloadFile_MockMvc_Success() throws Exception {
+        String fileId = "LOCAL_0123456789abcdef0123456789abcdef_Annual_Report.pdf";
+        byte[] fileData = "%PDF-1.4\nTest report data".getBytes();
+
+        when(googleDriveService.downloadFile(fileId)).thenReturn(fileData);
+
+        mockMvc.perform(get("/api/files/download/{fileId}", fileId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/octet-stream"))
+                .andExpect(header().string("Content-Disposition", containsString("attachment")))
+                .andExpect(header().string("Content-Disposition", containsString("Annual_Report.pdf")))
+                .andExpect(content().bytes(fileData));
+    }
+
+    @Test
+    @DisplayName("MockMvc: Download endpoint rejects path traversal sequences with 400 Bad Request")
+    void testDownloadFile_MockMvc_PathTraversal_RejectedWith400() throws Exception {
+        mockMvc.perform(get("/api/files/download/{fileId}", "..escaped_file.txt"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("MockMvc: Download endpoint returns 404 when file is not found")
+    void testDownloadFile_MockMvc_NotFound_Returns404() throws Exception {
+        String fileId = "LOCAL_nonexistent_file.pdf";
+        when(googleDriveService.downloadFile(fileId)).thenThrow(new FileNotFoundException("File not found"));
+
+        mockMvc.perform(get("/api/files/download/{fileId}", fileId))
+                .andExpect(status().isNotFound());
     }
 }

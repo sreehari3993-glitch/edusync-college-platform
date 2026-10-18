@@ -38,8 +38,14 @@ public class GoogleDriveService {
 
     private final RagService ragService;
 
-    @Value("${google.drive.folder-id:1pNjlidTeVa71u0FH4_-PBHhVG6jTtiI4}")
+    @Value("${google.drive.folder-id:${GOOGLE_DRIVE_FOLDER_ID:}}")
     private String folderId;
+
+    @Value("${google.drive.shared-drive-id:${google.drive.shared-folder-id:${GOOGLE_DRIVE_SHARED_DRIVE_ID:${GOOGLE_DRIVE_SHARED_FOLDER_ID:}}}}")
+    private String sharedDriveId;
+
+    @Value("${edusync.storage.local-fallback-dir:${LOCAL_STORAGE_FALLBACK_DIR:uploads/fallback}}")
+    private String localFallbackDir;
 
     @Value("${google.drive.credentials-path:credentials.json}")
     private String credentialsPath;
@@ -49,6 +55,13 @@ public class GoogleDriveService {
 
     private Drive driveService;
     private boolean isConfigured = false;
+
+    public String getEffectiveRootFolderId() {
+        if (sharedDriveId != null && !sharedDriveId.trim().isEmpty()) {
+            return sharedDriveId.trim();
+        }
+        return (folderId != null && !folderId.trim().isEmpty()) ? folderId.trim() : null;
+    }
 
     @PostConstruct
     public void init() {
@@ -76,12 +89,13 @@ public class GoogleDriveService {
                         .setApplicationName("EduSync-Campus-AI")
                         .build();
                 this.isConfigured = true;
-                log.info("☁️ [Google Drive] Successfully connected to Google Drive API (Target Folder: {})", folderId);
+                log.info("☁️ [Google Drive] Successfully connected to Google Drive API (Effective Root Parent: {}, Shared Drive Configured: {})",
+                        getEffectiveRootFolderId(), (sharedDriveId != null && !sharedDriveId.trim().isEmpty()));
                 
                 // Trigger initial sync in background
                 syncAll();
             } else {
-                log.info("ℹ️ [Google Drive] credentials.json not found in root directory. To enable auto-upload to Google Drive folder [{}], place your Google Service Account JSON file as 'credentials.json'.", folderId);
+                log.info("ℹ️ [Google Drive] credentials.json not found in root directory. To enable auto-upload to Google Drive folder [{}], place your Google Service Account JSON file as 'credentials.json'.", getEffectiveRootFolderId());
             }
         } catch (Exception e) {
             log.warn("⚠️ [Google Drive] Initialization notice: {}", e.getMessage());
@@ -172,7 +186,8 @@ public class GoogleDriveService {
     private List<String> downloadTrainingFilesFromDrive() {
         List<String> downloaded = new ArrayList<>();
         try {
-            String q = "'" + folderId + "' in parents and trashed = false";
+            String effectiveRootId = getEffectiveRootFolderId();
+            String q = "'" + effectiveRootId + "' in parents and trashed = false";
             FileList fileList = driveService.files().list()
                     .setQ(q)
                     .setSupportsAllDrives(true)
@@ -198,8 +213,8 @@ public class GoogleDriveService {
                         log.info("📥 [Google Drive] Downloading new training document: {} (ID: {})...", name, file.getId());
                         try (OutputStream out = new FileOutputStream(target.toFile())) {
                             driveService.files().get(file.getId())
-                                    .setSupportsAllDrives(true)
-                                    .executeMediaAndDownloadTo(out);
+                                     .setSupportsAllDrives(true)
+                                     .executeMediaAndDownloadTo(out);
                             downloaded.add(name);
                             log.info("✅ [Google Drive] Downloaded [{}] to ./ktu-docs/", name);
                         }
@@ -216,47 +231,158 @@ public class GoogleDriveService {
      * Creates or updates a file in the target Google Drive folder.
      */
     public void uploadOrUpdateFile(String fileName, String mimeType, byte[] data) throws Exception {
-        uploadFileToFolder(folderId, fileName, mimeType, data);
+        uploadFileToFolder(getEffectiveRootFolderId(), fileName, mimeType, data);
     }
 
     /**
      * Uploads a file into a specific named subfolder (e.g., "Assignments", "Study-Materials", "Duty-Leave-Certificates").
+     * If Google Drive upload fails (e.g. quota exceeded) or is unconfigured, automatically falls back to local storage.
      */
     public com.edusync.dto.DriveFileDto uploadFile(String subfolderName, String fileName, String mimeType, byte[] data) throws Exception {
-        if (!isConfigured || driveService == null) {
-            init();
+        try {
+            if (!isConfigured || driveService == null) {
+                init();
+            }
+            if (!isConfigured || driveService == null) {
+                throw new IllegalStateException("Google Drive service is not configured or credentials not found.");
+            }
+
+            String effectiveRootId = getEffectiveRootFolderId();
+            String targetParentId = effectiveRootId;
+            if (subfolderName != null && !subfolderName.trim().isEmpty()) {
+                targetParentId = getOrCreateSubfolder(subfolderName.trim());
+            }
+
+            File uploaded = uploadFileToFolder(targetParentId, fileName, mimeType, data);
+            String fileId = uploaded.getId();
+            String webView = uploaded.getWebViewLink() != null ? uploaded.getWebViewLink() : "https://drive.google.com/file/d/" + fileId + "/view";
+            String download = "https://drive.google.com/uc?id=" + fileId + "&export=download";
+
+            return com.edusync.dto.DriveFileDto.builder()
+                    .fileId(fileId)
+                    .fileName(fileName)
+                    .originalFileName(fileName)
+                    .mimeType(mimeType)
+                    .fileSize(data.length)
+                    .subfolder(subfolderName)
+                    .webViewLink(webView)
+                    .downloadUrl(download)
+                    .uploadedAt(java.time.LocalDateTime.now())
+                    .build();
+        } catch (Exception e) {
+            log.warn("⚠️ [Google Drive] Upload failed for file '{}' in subfolder '{}': {}. Falling back to local storage directory '{}'",
+                    fileName, subfolderName, e.getMessage(), localFallbackDir);
+            return saveToLocalFallback(subfolderName, fileName, mimeType, data);
         }
-
-        String targetParentId = folderId;
-        if (subfolderName != null && !subfolderName.trim().isEmpty()) {
-            targetParentId = getOrCreateSubfolder(subfolderName.trim());
-        }
-
-        File uploaded = uploadFileToFolder(targetParentId, fileName, mimeType, data);
-        String fileId = uploaded.getId();
-        String webView = uploaded.getWebViewLink() != null ? uploaded.getWebViewLink() : "https://drive.google.com/file/d/" + fileId + "/view";
-        String download = "https://drive.google.com/uc?id=" + fileId + "&export=download";
-
-        return com.edusync.dto.DriveFileDto.builder()
-                .fileId(fileId)
-                .fileName(fileName)
-                .originalFileName(fileName)
-                .mimeType(mimeType)
-                .fileSize(data.length)
-                .subfolder(subfolderName)
-                .webViewLink(webView)
-                .downloadUrl(download)
-                .uploadedAt(java.time.LocalDateTime.now())
-                .build();
     }
 
     /**
-     * Finds or creates a subfolder inside the root Google Drive folder.
+     * Fallback to local storage on disk when Google Drive upload fails or is unavailable.
+     */
+    /**
+     * Fallback to local storage on disk when Google Drive upload fails or is unavailable.
+     */
+    private com.edusync.dto.DriveFileDto saveToLocalFallback(String subfolderName, String fileName, String mimeType, byte[] data) {
+        try {
+            // Cap the incoming filename length before any filesystem operations
+            String cappedInputName = (fileName != null && !fileName.trim().isEmpty()) ? fileName.trim() : "file";
+            if (cappedInputName.length() > 500) {
+                cappedInputName = cappedInputName.substring(0, 500);
+            }
+
+            // Extract base name safely without directory components
+            String rawBase;
+            try {
+                Path p = Path.of(cappedInputName).getFileName();
+                rawBase = (p != null) ? p.toString() : "file";
+            } catch (Exception ex) {
+                int lastSep = Math.max(cappedInputName.lastIndexOf('/'), cappedInputName.lastIndexOf('\\'));
+                rawBase = (lastSep >= 0 && lastSep < cappedInputName.length() - 1) ? cappedInputName.substring(lastSep + 1) : "file";
+            }
+            if (rawBase.isBlank()) {
+                rawBase = "file";
+            }
+
+            // Replace every character outside [A-Za-z0-9._-] by "_"
+            String sanitized = rawBase.replaceAll("[^A-Za-z0-9._-]", "_");
+            while (sanitized.contains("..")) {
+                sanitized = sanitized.replace("..", "_");
+            }
+            if (sanitized.isBlank()) {
+                sanitized = "file";
+            }
+
+            // Truncate to 100 characters with original extension preserved
+            String finalBase;
+            int lastDot = sanitized.lastIndexOf('.');
+            if (lastDot > 0 && lastDot < sanitized.length() - 1) {
+                String ext = sanitized.substring(lastDot);
+                String namePart = sanitized.substring(0, lastDot);
+                if (ext.length() >= 100) {
+                    finalBase = ext.substring(0, 100);
+                } else if (namePart.length() + ext.length() > 100) {
+                    finalBase = namePart.substring(0, 100 - ext.length()) + ext;
+                } else {
+                    finalBase = namePart + ext;
+                }
+            } else {
+                finalBase = sanitized.length() > 100 ? sanitized.substring(0, 100) : sanitized;
+            }
+
+            String uuid = UUID.randomUUID().toString().replace("-", "");
+            String storedName = uuid + "_" + finalBase;
+            String localId = "LOCAL_" + storedName;
+
+            String safeSubfolder = (subfolderName != null && !subfolderName.trim().isEmpty())
+                    ? subfolderName.trim().replaceAll("[^a-zA-Z0-9_-]", "_")
+                    : "general";
+
+            Path fallbackRoot = Path.of(localFallbackDir).toAbsolutePath().normalize();
+            Path dir = fallbackRoot.resolve(safeSubfolder).normalize();
+            if (!dir.startsWith(fallbackRoot)) {
+                throw new SecurityException("Path traversal attempt detected in subfolder: " + subfolderName);
+            }
+            if (!Files.exists(dir)) {
+                Files.createDirectories(dir);
+            }
+
+            Path targetPath = dir.resolve(storedName).normalize();
+            if (!targetPath.startsWith(fallbackRoot)) {
+                throw new SecurityException("Path traversal attempt detected in file name: " + fileName);
+            }
+
+            Files.write(targetPath, data);
+
+            String downloadEndpointUrl = "/api/files/download/" + localId;
+
+            log.warn("⚠️ [Local Storage Fallback] Google Drive upload failed or unavailable. Storing file '{}' as '{}' ({} bytes) to local disk at '{}'",
+                    fileName, storedName, data.length, targetPath.toAbsolutePath());
+
+            return com.edusync.dto.DriveFileDto.builder()
+                    .fileId(localId)
+                    .fileName(finalBase)
+                    .originalFileName(fileName)
+                    .mimeType(mimeType)
+                    .fileSize(data.length)
+                    .subfolder(subfolderName)
+                    .webViewLink(downloadEndpointUrl)
+                    .downloadUrl(downloadEndpointUrl)
+                    .uploadedAt(java.time.LocalDateTime.now())
+                    .build();
+        } catch (Exception ex) {
+            log.error("❌ [Local Storage Fallback] Failed to save file locally: {}", ex.getMessage(), ex);
+            throw new RuntimeException("Both Google Drive upload and local storage fallback failed: " + ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * Finds or creates a subfolder inside the root Google Drive folder/Shared Drive.
      */
     public synchronized String getOrCreateSubfolder(String subfolderName) throws Exception {
-        if (driveService == null) return folderId;
+        String effectiveRootId = getEffectiveRootFolderId();
+        if (driveService == null) return effectiveRootId;
 
-        String q = "'" + folderId + "' in parents and name = '" + subfolderName.replace("'", "\\'") + "' and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
+        String q = "'" + effectiveRootId + "' in parents and name = '" + subfolderName.replace("'", "\\'") + "' and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
         FileList result = driveService.files().list()
                 .setQ(q)
                 .setSupportsAllDrives(true)
@@ -272,13 +398,13 @@ public class GoogleDriveService {
         File folderMetadata = new File();
         folderMetadata.setName(subfolderName);
         folderMetadata.setMimeType("application/vnd.google-apps.folder");
-        folderMetadata.setParents(Collections.singletonList(folderId));
+        folderMetadata.setParents(Collections.singletonList(effectiveRootId));
 
         File created = driveService.files().create(folderMetadata)
                 .setSupportsAllDrives(true)
                 .setFields("id, name")
                 .execute();
-        log.info("📁 [Google Drive] Created subfolder [{}] (ID: {}) in root folder [{}]", subfolderName, created.getId(), folderId);
+        log.info("📁 [Google Drive] Created subfolder [{}] (ID: {}) in root folder [{}]", subfolderName, created.getId(), effectiveRootId);
 
         try {
             com.google.api.services.drive.model.Permission perm = new com.google.api.services.drive.model.Permission()
@@ -339,16 +465,78 @@ public class GoogleDriveService {
         }
     }
 
+    private void validateFileIdentifier(String fileId) {
+        if (fileId == null || fileId.trim().isEmpty()) {
+            throw new IllegalArgumentException("File identifier cannot be empty");
+        }
+        if (fileId.contains("/") || fileId.contains("\\") || fileId.contains("..") || fileId.contains("\0")) {
+            throw new IllegalArgumentException("Invalid file identifier: directory traversal or null byte detected");
+        }
+    }
+
     /**
-     * Downloads file content as byte array by file ID.
+     * Downloads file content as byte array by file ID, checking Google Drive and local storage fallback.
      */
     public byte[] downloadFile(String fileId) throws Exception {
-        if (driveService == null) throw new IllegalStateException("Google Drive service not configured.");
-        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
-        driveService.files().get(fileId)
-                .setSupportsAllDrives(true)
-                .executeMediaAndDownloadTo(out);
-        return out.toByteArray();
+        validateFileIdentifier(fileId);
+
+        if (fileId != null && fileId.startsWith("LOCAL_")) {
+            return downloadFromLocalFallback(fileId);
+        }
+
+        try {
+            if (driveService != null) {
+                java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+                driveService.files().get(fileId)
+                        .setSupportsAllDrives(true)
+                        .executeMediaAndDownloadTo(out);
+                return out.toByteArray();
+            }
+        } catch (Exception e) {
+            log.warn("⚠️ [Google Drive] Download failed for fileId '{}': {}. Checking local storage fallback.", fileId, e.getMessage());
+            byte[] localData = tryFindInLocalFallback(fileId);
+            if (localData != null) {
+                return localData;
+            }
+            throw e;
+        }
+
+        byte[] localData = tryFindInLocalFallback(fileId);
+        if (localData != null) {
+            return localData;
+        }
+        throw new IllegalStateException("Google Drive service not configured and file not found in local storage.");
+    }
+
+    private byte[] downloadFromLocalFallback(String fileId) throws Exception {
+        byte[] data = tryFindInLocalFallback(fileId);
+        if (data != null) return data;
+        throw new java.io.FileNotFoundException("File not found in local storage fallback: " + fileId);
+    }
+
+    private byte[] tryFindInLocalFallback(String fileIdentifier) {
+        try {
+            validateFileIdentifier(fileIdentifier);
+            Path root = Path.of(localFallbackDir).toAbsolutePath().normalize();
+            if (!Files.exists(root)) return null;
+
+            try (var stream = Files.walk(root)) {
+                Optional<Path> match = stream
+                        .filter(Files::isRegularFile)
+                        .filter(p -> {
+                            String pName = p.getFileName().toString();
+                            // Exact matching on the identifier (LOCAL_ + stored name or exact stored name)
+                            return fileIdentifier.equals("LOCAL_" + pName) || fileIdentifier.equals(pName);
+                        })
+                        .findFirst();
+                if (match.isPresent()) {
+                    return Files.readAllBytes(match.get());
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception ignored) {}
+        return null;
     }
 
     public boolean isConfigured() {
@@ -357,5 +545,13 @@ public class GoogleDriveService {
 
     public String getFolderId() {
         return folderId;
+    }
+
+    public String getSharedDriveId() {
+        return sharedDriveId;
+    }
+
+    public String getLocalFallbackDir() {
+        return localFallbackDir;
     }
 }

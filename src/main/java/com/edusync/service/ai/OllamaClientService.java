@@ -57,14 +57,23 @@ public class OllamaClientService {
     public String queryOllamaModel(String modelName, String prompt) {
         try {
             HttpClient client = HttpClient.newBuilder()
-                    .connectTimeout(Duration.ofSeconds(3))
+                    .connectTimeout(Duration.ofSeconds(4))
                     .build();
 
             ObjectNode payload = OBJECT_MAPPER.createObjectNode();
             payload.put("model", modelName);
-            payload.put("system", SYSTEM_PROMPT);
+            // edusync-ai has its comprehensive KTU knowledge base system prompt baked into its Modelfile.
+            // Only set fallback system prompt for generic base models like llama3.
+            if (!modelName.equalsIgnoreCase(primaryModel)) {
+                payload.put("system", SYSTEM_PROMPT);
+            }
             payload.put("prompt", prompt);
             payload.put("stream", false);
+
+            ObjectNode options = OBJECT_MAPPER.createObjectNode();
+            options.put("num_predict", 600);
+            options.put("temperature", 0.4);
+            payload.set("options", options);
 
             String jsonBody = OBJECT_MAPPER.writeValueAsString(payload);
 
@@ -73,7 +82,7 @@ public class OllamaClientService {
             HttpRequest req = HttpRequest.newBuilder()
                     .uri(URI.create(endpoint))
                     .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(30))
+                    .timeout(Duration.ofSeconds(180))
                     .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .build();
 

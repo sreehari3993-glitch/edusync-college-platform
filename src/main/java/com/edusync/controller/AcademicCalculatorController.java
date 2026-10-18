@@ -38,7 +38,7 @@ public class AcademicCalculatorController {
         String targetGrade = (String) body.getOrDefault("targetGrade", "A");
 
         var result = calculatorService.predictEseRequired(subject, internalMarks, targetGrade);
-        return ResponseEntity.ok(AppDto.ApiResponse.ok(result));
+        return ResponseEntity.ok(AppDto.ApiResponse.ok("Grade prediction computed", result));
     }
 
     /**
@@ -55,7 +55,7 @@ public class AcademicCalculatorController {
         long attended = Long.parseLong(body.getOrDefault("additionalAttended", 0).toString());
 
         var result = calculatorService.simulateAttendance(subject, currentPresent, currentTotal, missed, attended);
-        return ResponseEntity.ok(AppDto.ApiResponse.ok(result));
+        return ResponseEntity.ok(AppDto.ApiResponse.ok("Attendance simulation completed", result));
     }
 
     /**
@@ -78,7 +78,7 @@ public class AcademicCalculatorController {
 
         try {
             var overview = calculatorService.getStudentAcademicOverview(resolvedId);
-            return ResponseEntity.ok(AppDto.ApiResponse.ok(overview));
+            return ResponseEntity.ok(AppDto.ApiResponse.ok("Student academic overview retrieved", overview));
         } catch (Exception e) {
             log.warn("Could not fetch full academic overview for student {}: {}", resolvedId, e.getMessage());
             return ResponseEntity.badRequest().body(AppDto.ApiResponse.error(e.getMessage()));

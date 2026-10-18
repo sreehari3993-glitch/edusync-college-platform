@@ -99,6 +99,7 @@ public class User {
         HOD,
         PRINCIPAL,
         PLACEMENT_OFFICER,
-        ADMIN
+        ADMIN,
+        INDUSTRIAL_CONNECT_HEAD
     }
 }

@@ -300,7 +300,25 @@ CASE STUDY 12: REAL-TIME DATE, DAY, CALENDAR & CONVERSATIONAL QUERIES
   - Formats: "Today is Tuesday, September 1, 2026 (04:48 AM IST)" with helpful academic contextual shortcuts to the student Timetable, working hours (09:00 AM to 04:15 PM), and campus calendar.
   - Handles courtesy queries (thank you, goodbye, about EduSync) warmly with smart action recommendations.
 
+CASE STUDY 13: CASUAL RESPONSES, CONVERSATIONAL CLOSURE & DISMISSAL HANDLING
+• User Queries: "nothing", "not much", "nothing much", "nothing special", "no", "nope", "nah", "no thanks", "no need", "i'm good", "all good", "i am good", "never mind", "nvm", "leave it", "ok", "okay", "cool", "sure", "got it", "alright"
+• Context:
+  - Often occurs as a student's natural reply when the assistant asks a proactive question (e.g. "How are you doing today? What can I help you with?" -> student replies "nothing" or "i'm good" or "ok").
+• Incorrect Initial Agent Behavior:
+  - Treated casual acknowledgments or dismissals ("nothing", "no", "ok") as academic queries.
+  - Displayed "Processing query with campus knowledge engine... ⚡" and triggered expensive RAG vector searches or printed syllabus fallback menus.
+• Correct Agent Behavior & Grounding:
+  - Intercepted instantly in `AiService.resolveConversationalQuery(...)` before RAG or LLM dispatch.
+  - Returns a natural, polite, friendly conversational closure within milliseconds:
+    * For "nothing" / "not much" / "nothing for now": "No problem at all! 😊 Take your time. Whenever you need to check your attendance, look up KTU rules, or prepare for campus drives, I'll be right here! Have a great day ahead!"
+    * For "no" / "nope" / "no thanks" / "no need": "Understood! 👍 Feel free to reach out whenever you need any help with your college academics, attendance, or campus activities. Enjoy your day!"
+    * For "i'm good" / "all good": "Glad to hear that! 😄 Keep up the great energy. Whenever you're ready to check your attendance %, internal marks, or placement drives, I'm here to help!"
+    * For "never mind" / "nvm" / "leave it": "No worries! 😊 Whenever something comes up—whether it's attendance, internal marks, or KTU regulations—just ask anytime!"
+    * For "ok" / "cool" / "sure" / "got it": "Awesome! 👍 Let me know whenever you need anything else—like attendance tracking, syllabus details, or exam rules."
+  - Always provides intuitive suggested action pills ("Check my attendance", "What is KTU attendance rule?", "Upcoming placement drives") so the student can seamlessly resume without re-typing.
+
 ================================================================================
                    END OF CAMPUS AI MASTER TRAINING GUIDE
 ================================================================================
+
 

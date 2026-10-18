@@ -442,4 +442,178 @@ public class PdfService {
         c.setBorderColor(BORDER_COLOR);
         return c;
     }
+
+    /**
+     * Generates an Industry Engagement & Partnership Report PDF (MoU, Internship, or Visit).
+     */
+    public byte[] generateIndustryReportPdf(String type, List<?> records) {
+        if ("mou".equalsIgnoreCase(type) || "mous".equalsIgnoreCase(type)) {
+            @SuppressWarnings("unchecked")
+            List<IndustryMou> mous = (List<IndustryMou>) records;
+            return generateMouReportPdf(mous);
+        } else if ("internship".equalsIgnoreCase(type) || "internships".equalsIgnoreCase(type)) {
+            @SuppressWarnings("unchecked")
+            List<Internship> internships = (List<Internship>) records;
+            return generateInternshipReportPdf(internships);
+        } else if ("visit".equalsIgnoreCase(type) || "visits".equalsIgnoreCase(type)) {
+            @SuppressWarnings("unchecked")
+            List<IndustryVisit> visits = (List<IndustryVisit>) records;
+            return generateVisitReportPdf(visits);
+        } else {
+            throw new IllegalArgumentException("Unsupported report type: " + type);
+        }
+    }
+
+    public byte[] generateMouReportPdf(List<IndustryMou> mous) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        Document document = new Document(PageSize.A4.rotate(), 28, 28, 28, 28);
+        try {
+            PdfWriter.getInstance(document, out);
+            document.open();
+
+            Paragraph inst = new Paragraph("TKM INSTITUTE OF TECHNOLOGY, KOLLAM", FONT_INSTITUTION);
+            inst.setAlignment(Element.ALIGN_CENTER);
+            document.add(inst);
+
+            Paragraph title = new Paragraph("INDUSTRY MEMORANDUMS OF UNDERSTANDING (MoUs) REPORT", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, NAVY));
+            title.setAlignment(Element.ALIGN_CENTER);
+            document.add(title);
+
+            Paragraph sub = new Paragraph("Generated on: " + LocalDateTime.now().format(DATE_TIME_FMT) + " | Industrial Connect Head Office", FONT_SUBTITLE);
+            sub.setAlignment(Element.ALIGN_CENTER);
+            sub.setSpacingAfter(10);
+            document.add(sub);
+
+            PdfPTable table = new PdfPTable(7);
+            table.setWidthPercentage(100);
+            table.setWidths(new float[]{6, 18, 22, 12, 18, 10, 14});
+
+            String[] headers = {"#", "Company", "Title", "Signed Date", "Valid Range", "Status", "Departments"};
+            for (String h : headers) {
+                PdfPCell cell = new PdfPCell(new Phrase(h, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, Color.WHITE)));
+                cell.setBackgroundColor(NAVY);
+                cell.setPadding(5);
+                table.addCell(cell);
+            }
+
+            for (IndustryMou m : mous) {
+                table.addCell(createBodyCell(String.valueOf(m.getId())));
+                table.addCell(createBodyCell(m.getCompany() != null ? m.getCompany().getName() : "–"));
+                table.addCell(createBodyCell(m.getTitle()));
+                table.addCell(createBodyCell(m.getSignedDate() != null ? m.getSignedDate().format(DATE_FMT) : "–"));
+                table.addCell(createBodyCell((m.getValidFrom() != null ? m.getValidFrom().toString() : "–") + " to " + (m.getValidTo() != null ? m.getValidTo().toString() : "–")));
+                table.addCell(createBodyCell(m.getStatus() != null ? m.getStatus().name() : "–"));
+                table.addCell(createBodyCell(m.getDepartments() != null ? m.getDepartments() : "All"));
+            }
+
+            document.add(table);
+            document.close();
+        } catch (Exception e) {
+            throw new FileProcessingException("Failed to generate MoU Report PDF: " + e.getMessage(), e);
+        }
+        return out.toByteArray();
+    }
+
+    public byte[] generateInternshipReportPdf(List<Internship> internships) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        Document document = new Document(PageSize.A4.rotate(), 28, 28, 28, 28);
+        try {
+            PdfWriter.getInstance(document, out);
+            document.open();
+
+            Paragraph inst = new Paragraph("TKM INSTITUTE OF TECHNOLOGY, KOLLAM", FONT_INSTITUTION);
+            inst.setAlignment(Element.ALIGN_CENTER);
+            document.add(inst);
+
+            Paragraph title = new Paragraph("CAMPUS INTERNSHIP OPPORTUNITIES REPORT", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, NAVY));
+            title.setAlignment(Element.ALIGN_CENTER);
+            document.add(title);
+
+            Paragraph sub = new Paragraph("Generated on: " + LocalDateTime.now().format(DATE_TIME_FMT) + " | Industrial Connect Head Office", FONT_SUBTITLE);
+            sub.setAlignment(Element.ALIGN_CENTER);
+            sub.setSpacingAfter(10);
+            document.add(sub);
+
+            PdfPTable table = new PdfPTable(9);
+            table.setWidthPercentage(100);
+            table.setWidths(new float[]{5, 18, 20, 10, 11, 8, 7, 9, 12});
+
+            String[] headers = {"#", "Company", "Title", "Duration", "Stipend", "Mode", "Seats", "Status", "Departments"};
+            for (String h : headers) {
+                PdfPCell cell = new PdfPCell(new Phrase(h, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, Color.WHITE)));
+                cell.setBackgroundColor(NAVY);
+                cell.setPadding(5);
+                table.addCell(cell);
+            }
+
+            for (Internship i : internships) {
+                table.addCell(createBodyCell(String.valueOf(i.getId())));
+                table.addCell(createBodyCell(i.getCompany() != null ? i.getCompany().getName() : "–"));
+                table.addCell(createBodyCell(i.getTitle()));
+                table.addCell(createBodyCell(i.getDuration() != null ? i.getDuration() : "–"));
+                table.addCell(createBodyCell(i.getStipend() != null ? i.getStipend() : "–"));
+                table.addCell(createBodyCell(i.getMode() != null ? i.getMode() : "–"));
+                table.addCell(createBodyCell(i.getSeats() != null ? String.valueOf(i.getSeats()) : "–"));
+                table.addCell(createBodyCell(i.getStatus() != null ? i.getStatus().name() : "–"));
+                table.addCell(createBodyCell(i.getDepartments() != null ? i.getDepartments() : "All"));
+            }
+
+            document.add(table);
+            document.close();
+        } catch (Exception e) {
+            throw new FileProcessingException("Failed to generate Internship Report PDF: " + e.getMessage(), e);
+        }
+        return out.toByteArray();
+    }
+
+    public byte[] generateVisitReportPdf(List<IndustryVisit> visits) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        Document document = new Document(PageSize.A4.rotate(), 28, 28, 28, 28);
+        try {
+            PdfWriter.getInstance(document, out);
+            document.open();
+
+            Paragraph inst = new Paragraph("TKM INSTITUTE OF TECHNOLOGY, KOLLAM", FONT_INSTITUTION);
+            inst.setAlignment(Element.ALIGN_CENTER);
+            document.add(inst);
+
+            Paragraph title = new Paragraph("INDUSTRIAL VISITS & FIELD TOURS REPORT", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, NAVY));
+            title.setAlignment(Element.ALIGN_CENTER);
+            document.add(title);
+
+            Paragraph sub = new Paragraph("Generated on: " + LocalDateTime.now().format(DATE_TIME_FMT) + " | Industrial Connect Head Office", FONT_SUBTITLE);
+            sub.setAlignment(Element.ALIGN_CENTER);
+            sub.setSpacingAfter(10);
+            document.add(sub);
+
+            PdfPTable table = new PdfPTable(8);
+            table.setWidthPercentage(100);
+            table.setWidths(new float[]{5, 18, 12, 16, 11, 8, 14, 16});
+
+            String[] headers = {"#", "Company", "Department", "Proposer", "Date", "Students", "Stage", "Status"};
+            for (String h : headers) {
+                PdfPCell cell = new PdfPCell(new Phrase(h, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, Color.WHITE)));
+                cell.setBackgroundColor(NAVY);
+                cell.setPadding(5);
+                table.addCell(cell);
+            }
+
+            for (IndustryVisit v : visits) {
+                table.addCell(createBodyCell(String.valueOf(v.getId())));
+                table.addCell(createBodyCell(v.getCompany() != null ? v.getCompany().getName() : "–"));
+                table.addCell(createBodyCell(v.getDepartment() != null ? v.getDepartment() : "–"));
+                table.addCell(createBodyCell(v.getProposedBy() != null ? v.getProposedBy().getName() : "–"));
+                table.addCell(createBodyCell(v.getDate() != null ? v.getDate().toString() : "–"));
+                table.addCell(createBodyCell(v.getStudentCount() != null ? String.valueOf(v.getStudentCount()) : "–"));
+                table.addCell(createBodyCell(v.getStage() != null ? v.getStage().name() : "–"));
+                table.addCell(createBodyCell(v.getStatus() != null ? v.getStatus().name() : "–"));
+            }
+
+            document.add(table);
+            document.close();
+        } catch (Exception e) {
+            throw new FileProcessingException("Failed to generate Industrial Visit Report PDF: " + e.getMessage(), e);
+        }
+        return out.toByteArray();
+    }
 }
